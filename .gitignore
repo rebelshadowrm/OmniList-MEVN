@@ -126,3 +126,7 @@ dist
 .yarn/install-state.gz
 .pnp.*
 .idea/vcs.xml
+.idea/httpRequests/2022-03-07T211933.200.json
+.idea/httpRequests/http-client.cookies
+.idea/httpRequests/http-requests-log.http
+.idea/workspace.xml
