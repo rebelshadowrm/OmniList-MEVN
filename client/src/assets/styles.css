@@ -1,0 +1,184 @@
+@import url('https://fonts.googleapis.com/css2?family=Azeret+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Bitter:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Montserrat:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+/* Box sizing rules */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+html {
+    scroll-behavior: smooth;
+}
+/* Remove default padding */
+ul[class],
+ol[class] {
+    padding: 0;
+}
+
+/* Remove default margin */
+body,
+h1,
+h2,
+h3,
+h4,
+p,
+ul[class],
+ol[class],
+li,
+figure,
+figcaption,
+blockquote,
+dl,
+dd {
+    margin: 0;
+}
+
+/* Set core body defaults */
+body {
+    min-height: 100vh;
+    text-rendering: optimizeSpeed;
+    line-height: 1.5;
+}
+
+/* Remove list styles on ul, ol elements with a class attribute */
+ul[class],
+ol[class] {
+    list-style: none;
+}
+
+/* A elements that don't have a class get default styles */
+a:not([class]) {
+    text-decoration-skip-ink: auto;
+}
+
+/* Make images easier to work with */
+img {
+    max-width: 100%;
+    display: block;
+}
+
+/* Natural flow and rhythm in articles by default */
+article > * + * {
+    margin-top: 1em;
+}
+
+/* Inherit fonts for inputs and buttons */
+input,
+button,
+textarea,
+select {
+    font: inherit;
+}
+
+/* Remove all animations and transitions for people that prefer not to see them */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+/* readability length */
+p {
+    max-width: 65ch;
+}
+
+:root {
+    --clr-black-200: 0 0% 40%;
+    --clr-black-400: 0 0% 30%;
+    --clr-black-600: 0 0% 20%;
+    --clr-black-800: 0 0% 10%;
+
+    --clr-white-200: 0 0% 95%;
+    --clr-white-400: 0 0% 85%;
+    --clr-white-600: 0 0% 75%;
+    --clr-white-800: 0 0% 65%;
+
+    /*TODO: Add primary/secondary */
+    --clr-primary-400: var(--clr-black-800);
+    --clr-secondary-400: var(--clr-white-800);
+
+
+    --ff-primary: 'Montserrat', sans-serif;
+    --ff-mono: 'Azeret Mono', monospace;
+    --ff-serif: 'Bitter', serif;
+
+    --txt-small: .75rem;
+    --txt-small-fluid: clamp(.5rem, calc(10px + 1vmin), .75rem );
+    --txt-med: 1.25rem;
+    --txt-med-fluid: clamp(1rem, 3vw, 1.5rem);
+    --txt-lrg: 1.85rem;
+    --txt-lrg-fluid: clamp(1.75rem, 4vw, 2.5rem );
+    --txt-xlrg: 3.5rem;
+    --txt-xlrg-fluid: clamp(2.5rem, 10vw, 6rem );
+    --txt-xxl-fluid: clamp(4rem, 20vw, 12rem );
+
+    --radius: 20px;
+
+    --clr-bg: hsl(var(--clr-black-800));
+    --clr-text: hsl(var(--clr-white-400));
+    --clr-border: hsl(var(--clr-white-800));
+}
+
+/*********************************************************************
+                            SCROLL BAR STYLE
+********************************************************************/
+/* Chrome / Safari */
+::-webkit-scrollbar {
+    display: block;
+    width: 0.5rem;
+    height: 0.45rem;
+}
+
+::-webkit-scrollbar-track {
+    background: hsl(var(--clr-primary-400));
+}
+
+::-webkit-scrollbar-thumb {
+    border-radius: 100vh;
+    background: hsl(var(--clr-secondary-400));
+}
+
+::-webkit-scrollbar-corner {
+    background: hsl(var(--clr-secondary-400));
+}
+
+/* Firefox --Early module, not as many options  */
+html {
+    scrollbar-color: hsl(var(--clr-primary-400)) hsl(var(--clr-secondary-400));
+    scrollbar-width: thin;
+}
+
+/*********************************************************************
+                                BODY
+********************************************************************/
+
+body {
+    background-color: var(--clr-bg);
+    color: var(--clr-text);
+    font-family: var(--ff-primary);
+    line-height: 1.5;
+}
+#app {
+    display: grid;
+    min-height: 100vh;
+    grid-template-rows: max-content 1fr max-content;
+    grid-template-areas:
+      'header'
+      'main'
+      'footer';
+}
+header {
+    grid-area: header;
+}
+main {
+    grid-area: main;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+footer {
+    grid-area: footer;
+}
+

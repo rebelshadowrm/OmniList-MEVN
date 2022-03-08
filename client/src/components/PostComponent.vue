@@ -58,6 +58,7 @@ export default {
 div.container {
   max-width: 800px;
   margin: 0 auto;
+  width: 100%;
 }
 
 p.error {
@@ -86,6 +87,8 @@ div.created-at {
 }
 
 p.text {
+  text-align: right;
+  color: hsl(var(--clr-black-800));
   font-size: 22px;
   font-weight: 700;
   margin-bottom: 0;
