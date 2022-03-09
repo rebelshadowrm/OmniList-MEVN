@@ -136,3 +136,5 @@ dist
 .idea/workspace.xml
 .idea/misc.xml
 .idea/jsLibraryMappings.xml
+omnilist-mevn.iml
+.idea/modules.xml
