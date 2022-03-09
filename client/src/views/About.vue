@@ -2,16 +2,16 @@
   <div class="container">
     <h1>About the project</h1>
     <dl>
-      <dt>The
+      <dt>
         <span class="mongo">M</span>
         <span class="express">E</span>
         <span class="vue">V</span>
         <span class="node">N</span>
         Stack</dt>
-      <dd class="mongo">Mongo DB <img src="https://img.icons8.com/color/48/000000/mongodb.png"/></dd>
-      <dd class="express">Express.js <img src="../assets/expressjs-icon.svg" alt=""></dd>
-      <dd class="vue">Vue (Vite) <img src="https://img.icons8.com/external-tal-revivo-shadow-tal-revivo/24/000000/external-vuejs-an-open-source-javascript-framework-for-building-user-interfaces-and-single-page-applications-logo-shadow-tal-revivo.png"/></dd>
-      <dd class="node">Node <img src="../assets/nodejs-horizontal.svg"/></dd>
+      <dd class="mongo"><img alt="mongo" src="../assets/mongodb.png"/>Mongo DB</dd>
+      <dd class="express"><img alt="express" src="../assets/expressjs.svg">Express.js</dd>
+      <dd class="vue"><img alt="vue" src="../assets/vue.svg"/>Vue + Vite<img alt="vite" src="../assets/vite.svg"></dd>
+      <dd class="node"><img alt="node" src="../assets/node.svg"/>Node</dd>
     </dl>
   </div>
 </template>
@@ -30,7 +30,7 @@ export default {
   gap: 2rem;
 }
 h1 {
-  font-size: var(--txt-xlrg);
+  font-size: var(--txt-xlrg-fluid);
   border-bottom: 1px solid hsl(var(--clr-white-200));
 }
 dl {
@@ -54,17 +54,13 @@ dd {
 dd img {
   display: inline-block;
   aspect-ratio: 1;
-  height: 2rem;
+  height: 3rem;
 }
 .mongo {
   color: #4DB33D;
 }
 .node {
   color: #68A063;
-}
-.node img {
-  aspect-ratio: unset;
-  height: 3rem;
 }
 .vue {
   color: #41B883;

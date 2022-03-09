@@ -1,5 +1,7 @@
 const express = require('express')
 const mongodb = require('mongodb')
+const dotenv = require("dotenv")
+dotenv.config()
 
 
 const router = express.Router()
@@ -28,7 +30,7 @@ router.delete('/:id', async (req, res) => {
 });
 
 async function loadPostsCollection() {
-    const uri = "mongodb+srv://OmniList:Password123@omnilist.dwbjx.mongodb.net";
+    const uri = `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@omnilist.dwbjx.mongodb.net`
     const client = await mongodb.MongoClient.connect(uri, {
         useNewUrlParser: true
     })
