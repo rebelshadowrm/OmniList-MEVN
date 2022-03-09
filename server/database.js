@@ -2,7 +2,7 @@ const mongoose = require('mongoose')
 const dotenv = require("dotenv")
 dotenv.config()
 
-const uri = `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@omnilist.dwbjx.mongodb.net?retryWrites=true&w=majority`
+const uri = `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@omnilist.dwbjx.mongodb.net/omnilist?retryWrites=true&w=majority`
 
 class Database {
     constructor() {
