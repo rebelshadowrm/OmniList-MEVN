@@ -20,3 +20,9 @@ jobs:
         run: npm install
       - name: Vite Build
         run: npm run build
+      - name: commit project
+        run: |
+          git config --global user.name 'rebelshadowrm'
+          git config --global user.email 'rebelshadowrm@gmail.com'
+          git commit -am "Automated build"
+          git push
