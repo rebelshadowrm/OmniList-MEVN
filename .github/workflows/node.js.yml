@@ -1,23 +1,21 @@
 
 name: Vite Ci
+
 on:
   push:
     branches: [ main ]
   pull_request:
     branches: [ main ]
+    
 jobs:
-  build:
+  install:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: client
     steps:
-      - name: Install dependencies
       - uses: actions/setup-node@v2
-        with:
-          node-version: '16'
-      - run: npm install
-      
-      - name: vite build
+      - name: Install dependencies
+        run: npm install
+        working-directory: client
       - uses: actions/checkout@v2
-      - run: vite build --if-present
+      - name: Vite Build
+        run: vite build --if-present
+        working-directory: client
