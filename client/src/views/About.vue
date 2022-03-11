@@ -8,7 +8,7 @@
         <span class="vue">V</span>
         <span class="node">N</span>
         Stack</dt>
-      <dd class="mongo"><img alt="mongo" src="../assets/mongodb.png"/>Mongo DB</dd>
+      <dd class="mongo"><img alt="mongo" src="../assets/mongodb.png"/>Mongo DB<span class="mongoose">+ Mongoose<img alt="mongoose" src="../assets/mongoose.png"></span></dd>
       <dd class="express"><img alt="express" src="../assets/expressjs.svg">Express.js</dd>
       <dd class="vue"><img alt="vue" src="../assets/vue.svg"/>Vue + Vite<img alt="vite" src="../assets/vite.svg"></dd>
       <dd class="node"><img alt="node" src="../assets/node.svg"/>Node</dd>
@@ -58,6 +58,18 @@ dd img {
 }
 .mongo {
   color: #4DB33D;
+}
+.mongoose {
+  color: #880000;
+  align-self: center;
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: row;
+  margin-left: -.25rem;
+}
+.mongoose img{
+  aspect-ratio: unset;
+  height: 2rem;
 }
 .node {
   color: #68A063;
