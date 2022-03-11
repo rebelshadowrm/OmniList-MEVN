@@ -12,7 +12,7 @@
       <dd class="express"><img alt="express" src="../assets/expressjs.svg">Express.js</dd>
       <dd class="vue"><img alt="vue" src="../assets/vue.svg"/>Vue + Vite<img alt="vite" src="../assets/vite.svg"></dd>
       <dd class="node"><img alt="node" src="../assets/node.svg"/>Node</dd>
-    </dl> 
+    </dl>
   </div>
 </template>
 
