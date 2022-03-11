@@ -12,8 +12,12 @@ jobs:
       run:
         working-directory: client
     steps:
-      - uses: actions/checkout@v2
       - name: Install dependencies
-        run: npm install
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+      - run: npm install
+      
       - name: vite build
+      - uses: actions/checkout@v2
       - run: vite build --if-present
