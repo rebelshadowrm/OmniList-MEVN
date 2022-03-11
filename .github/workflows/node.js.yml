@@ -26,10 +26,8 @@ jobs:
           git config --global user.email 'rebelshadowrm@gmail.com'
           git commit -am "Automated build"
           git push
-      - uses: actions/checkout@v2
       - uses: akhileshns/heroku-deploy@v3.12.12 # This is the action
         with:
           heroku_api_key: ${{secrets.HEROKU_API_KEY}}
           heroku_app_name: "omnilist-mevn" #Must be unique in Heroku
           heroku_email: "rebelshadowrm@gmail.com"
-          appdir: "server"
