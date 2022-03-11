@@ -24,7 +24,7 @@ jobs:
         run: |
           git config --global user.name 'rebelshadowrm'
           git config --global user.email 'rebelshadowrm@gmail.com'
-          git commit -am "Automated build"
+          git commit -am "Automated build" || echo "No changes to commit"
           git push
       - uses: akhileshns/heroku-deploy@v3.12.12 # This is the action
         with:
