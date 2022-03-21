@@ -1,13 +1,12 @@
 @import url('https://fonts.googleapis.com/css2?family=Azeret+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Bitter:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Montserrat:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
 /* Box sizing rules */
 *,
 *::before,
 *::after {
     box-sizing: border-box;
 }
-html {
-    scroll-behavior: smooth;
-}
+
 /* Remove default padding */
 ul[class],
 ol[class] {
@@ -30,13 +29,6 @@ blockquote,
 dl,
 dd {
     margin: 0;
-}
-
-/* Set core body defaults */
-body {
-    min-height: 100vh;
-    text-rendering: optimizeSpeed;
-    line-height: 1.5;
 }
 
 /* Remove list styles on ul, ol elements with a class attribute */
@@ -85,10 +77,11 @@ p {
 }
 
 :root {
-    --clr-black-200: 0 0% 40%;
-    --clr-black-400: 0 0% 30%;
-    --clr-black-600: 0 0% 20%;
-    --clr-black-800: 0 0% 10%;
+    /* Basic greyscale colors */
+    --clr-black-200: 0 0% 24%;
+    --clr-black-400: 0 0% 18%;
+    --clr-black-600: 0 0% 12%;
+    --clr-black-800: 0 0% 6%;
 
     --clr-white-200: 0 0% 95%;
     --clr-white-400: 0 0% 85%;
@@ -96,14 +89,92 @@ p {
     --clr-white-800: 0 0% 65%;
 
     /*TODO: Add primary/secondary */
-    --clr-primary-400: var(--clr-black-800);
-    --clr-secondary-400: var(--clr-white-800);
+    --clr-primary-h: 8deg;
+    --clr-secondary-h: calc(var(--clr-primary-h) + 180deg);
+    --clr-accent-h: calc(var(--clr-secondary-h) + 270deg);
+    --clr-primary-s: 88%;
+    --clr-secondary-s: var(--clr-primary-s);
+    --clr-accent-s: var(--clr-primary-s);
+    --clr-200: 90%;
+    --clr-400: 70%;
+    --clr-600: 50%;
+    --clr-800: 30%;
+    --opacity-1: .1;
+    --opacity-3: .3;
+    --opacity-5: .5;
+    --opacity-7: .7;
+    --clr-primary-200: hsl(var(--clr-primary-h) var(--clr-primary-s) var(--clr-200));
+    --clr-primary-200-1: hsl(var(--clr-primary-h) var(--clr-primary-s) var(--clr-200) / var(--opacity-1));
+    --clr-primary-200-3: hsl(var(--clr-primary-h) var(--clr-primary-s) var(--clr-200) / var(--opacity-3));
+    --clr-primary-200-5: hsl(var(--clr-primary-h) var(--clr-primary-s) var(--clr-200) / var(--opacity-5));
+    --clr-primary-200-7: hsl(var(--clr-primary-h) var(--clr-primary-s) var(--clr-200) / var(--opacity-7));
+    --clr-primary-400: hsl(var(--clr-primary-h) var(--clr-primary-s) var(--clr-400));
+    --clr-primary-400-1: hsl(var(--clr-primary-h) var(--clr-primary-s) var(--clr-400) / var(--opacity-1));
+    --clr-primary-400-3: hsl(var(--clr-primary-h) var(--clr-primary-s) var(--clr-400) / var(--opacity-3));
+    --clr-primary-400-5: hsl(var(--clr-primary-h) var(--clr-primary-s) var(--clr-400) / var(--opacity-5));
+    --clr-primary-400-7: hsl(var(--clr-primary-h) var(--clr-primary-s) var(--clr-400) / var(--opacity-7));
+    --clr-primary-600: hsl(var(--clr-primary-h) var(--clr-primary-s) var(--clr-600));
+    --clr-primary-600-1: hsl(var(--clr-primary-h) var(--clr-primary-s) var(--clr-600) / var(--opacity-1));
+    --clr-primary-600-3: hsl(var(--clr-primary-h) var(--clr-primary-s) var(--clr-600) / var(--opacity-3));
+    --clr-primary-600-5: hsl(var(--clr-primary-h) var(--clr-primary-s) var(--clr-600) / var(--opacity-5));
+    --clr-primary-600-7: hsl(var(--clr-primary-h) var(--clr-primary-s) var(--clr-600) / var(--opacity-7));
+    --clr-primary-800: hsl(var(--clr-primary-h) var(--clr-primary-s) var(--clr-800));
+    --clr-primary-800-1: hsl(var(--clr-primary-h) var(--clr-primary-s) var(--clr-800) / var(--opacity-1));
+    --clr-primary-800-3: hsl(var(--clr-primary-h) var(--clr-primary-s) var(--clr-800) / var(--opacity-3));
+    --clr-primary-800-5: hsl(var(--clr-primary-h) var(--clr-primary-s) var(--clr-800) / var(--opacity-5));
+    --clr-primary-800-7: hsl(var(--clr-primary-h) var(--clr-primary-s) var(--clr-800) / var(--opacity-7));
+
+    --clr-secondary-200: hsl(var(--clr-secondary-h) var(--clr-secondary-s) var(--clr-200));
+    --clr-secondary-200-1: hsl(var(--clr-secondary-h) var(--clr-secondary-s) var(--clr-200) / var(--opacity-1));
+    --clr-secondary-200-3: hsl(var(--clr-secondary-h) var(--clr-secondary-s) var(--clr-200) / var(--opacity-3));
+    --clr-secondary-200-5: hsl(var(--clr-secondary-h) var(--clr-secondary-s) var(--clr-200) / var(--opacity-5));
+    --clr-secondary-200-7: hsl(var(--clr-secondary-h) var(--clr-secondary-s) var(--clr-200) / var(--opacity-7));
+    --clr-secondary-400: hsl(var(--clr-secondary-h) var(--clr-secondary-s) var(--clr-400));
+    --clr-secondary-400-1: hsl(var(--clr-secondary-h) var(--clr-secondary-s) var(--clr-400) / var(--opacity-1));
+    --clr-secondary-400-3: hsl(var(--clr-secondary-h) var(--clr-secondary-s) var(--clr-400) / var(--opacity-3));
+    --clr-secondary-400-5: hsl(var(--clr-secondary-h) var(--clr-secondary-s) var(--clr-400) / var(--opacity-5));
+    --clr-secondary-400-7: hsl(var(--clr-secondary-h) var(--clr-secondary-s) var(--clr-400) / var(--opacity-7));
+    --clr-secondary-600: hsl(var(--clr-secondary-h) var(--clr-secondary-s) var(--clr-600));
+    --clr-secondary-600-1: hsl(var(--clr-secondary-h) var(--clr-secondary-s) var(--clr-600) / var(--opacity-1));
+    --clr-secondary-600-3: hsl(var(--clr-secondary-h) var(--clr-secondary-s) var(--clr-600) / var(--opacity-3));
+    --clr-secondary-600-5: hsl(var(--clr-secondary-h) var(--clr-secondary-s) var(--clr-600) / var(--opacity-5));
+    --clr-secondary-600-7: hsl(var(--clr-secondary-h) var(--clr-secondary-s) var(--clr-600) / var(--opacity-7));
+    --clr-secondary-800: hsl(var(--clr-secondary-h) var(--clr-secondary-s) var(--clr-800));
+    --clr-secondary-800-1: hsl(var(--clr-secondary-h) var(--clr-secondary-s) var(--clr-800) / var(--opacity-1));
+    --clr-secondary-800-3: hsl(var(--clr-secondary-h) var(--clr-secondary-s) var(--clr-800) / var(--opacity-3));
+    --clr-secondary-800-5: hsl(var(--clr-secondary-h) var(--clr-secondary-s) var(--clr-800) / var(--opacity-5));
+    --clr-secondary-800-7: hsl(var(--clr-secondary-h) var(--clr-secondary-s) var(--clr-800) / var(--opacity-7));
+
+    --clr-accent-200: hsl(var(--clr-accent-h) var(--clr-accent-s) var(--clr-200));
+    --clr-accent-200-1: hsl(var(--clr-accent-h) var(--clr-accent-s) var(--clr-200) / var(--opacity-1));
+    --clr-accent-200-3: hsl(var(--clr-accent-h) var(--clr-accent-s) var(--clr-200) / var(--opacity-3));
+    --clr-accent-200-5: hsl(var(--clr-accent-h) var(--clr-accent-s) var(--clr-200) / var(--opacity-5));
+    --clr-accent-200-7: hsl(var(--clr-accent-h) var(--clr-accent-s) var(--clr-200) / var(--opacity-7));
+    --clr-accent-400: hsl(var(--clr-accent-h) var(--clr-accent-s) var(--clr-400));
+    --clr-accent-400-1: hsl(var(--clr-accent-h) var(--clr-accent-s) var(--clr-400) / var(--opacity-1));
+    --clr-accent-400-3: hsl(var(--clr-accent-h) var(--clr-accent-s) var(--clr-400) / var(--opacity-3));
+    --clr-accent-400-5: hsl(var(--clr-accent-h) var(--clr-accent-s) var(--clr-400) / var(--opacity-5));
+    --clr-accent-400-7: hsl(var(--clr-accent-h) var(--clr-accent-s) var(--clr-400) / var(--opacity-7));
+    --clr-accent-600: hsl(var(--clr-accent-h) var(--clr-accent-s) var(--clr-600));
+    --clr-accent-600-1: hsl(var(--clr-accent-h) var(--clr-accent-s) var(--clr-600) / var(--opacity-1));
+    --clr-accent-600-3: hsl(var(--clr-accent-h) var(--clr-accent-s) var(--clr-600) / var(--opacity-3));
+    --clr-accent-600-5: hsl(var(--clr-accent-h) var(--clr-accent-s) var(--clr-600) / var(--opacity-5));
+    --clr-accent-600-7: hsl(var(--clr-accent-h) var(--clr-accent-s) var(--clr-600) / var(--opacity-7));
+    --clr-accent-800: hsl(var(--clr-accent-h) var(--clr-accent-s) var(--clr-800));
+    --clr-accent-800-1: hsl(var(--clr-accent-h) var(--clr-accent-s) var(--clr-800) / var(--opacity-1));
+    --clr-accent-800-3: hsl(var(--clr-accent-h) var(--clr-accent-s) var(--clr-800) / var(--opacity-3));
+    --clr-accent-800-5: hsl(var(--clr-accent-h) var(--clr-accent-s) var(--clr-800) / var(--opacity-5));
+    --clr-accent-800-7: hsl(var(--clr-accent-h) var(--clr-accent-s) var(--clr-800) / var(--opacity-7));
 
 
+
+
+    /* Font Family variables */
     --ff-primary: 'Montserrat', sans-serif;
     --ff-mono: 'Azeret Mono', monospace;
     --ff-serif: 'Bitter', serif;
 
+    /* Text sizing variables */
     --txt-small: .75rem;
     --txt-small-fluid: clamp(.5rem, calc(10px + 1vmin), .75rem );
     --txt-med: 1.25rem;
@@ -114,11 +185,22 @@ p {
     --txt-xlrg-fluid: clamp(2.5rem, 10vw, 6rem );
     --txt-xxl-fluid: clamp(4rem, 20vw, 12rem );
 
+    /* shape - size variables */
     --radius: 20px;
+    --radius-input: .5em;
 
-    --clr-bg: hsl(var(--clr-black-800));
-    --clr-text: hsl(var(--clr-white-400));
-    --clr-border: hsl(var(--clr-white-800));
+
+    /* Defaults set for basic elements */
+    --clr-bg: hsl(var(--clr-black-600));
+    --clr-text: hsl(var(--clr-primary-h) calc(var(--clr-primary-s) * 2) var(--clr-400));
+    /*--clr-text: hsl(var(--clr-white-400));*/
+    --clr-border: var(--clr-accent-400-3);
+
+    /* light
+    --clr-bg: hsl(var(--clr-white-200));
+    --clr-text: hsl(var(--clr-black-800));
+    --clr-border: var(--clr-accent-800);
+    */
 }
 
 /*********************************************************************
@@ -130,31 +212,33 @@ p {
     width: 0.5rem;
     height: 0.45rem;
 }
-
 ::-webkit-scrollbar-track {
     background: hsl(var(--clr-primary-400));
 }
-
 ::-webkit-scrollbar-thumb {
     border-radius: 100vh;
     background: hsl(var(--clr-secondary-400));
 }
-
 ::-webkit-scrollbar-corner {
     background: hsl(var(--clr-secondary-400));
 }
-
 /* Firefox --Early module, not as many options  */
 html {
     scrollbar-color: hsl(var(--clr-primary-400)) hsl(var(--clr-secondary-400));
     scrollbar-width: thin;
 }
-
 /*********************************************************************
                                 BODY
 ********************************************************************/
-
+html {
+    scroll-behavior: smooth;
+    text-rendering: optimizeSpeed;
+    min-height: 100vh;
+    height: 100%;
+}
+/* Set core body defaults */
 body {
+    height: 100%;
     background-color: var(--clr-bg);
     color: var(--clr-text);
     font-family: var(--ff-primary);
@@ -162,7 +246,7 @@ body {
 }
 #app {
     display: grid;
-    min-height: 100vh;
+    min-height: 100%;
     grid-template-rows: max-content 1fr max-content;
     grid-template-areas:
       'header'
@@ -181,4 +265,3 @@ main {
 footer {
     grid-area: footer;
 }
-

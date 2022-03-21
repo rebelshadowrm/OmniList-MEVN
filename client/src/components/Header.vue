@@ -25,24 +25,24 @@ header {
 nav {
   display: flex;
   flex-direction: row;
+  max-width: calc(100vw - 2rem);
+  height: 7vh;
   padding: .75rem;
   gap: 1.25em;
   overflow-x: auto;
-  max-width: calc(100vw - 2rem);
-  height: 7vh;
 }
-
-
 a {
-  display: block;
-  text-decoration: none;
-  text-transform: uppercase;
   position: relative;
-  transition: transform ease .5s;
+  display: block;
   color: var(--clr-text);
   font-size: var(--txt-lrg);
   font-weight: 200;
   font-family: var(--ff-mono);
+  text-decoration: none;
+  text-transform: uppercase;
+}
+a.active {
+  font-weight: 500;
 }
 a::after {
   content: '';

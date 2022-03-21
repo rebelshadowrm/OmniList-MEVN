@@ -5,27 +5,33 @@ dotenv.config()
 require('../../database')
 const PostModel = require('../../models/post')
 
-
 const router = express.Router()
+
 
 // Get Posts
 router.get('/', async (req, res) => {
     res.send(await PostModel.find())
-});
+})
 
 // Add Post
 router.post('/', async (req, res) => {
-    await PostModel.create({
+    const post = await PostModel.create({
         text: req.body.text,
-    });
-    res.status(201).send()
-});
+    })
+    if(post) {
+        res.status(201).send(post)
+    } else {
+        res.sendStatus(400)
+    }
+})
 
 // Delete Post
 router.delete('/:id', async (req, res) => {
-    await PostModel.deleteOne({ _id: new mongodb.ObjectId(req.params.id) })
-    res.status(200).send({})
-});
-
+    if(await PostModel.deleteOne({ _id: new mongodb.ObjectId(req.params.id) })) {
+        res.status(200).send({"id": req.params.id})
+    } else {
+        res.sendStatus(400)
+    }
+})
 
 module.exports = router

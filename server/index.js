@@ -12,8 +12,18 @@ app.use(bodyParser.urlencoded({
 app.use(cors())
 
 const posts = require('./routes/api/posts')
+const login = require('./routes/api/login')
+const register = require('./routes/api/register')
+const user = require('./routes/api/user')
+const refresh = require('./routes/api/refresh')
+
 
 app.use('/api/posts', posts)
+app.use('/api/login', login)
+app.use('/api/register', register)
+app.use('/api/user', user)
+app.use('/api/refresh', refresh)
+
 
 // Handle production
 if (process.env.NODE_ENV === 'production') {
