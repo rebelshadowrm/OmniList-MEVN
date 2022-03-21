@@ -9,6 +9,7 @@ import PostComponent from "../components/PostComponent.vue"
 import Login from "../components/Login.vue"
 import Register from "../components/Register.vue";
 import useUser from "../composables/user.js"
+import UserService from "../UserService";
 
 export default {
   name: "Home",
@@ -21,16 +22,17 @@ export default {
     return {
       isLoggedIn: false,
       hasAccount: false,
+      users: []
     }
   },
-  created() {
+  async created() {
     const {getIsLoggedIn} = useUser()
     this.isLoggedIn = getIsLoggedIn()
   },
   methods: {
     toggleForm(e) {
       this.hasAccount = e
-    }
+    },
   }
 }
 </script>

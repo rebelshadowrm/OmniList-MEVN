@@ -21,7 +21,7 @@ const getters = {
         return computed(() => state.error)
     },
     getUser: () => {
-        return computed( () => state.userData.user)
+        return computed( () => state.userData)
     }
 }
 

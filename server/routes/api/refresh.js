@@ -10,7 +10,7 @@ const {generateAccessToken} = require('../../security/authenticateUser')
 router.post('/', async (req, res) => {
     const refreshToken = req.body.token
     if (refreshToken == null) return res.sendStatus(401)
-    if (await TokenModel.exists({refreshToken: refreshToken}) == null) return res.sendStatus(403)
+    if (await TokenModel.exists({refreshToken}) == null) return res.sendStatus(403)
     jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
         if (err) return res.status(403).send(err.message)
         const accessToken = generateAccessToken(user)

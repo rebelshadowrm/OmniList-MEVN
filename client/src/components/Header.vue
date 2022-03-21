@@ -1,6 +1,7 @@
 <template>
 <header>
   <img alt="Vue logo" src="../assets/logo.png" />
+  <h1 v-if="isLoggedIn">Welcome back {{username}}</h1>
   <nav id="nav">
     <router-link  to="/">Home</router-link>
     <router-link to="/about">About</router-link>
@@ -9,8 +10,22 @@
 </template>
 
 <script>
+import useUser from "../composables/user";
+
 export default {
-  name: "Header"
+  name: "Header",
+  data() {
+    return {
+      isLoggedIn: false,
+    }
+  },
+  props: {
+    username: String,
+  },
+  async created() {
+    const {getIsLoggedIn} = useUser()
+    this.isLoggedIn = getIsLoggedIn()
+  }
 }
 </script>
 

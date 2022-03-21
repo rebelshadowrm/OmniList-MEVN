@@ -8,9 +8,19 @@ const authenticateToken = require('../../security/authenticateToken')
 
 const router = express.Router()
 
-// Get Posts
+// Get Users
 router.get('/', authenticateToken, async (req, res) => {
     res.send(await UserModel.find())
-});
+})
+
+// Get User by ID
+router.get('/:id', authenticateToken, async (req, res) => {
+    const user = await UserModel.findOne({ _id: new mongodb.ObjectId(req.params.id) })
+    if(user) {
+        res.status(200).send(user)
+    } else {
+        res.sendStatus(400)
+    }
+})
 
 module.exports = router

@@ -1,4 +1,4 @@
-import axios from "axios"
+import {axiosAuth as axios} from "./axiosInterceptor.js"
 
 const url = '/api/'
 
@@ -17,9 +17,18 @@ class UserService {
                     }))
                 )
             } catch(err) {
-                reject(err)
+                reject(err.response)
             }
         })
+    }
+
+    // Get User
+    static async getUser(id) {
+        try {
+            return await axios.get(`${url}user/${id}`)
+        } catch(err) {
+          return err.response
+        }
     }
 
     // Register

@@ -1,4 +1,4 @@
-import axios from "axios"
+import {axiosAuth as axios} from "./axiosInterceptor";
 
 const url = '/api/posts/'
 
