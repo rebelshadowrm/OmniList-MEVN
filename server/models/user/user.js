@@ -6,7 +6,9 @@ const UserPreferences = require('./userPreferences').schema
 const userSchema = new mongoose.Schema({
     userName: {
         type: String,
-        required: false,
+        required: true,
+        unique: true,
+        lowercase: true,
     },
     password: {
         type: String,

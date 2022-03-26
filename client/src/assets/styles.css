@@ -213,18 +213,18 @@ p {
     height: 0.45rem;
 }
 ::-webkit-scrollbar-track {
-    background: hsl(var(--clr-primary-400));
+    background: var(--clr-primary-400);
 }
 ::-webkit-scrollbar-thumb {
     border-radius: 100vh;
-    background: hsl(var(--clr-secondary-400));
+    background: var(--clr-secondary-400);
 }
 ::-webkit-scrollbar-corner {
-    background: hsl(var(--clr-secondary-400));
+    background: var(--clr-secondary-400);
 }
 /* Firefox --Early module, not as many options  */
 html {
-    scrollbar-color: hsl(var(--clr-primary-400)) hsl(var(--clr-secondary-400));
+    scrollbar-color: var(--clr-primary-400) var(--clr-secondary-400);
     scrollbar-width: thin;
 }
 /*********************************************************************

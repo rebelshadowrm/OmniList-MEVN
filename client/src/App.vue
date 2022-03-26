@@ -1,5 +1,5 @@
 <template>
-  <Header :username="result.user?.username === undefined ? result.user?.email : result.user?.username" />
+  <Header :user="result?.user" />
   <main>
     <router-view/>
   </main>
@@ -27,11 +27,11 @@ export default {
     try {
       const {setUser, decodeJWT, getUser} = useUsers()
       const token = TokenService.getAccessToken()
-      const {user} = decodeJWT(token).user
+      const {user} = decodeJWT(token)
       const checkUser = await UserService.getUser(user._id)
       if(checkUser.status === 200) {
         setUser(checkUser.data)
-        this.result = getUser()
+        this.result = getUser().value
       }
     } catch(err) {
       console.log(err.message)

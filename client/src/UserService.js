@@ -22,12 +22,21 @@ class UserService {
         })
     }
 
-    // Get User
+    // Get User by Id
     static async getUser(id) {
         try {
             return await axios.get(`${url}user/${id}`)
         } catch(err) {
           return err.response
+        }
+    }
+
+    // Get User by Username
+    static async getUserByUsername(username) {
+        try {
+            return await axios.get(`${url}user/username/${username}`)
+        } catch(err) {
+            return err.response
         }
     }
 

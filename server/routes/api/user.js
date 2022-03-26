@@ -23,4 +23,14 @@ router.get('/:id', authenticateToken, async (req, res) => {
     }
 })
 
+// Get User by Username
+router.get('/username/:username', authenticateToken, async (req, res) => {
+    const user = await UserModel.findOne({ userName: req.params.username })
+    if(user) {
+        res.status(200).send(user)
+    } else {
+        res.sendStatus(400)
+    }
+})
+
 module.exports = router
