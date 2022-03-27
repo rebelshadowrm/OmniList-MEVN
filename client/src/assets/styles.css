@@ -196,11 +196,11 @@ p {
     /*--clr-text: hsl(var(--clr-white-400));*/
     --clr-border: var(--clr-accent-400-3);
 
-    /* light
-    --clr-bg: hsl(var(--clr-white-200));
-    --clr-text: hsl(var(--clr-black-800));
-    --clr-border: var(--clr-accent-800);
-    */
+
+    /*--clr-bg: hsl(var(--clr-white-200));*/
+    /*--clr-text: hsl(var(--clr-black-800));*/
+    /*--clr-border: var(--clr-accent-800);*/
+
 }
 
 /*********************************************************************
