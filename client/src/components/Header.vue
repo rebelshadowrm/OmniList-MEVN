@@ -5,32 +5,24 @@
     <div class="nav-items">
       <router-link  to="/">Home</router-link>
       <router-link to="/about">About</router-link>
-      <router-link :to="'/profile/'+user?.userName">Profile</router-link>
+      <router-link :to="'/profile/'+user.user?.userName ?? ''">Profile</router-link>
     </div>
-    <img class="user" v-if="isLoggedIn" :src="user?.img ?? 'https://picsum.photos/seed/user/50'"  alt=""/>
+    <p v-if="isLoggedIn">{{user?.user?.userName ?? ''}}</p>
+    <img class="user" v-if="isLoggedIn" :src="user.user?.img ?? 'https://picsum.photos/seed/user/50'"  alt=""/>
   </nav>
 </header>
 </template>
 
 <script>
-import useUser from "../composables/user";
-
 export default {
   name: "Header",
-  data() {
-    return {
-      isLoggedIn: false
-    }
-  },
-  props: {
-    user: {}
-  },
-  async created() {
-    const {getIsLoggedIn} = useUser()
-    this.isLoggedIn = getIsLoggedIn()
-    console.log('something', this.user)
-  }
 }
+</script>
+<script setup>
+import useUser from "../composables/user";
+const {getIsLoggedIn, getUser} = useUser()
+const isLoggedIn = getIsLoggedIn()
+const user = getUser()
 </script>
 
 <style scoped>

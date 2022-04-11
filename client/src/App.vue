@@ -1,5 +1,5 @@
 <template>
-  <Header :user="result?.user" />
+  <Header />
   <main>
     <router-view/>
   </main>
@@ -18,20 +18,17 @@ export default {
     Header,
     Footer,
   },
-  data() {
-    return {
-      result: ''
-    }
-  },
-  async created() {
+  async beforeCreate() {
     try {
-      const {setUser, decodeJWT, getUser} = useUsers()
+      const {setUser, decodeJWT} = useUsers()
       const token = TokenService.getAccessToken()
-      const {user} = decodeJWT(token)
-      const checkUser = await UserService.getUser(user._id)
-      if(checkUser.status === 200) {
-        setUser(checkUser.data)
-        this.result = getUser().value
+      if(token) {
+        const res = decodeJWT(token)
+        const {user} = res.user
+        const checkUser = await UserService.getUser(user._id)
+        if(checkUser.status === 200) {
+          setUser(checkUser.data)
+        }
       }
     } catch(err) {
       console.log(err.message)

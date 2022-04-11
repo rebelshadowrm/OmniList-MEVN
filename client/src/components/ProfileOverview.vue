@@ -10,15 +10,30 @@ export default {
   name: "ProfileOverview",
   data() {
     return {
-      color: ''
+      color: '#ff0000'
     }
   },
+  created() {
+    this.color = this.getColor() ?? '#ff0000'
+    const color = this.HexToHSL(this.getColor() ?? '#ff0000')
+    this.changeColor(color)
+    console.log(this.color)
+  },
   methods: {
+    setColor(color) {
+      localStorage.setItem("color", color)
+    },
+    getColor() {
+      return localStorage.getItem("color")
+    },
     colorChange(e) {
       const color = this.HexToHSL(e.target.value)
+      this.changeColor(color)
+      this.setColor(e.target.value)
+    },
+    changeColor(color) {
       document.documentElement.style.setProperty('--clr-primary-h', `${color.hue}deg`)
       document.documentElement.style.setProperty('--clr-primary-s', `${color.saturation}%`)
-      console.log(color.hue)
     },
     HexToHSL(H) {
       // Convert hex to RGB first
