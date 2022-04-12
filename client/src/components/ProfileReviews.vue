@@ -8,7 +8,7 @@
         <div class="review-info">
           <p class="title">{{review.reviewName}}</p>
           <p class="anime">{{review.anime}}</p>
-          <p class="comments">comments {{review.comments.length}}</p>
+          <p class="comments">comments: {{review.comments.length}}</p>
         </div>
         <div class="review-author">
           <p>{{review.author}}</p>
@@ -59,8 +59,12 @@ a {
   color: var(--clr-text);
 }
 .review-card {
-  border: 1px solid white;
+  border-style: solid;
+  border-radius: var(--radius);
+  border-width: 1px;
+  border-color: var(--clr-border);
   padding: 1rem;
+  background-color: var(--clr-secondary-800-3);
 }
 .review-info {
   display: flex;

@@ -55,6 +55,7 @@ export default {
    color: var(--clr-accent-400);
  }
  button.active {
-   color: var(--clr-accent-600);
+   color: var(--clr-accent-400);
+   font-weight: 700;
  }
 </style>
