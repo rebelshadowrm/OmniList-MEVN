@@ -23,10 +23,10 @@ export default {
       const {setUser, decodeJWT} = useUsers()
       const token = TokenService.getAccessToken()
       if(token) {
-        const res = decodeJWT(token)
-        const {user} = res.user
-        const checkUser = await UserService.getUser(user._id)
+        const {_id} = decodeJWT(token).user
+        const checkUser = await UserService.getUser(_id)
         if(checkUser.status === 200) {
+          console.log(checkUser.data)
           setUser(checkUser.data)
         }
       }

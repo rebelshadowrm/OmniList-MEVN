@@ -42,7 +42,7 @@ export default {
         const res = await UserService.loginUser(data)
         if(res.status === 200) {
           const {accessToken, refreshToken} = res.data
-          const user = decodeJWT(accessToken)
+          const user = decodeJWT(accessToken).user
           setUser(user)
           TokenService.setAccessToken(accessToken)
           TokenService.setRefreshToken(refreshToken)

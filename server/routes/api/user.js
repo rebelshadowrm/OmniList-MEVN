@@ -15,7 +15,7 @@ router.get('/', authenticateToken, async (req, res) => {
 
 // Get User by ID
 router.get('/:id', authenticateToken, async (req, res) => {
-    if(req.params) {
+    if(req.params.id.length !== undefined) {
         const user = await UserModel.findOne({ _id: new mongodb.ObjectId(req.params.id) })
         if(user) {
             res.status(200).send(user)
