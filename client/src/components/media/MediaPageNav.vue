@@ -3,8 +3,8 @@
     <button @click="selected('overview')" :class="active === 'overview' ? 'active' : ''">Overview</button>
     <button @click="selected('characters')" :class="active === 'characters' ? 'active' : ''">Characters</button>
     <button @click="selected('staff')" :class="active === 'staff' ? 'active' : ''">Staff</button>
+    <button @click="selected('reviews')" :class="active === 'reviews' ? 'active' : ''">Reviews</button>
     <button @click="selected('stats')" :class="active === 'stats' ? 'active' : ''">Stats</button>
-    <button @click="selected('social')" :class="active === 'social' ? 'active' : ''">Social</button>
   </div>
 </template>
 
