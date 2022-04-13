@@ -34,7 +34,7 @@ export default {
   max-width: 100vw;
   flex-direction: row;
   gap: 1.5rem;
-  background-color: var(--clr-secondary-800-5);
+  background-color: transparent;
   overflow-x: auto;
   place-content: center;
 }
