@@ -13,8 +13,8 @@
           v-for="post in posts" :key="post._id"
           @dblclick="deletePost(post._id)">
         <div class="created-at">
-          {{ `${post.createdAt.getDate()}`  +
-          `/${post.createdAt.getMonth()}` +
+          {{ `${post.createdAt.getMonth()}/` +
+            `${post.createdAt.getDate()}/`  +
           `/${post.createdAt.getFullYear()}`}}
         </div>
         <p class="text">{{post.text}}</p>

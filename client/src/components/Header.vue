@@ -1,13 +1,18 @@
 <template>
 <header>
   <nav id="nav">
-    <img class="logo" src="../assets/logo.png" alt=""/>
+    <router-link class="logo-link" to="/">
+      <img class="logo" src="../assets/logo.png" alt="omni list logo"/>
+      <span>OmniList</span>
+    </router-link>
+
     <div class="nav-items">
       <router-link  to="/">Home</router-link>
       <router-link to="/about">About</router-link>
       <router-link :to="'/profile/'+user.user?.userName ?? ''">Profile</router-link>
+      <router-link to="/anime/browse">Anime</router-link>
     </div>
-    <p v-if="isLoggedIn">{{user?.user?.userName ?? ''}}</p>
+    <p class="username" v-if="isLoggedIn">{{user?.user?.userName ?? ''}}</p>
     <img class="user" v-if="isLoggedIn" :src="user.user?.img ?? 'https://picsum.photos/seed/user/50'"  alt=""/>
   </nav>
 </header>
@@ -42,6 +47,7 @@ nav {
   gap: 1.25em;
   overflow-x: auto;
   width: 100%;
+  background-color: var(--clr-secondary-800-3);
 }
 .nav-items {
   grid-area: nav;
@@ -50,21 +56,21 @@ nav {
   gap: 1.25em;
   justify-self: center;
 }
-a {
+.nav-items a {
   place-self: center;
   position: relative;
-  display: block;
+  display: inline-block;
   color: var(--clr-text);
-  font-size: var(--txt-lrg);
+  font-size: var(--txt-med);
   font-weight: 200;
   font-family: var(--ff-mono);
   text-decoration: none;
   text-transform: uppercase;
 }
-a.active {
+.nav-items a.active {
   font-weight: 500;
 }
-a::after {
+.nav-items a::after {
   content: '';
   position: absolute;
   inset: auto 0 0 0;
@@ -73,19 +79,35 @@ a::after {
   transform: scaleX(0%);
   transition: transform ease .5s;
 }
-a:hover::after {
+.nav-items a:hover::after {
   transform: scaleX(100%);
+}
+.logo-link {
+  display: flex;
+  text-decoration: none;
+}
+.logo-link span {
+  font-size: var(--txt-med);
+  align-self: end;
+  text-transform: initial;
+  color: hsl(204deg 80% 55%);
+  font-weight: 600;
+  letter-spacing: 1px;
+  margin-left: -.3rem;
 }
 .logo {
   grid-area: logo;
   aspect-ratio: 1;
-  height: 50px;
+  height: 40px;
 }
 .user {
   grid-area: user;
   aspect-ratio: 1;
-  height: 50px;
+  height: 40px;
   border: 1px inset hsl(var(--clr-white-200) / .5);
   border-radius: 10px;
+}
+.username {
+  place-self: end;
 }
 </style>

@@ -36,6 +36,7 @@
 </template>
 
 <script>
+import useTheme from "../../composables/theme.js"
 export default {
   name: "ProfileColorPicker",
   data() {
@@ -47,68 +48,31 @@ export default {
     }
   },
   created() {
-    const colors = this.getColor()
+    const {getLocalColors} = useTheme()
+    const colors = getLocalColors()
     this.primaryColor = colors?.primaryColor ?? '#ff0000'
-    this.secondaryColor = colors?.secondaryColor ?? '#000000'
-    this.accentColor = colors?.accentColor ?? '#000000'
-    const primaryHSL = this.HexToHSL(colors?.primaryColor ?? '#ff0000')
-    this.setPrimaryColor(primaryHSL)
-    if(colors?.secondaryColor) {
-      const secondaryHSL = this.HexToHSL(colors.secondaryColor)
-      this.setSecondaryColor(secondaryHSL)
-    }
-    if(colors?.accentColor) {
-      const accentHSL = this.HexToHSL(colors.accentColor)
-      this.setAccentColor(accentHSL)
-    }
+    this.secondaryColor = colors?.secondaryColor ?? '#ff0000'
+    this.accentColor = colors?.accentColor ?? '#ff0000'
   },
   methods: {
-    setColor(clr) {
-      const color = this.getColor()
-      if(color) {
-        color.primaryColor = clr?.primaryColor ?? color.primaryColor
-        color.secondaryColor = clr?.secondaryColor ?? color.secondaryColor
-        color.accentColor = clr?.accentColor ?? color.accentColor
-        localStorage.setItem("color", JSON.stringify(color))
-      } else {
-        const newColor = {
-          primaryColor: clr?.primaryColor ?? '#ff0000',
-          secondaryColor: clr?.secondaryColor,
-          accentColor: clr?.accentColor
-        }
-        localStorage.setItem('color', JSON.stringify(newColor))
-      }
-    },
-    getColor() {
-      return JSON.parse(localStorage.getItem("color"))
-    },
     colorOnChange(e) {
-      const color = this.HexToHSL(e.target.value)
+      const {HexToHSL, setPrimaryColor, setSecondaryColor,
+            setAccentColor, setTheme} = useTheme()
+      const color = HexToHSL(e.target.value)
       const type = e.target.dataset.type
       const value = e.target.value
-      if(type === 'primaryColor') this.setPrimaryColor(color)
-      if(type === 'secondaryColor') this.setSecondaryColor(color)
-      if(type === 'accentColor') this.setAccentColor(color)
+      if(type === 'primaryColor') setPrimaryColor(color)
+      if(type === 'secondaryColor') setSecondaryColor(color)
+      if(type === 'accentColor') setAccentColor(color)
       const clr = {
         [type]: value
       }
-      this.setColor(clr)
-    },
-    setPrimaryColor(color) {
-      document.documentElement.style.setProperty('--clr-primary-h', `${color.hue}deg`)
-      document.documentElement.style.setProperty('--clr-primary-s', `${color.saturation}%`)
-    },
-    setSecondaryColor(color) {
-      document.documentElement.style.setProperty('--clr-secondary-h', `${color.hue}deg`)
-      document.documentElement.style.setProperty('--clr-secondary-s', `${color.saturation}%`)
-    },
-    setAccentColor(color) {
-      document.documentElement.style.setProperty('--clr-accent-h', `${color.hue}deg`)
-      document.documentElement.style.setProperty('--clr-accent-s', `${color.saturation}%`)
+      setTheme(clr)
     },
     unsetColor(e) {
+      const {getLocalColors, setTheme} = useTheme()
       const type = e.target.dataset.type
-      const color = this.getColor()
+      const color = getLocalColors()
       if(type === 'secondaryColor') {
         color.secondaryColor = ''
         this.secondaryColor = '#000000'
@@ -121,51 +85,8 @@ export default {
         document.documentElement.style.removeProperty('--clr-accent-h')
         document.documentElement.style.removeProperty('--clr-accent-s')
       }
-      this.setColor(color)
+      setTheme(color)
     },
-    HexToHSL(H) {
-      // Convert hex to RGB first
-      let r = 0, g = 0, b = 0
-      if (H.length == 4) {
-        r = `0x${H[1]}${H[1]}`
-        g = `0x${H[2]}${H[2]}`
-        b = `0x${H[3]}${H[3]}`
-      } else if (H.length == 7) {
-        r = `0x${H[1]}${H[2]}`
-        g = `0x${H[3]}${H[4]}`
-        b = `0x${H[5]}${H[6]}`
-      }
-      // Then to HSL
-      r /= 255
-      g /= 255
-      b /= 255
-      let cmin = Math.min(r,g,b),
-          cmax = Math.max(r,g,b),
-          delta = cmax - cmin,
-          h = 0,
-          s = 0,
-          l = 0
-
-      if (delta == 0) h = 0;
-      else if (cmax == r) h = ((g - b) / delta) % 6
-      else if (cmax == g) h = (b - r) / delta + 2
-      else h = (r - g) / delta + 4
-
-      h = Math.round(h * 60)
-
-      if (h < 0) h += 360
-
-      l = (cmax + cmin) / 2
-      s = delta == 0 ? 0 : delta / (1 - Math.abs(2 * l - 1))
-      s = +(s * 100).toFixed(1)
-      l = +(l * 100).toFixed(1)
-
-      return {
-        hue: h,
-        saturation: s,
-        lightness: l
-      }
-    }
   }
 }
 </script>

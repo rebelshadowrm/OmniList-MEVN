@@ -2,6 +2,7 @@ import {createRouter, createWebHistory} from "vue-router"
 import Home from "../views/Home.vue"
 import About from "../views/About.vue"
 import Profile from "../views/Profile.vue";
+import Anime from "../views/Anime.vue"
 
 const routes = [
     {
@@ -19,6 +20,12 @@ const routes = [
         name: 'Profile',
         component: Profile,
         props: true
+    },
+    {
+        path: '/anime/:title',
+        name: 'Anime',
+        component: Anime,
+        props: true,
     }
     ]
 

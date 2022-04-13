@@ -9,6 +9,7 @@
 import Header from './components/Header.vue'
 import Footer from './components/Footer.vue'
 import useUsers from './composables/user.js'
+import useTheme from './composables/theme.js'
 import TokenService from "./TokenService";
 import UserService from "./UserService";
 
@@ -32,6 +33,22 @@ export default {
       }
     } catch(err) {
       console.log(err.message)
+    }
+  },
+  async created() {
+    const {getLocalColors, HexToHSL,
+          setPrimaryColor, setSecondaryColor,
+          setAccentColor} = useTheme()
+    const colors = getLocalColors()
+    const primaryHSL = HexToHSL(colors?.primaryColor ?? '#ff0000')
+    setPrimaryColor(primaryHSL)
+    if(colors?.secondaryColor) {
+      const secondaryHSL = HexToHSL(colors.secondaryColor)
+      setSecondaryColor(secondaryHSL)
+    }
+    if(colors?.accentColor) {
+      const accentHSL = HexToHSL(colors.accentColor)
+      setAccentColor(accentHSL)
     }
   }
 }

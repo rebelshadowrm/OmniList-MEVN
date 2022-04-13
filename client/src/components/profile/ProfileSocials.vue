@@ -1,6 +1,5 @@
 <template>
 <div class="socials">
-  <h2>Socials</h2>
   <button @click.prevent="toggleForm" class="addSocial">Add Social</button>
   <form v-if="socialForm" @submit.prevent="addSocial">
     <div class="input">
@@ -88,7 +87,15 @@ button {
   align-items: center;
 }
 .social-links {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-auto-flow: column;
+  gap: 1rem;
+  grid-template-columns: minmax(1fr, 65ch) minmax(max-content, 1fr);
+  max-width: max-content;
+}
+a {
+  grid-column: 3;
+  text-decoration: none;
+  color: var(--clr-primary-200);
 }
 </style>

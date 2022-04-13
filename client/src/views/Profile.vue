@@ -23,14 +23,14 @@
 <script>
 import UserService from "../UserService"
 import useUser from "../composables/user"
-import ProfileHeader from "../components/ProfileHeader.vue"
-import ProfileNav from "../components/ProfileNav.vue"
-import ProfileOverview from "../components/ProfileOverview.vue";
-import ProfileAnimeList from "../components/ProfileAnimeList.vue";
-import ProfileFavorites from "../components/ProfileFavorites.vue";
-import ProfileStats from "../components/ProfileStats.vue";
-import ProfileSocials from "../components/ProfileSocials.vue";
-import ProfileReviews from "../components/ProfileReviews.vue";
+import ProfileHeader from "../components/profile/ProfileHeader.vue"
+import ProfileNav from "../components/profile/ProfileNav.vue"
+import ProfileOverview from "../components/profile/ProfileOverview.vue";
+import ProfileAnimeList from "../components/profile/ProfileAnimeList.vue";
+import ProfileFavorites from "../components/profile/ProfileFavorites.vue";
+import ProfileStats from "../components/profile/ProfileStats.vue";
+import ProfileSocials from "../components/profile/ProfileSocials.vue";
+import ProfileReviews from "../components/profile/ProfileReviews.vue";
 
 export default {
   name: "Profile",
