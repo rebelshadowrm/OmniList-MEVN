@@ -8,15 +8,15 @@
         :background-image="bgImg"
     />
     <ProfileNav @active="activeSection" />
-    <div class="content">
-      <ProfileOverview v-if="section === 'overview'"/>
-      <ProfileAnimeList v-if="section === 'animelist'"/>
-      <ProfileFavorites v-if="section === 'favorites'"/>
-      <ProfileStats v-if="section === 'stats'"/>
-      <ProfileSocials v-if="section === 'socials'"/>
-      <ProfileReviews v-if="section === 'reviews'"/>
-    </div>
   </header>
+  <div class="content">
+    <ProfileOverview v-if="section === 'overview'"/>
+    <ProfileAnimeList v-if="section === 'animelist'"/>
+    <ProfileFavorites v-if="section === 'favorites'"/>
+    <ProfileStats v-if="section === 'stats'"/>
+    <ProfileSocials v-if="section === 'socials'"/>
+    <ProfileReviews v-if="section === 'reviews'"/>
+  </div>
 </section>
 </template>
 

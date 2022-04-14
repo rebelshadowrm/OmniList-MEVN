@@ -27,7 +27,6 @@ export default {
         const {_id} = decodeJWT(token).user
         const checkUser = await UserService.getUser(_id)
         if(checkUser.status === 200) {
-          console.log(checkUser.data)
           setUser(checkUser.data)
         }
       }

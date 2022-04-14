@@ -1,12 +1,16 @@
 <template>
-<div>
-  Anime List
-</div>
+  <h2>Anime List</h2>
+  <ListComponent/>
 </template>
 
 <script>
+import ListComponent from "../ListComponent.vue";
 export default {
-  name: "ProfileAnimeList"
+  name: "ProfileAnimeList",
+  components: {
+    ListComponent
+  }
+
 }
 </script>
 

@@ -3,7 +3,7 @@
 </template>
 
 <script>
-import MediaPage from "../components/media/MediaPage.vue"
+import MediaPage from "../components/media/MediaComponent.vue"
 export default {
   name: "Anime",
   components: {
