@@ -79,7 +79,6 @@ export default {
         const media = data.Media
         this.data = media
         this.dataSetup(media)
-        console.log(this.infoArr)
       }
     } catch (err) {
       console.log(err.message)
@@ -87,18 +86,29 @@ export default {
   },
   methods: {
     dataSetup(data) {
-      const startDate = new Date(`${data.startDate?.month}/${data.startDate?.day}/${data.startDate?.year}`)
-          .toLocaleDateString('en-US', {
-            year:"numeric",
-            month:"short",
-            day:"numeric"
-          })
-      const endDate = new Date(`${data.endDate?.month}/${data.endDate?.day}/${data.endDate?.year}`)
-          .toLocaleDateString('en-US', {
-            year:"numeric",
-            month:"short",
-            day:"numeric"
-          })
+      let startDate = new Date(`${data.startDate?.month ?? '1'}/${data.startDate?.day ?? '11'}/${data.startDate?.year ?? '1111'}`)
+      let endDate = new Date(`${data.endDate?.month ?? '1'}/${data.endDate?.day ?? '11'}/${data.endDate?.year ?? '1111'}`)
+
+      if(endDate < new Date('1/12/1111')) {
+        endDate = "---"
+      } else {
+        endDate = endDate.toLocaleDateString('en-US', {
+          year:"numeric",
+          month:"short",
+          day:"numeric"
+        })
+      }
+
+      if(startDate < new Date('1/12/1111')) {
+        startDate = "---"
+      } else {
+        startDate = startDate.toLocaleDateString('en-US', {
+          year:"numeric",
+          month:"short",
+          day:"numeric"
+        })
+      }
+
       const studiosArray = []
       data.studios?.forEach( e => {
         const elem = { value: e }

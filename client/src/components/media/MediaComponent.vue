@@ -1,6 +1,6 @@
 <template>
   <div class="media-grid">
-    <img class="hero-img" :src="data?.bannerImage" alt="">
+    <img v-if="data?.bannerImage" class="hero-img" :src="data?.bannerImage" alt="">
     <div class="text">
       <h1 class="title">{{data?.title?.english ?? data?.title?.romaji}}</h1>
       <div v-html="data?.description" class="description"></div>

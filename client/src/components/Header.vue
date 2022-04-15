@@ -10,7 +10,7 @@
       <router-link  to="/">Home</router-link>
       <router-link to="/about">About</router-link>
       <router-link :to="'/profile/'+user.user?.userName ?? ''">Profile</router-link>
-      <router-link to="/anime/browse">Anime</router-link>
+      <router-link to="/anime">Anime</router-link>
     </div>
     <p class="username" v-if="isLoggedIn">{{user?.user?.userName ?? ''}}</p>
     <img class="user" v-if="isLoggedIn" :src="user.user?.img ?? 'https://picsum.photos/seed/user/50'"  alt=""/>
