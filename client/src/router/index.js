@@ -3,6 +3,7 @@ import Home from "../views/Home.vue"
 import About from "../views/About.vue"
 import Profile from "../views/Profile.vue";
 import Anime from "../views/Anime.vue"
+import AnimeBrowse from "../views/AnimeBrowse.vue";
 
 const routes = [
     {
@@ -22,7 +23,12 @@ const routes = [
         props: true
     },
     {
-        path: '/anime/:title',
+        path: '/anime',
+        name: 'AnimeBrowse',
+        component: AnimeBrowse,
+    },
+    {
+        path: '/anime/:id',
         name: 'Anime',
         component: Anime,
         props: true,
