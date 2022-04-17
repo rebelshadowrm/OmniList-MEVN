@@ -15,26 +15,6 @@ export default {
   name: "MediaAside",
   props: {
     infos: Array,
-    format: String,
-    episodes: Number,
-    episodeDuration: String,
-    status: String,
-    startDate: String,
-    endDate: String,
-    season: String,
-    averageScore: Number,
-    meanScore: Number,
-    popularity: Number,
-    favorites: Number,
-    studios: Array,
-    producers: Array,
-    source: String,
-    hashtag: String,
-    genres: Array,
-    romaji: String,
-    english: String,
-    native: String,
-    synonyms: Array,
   },
   data() {
     return {
@@ -59,6 +39,13 @@ export default {
 
 .aside-info p {
   font-weight: 300;
+  max-width: 18ch;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  -webkit-hyphens: auto;
+  -moz-hyphens: auto;
+  -ms-hyphens: auto;
+  hyphens: auto;
 }
 
 @media only screen and (max-width: 48.375rem) {
@@ -74,6 +61,7 @@ export default {
 
   .aside-info p {
     font-weight: 500;
+    max-width: 100%;
   }
 
 }

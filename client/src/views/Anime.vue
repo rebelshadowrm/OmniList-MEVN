@@ -25,43 +25,80 @@ export default {
       const variables = { id }
       const query = `
             query ($id: Int) {
-                Media(type: ANIME, id: $id) {
-                    title {
-                    english
-                    romaji
-                    }
-                    description
-                    bannerImage
-                    coverImage {
-                      large
-                    }
-                    characters {
-                      nodes {
-                          image {
-                            medium
-                          }
-                          name {
-                            full
-                          }
+              Media(type: ANIME, id: $id) {
+                characters {
+                  edges {
+                    role
+                    node {
+                      id
+                      name {
+                        userPreferred
+                      }
+                      image {
+                        medium
                       }
                     }
-                    genres
-                    episodes
-                    status
-                    startDate {
-                        year
-                        month
-                        day
-                    }
-                    endDate {
-                      year
-                      month
-                      day
-                    }
-                    averageScore
+                  }
                 }
+                staff {
+                  edges {
+                    role
+                    node {
+                      id
+                      name {
+                        userPreferred
+                      }
+                      image {
+                        medium
+                      }
+                    }
+                  }
+                }
+                studios {
+                  edges {
+                    isMain
+                    node {
+                      id
+                      name
+                    }
+                  }
+                }
+                title {
+                  english
+                  romaji
+                  native
+                }
+                description
+                bannerImage
+                coverImage {
+                  large
+                }
+                startDate {
+                  year
+                  month
+                  day
+                }
+                endDate {
+                  year
+                  month
+                  day
+                }
+                genres
+                episodes
+                status
+                season
+                format
+                favourites
+                popularity
+                averageScore
+                meanScore
+                source
+                hashtag
+                duration
+                synonyms
+              }
             }
-        `
+      `
       const options = {
         method: 'POST',
         headers: {
@@ -76,9 +113,7 @@ export default {
       const res = await fetch(url, options)
       if(res.ok) {
         const {data} = await res.json()
-        const media = data.Media
-        this.data = media
-        this.dataSetup(media)
+        this.dataSetup(data.Media)
       }
     } catch (err) {
       console.log(err.message)
@@ -86,6 +121,8 @@ export default {
   },
   methods: {
     dataSetup(data) {
+      this.data = data
+
       let startDate = new Date(`${data.startDate?.month ?? '1'}/${data.startDate?.day ?? '11'}/${data.startDate?.year ?? '1111'}`)
       let endDate = new Date(`${data.endDate?.month ?? '1'}/${data.endDate?.day ?? '11'}/${data.endDate?.year ?? '1111'}`)
 
@@ -110,31 +147,38 @@ export default {
       }
 
       const studiosArray = []
-      data.studios?.forEach( e => {
-        const elem = { value: e }
-        genreArray.push(elem)
+      data.studios?.edges?.forEach( e => {
+        if(e?.isMain === true) {
+          const elem = { value: e.node.name }
+          studiosArray.push(elem)
+        }
       })
+
       const producersArray = []
-      data.producers?.forEach( e => {
-        const elem = { value: e }
-        genreArray.push(elem)
+      data.studios?.edges?.forEach( e => {
+        if(e?.isMain === false) {
+          const elem = { value: e.node.name }
+          producersArray.push(elem)
+        }
       })
+
       const genreArray = []
       data.genres?.forEach( e => {
         const elem = { value: e }
         genreArray.push(elem)
       })
+
       const synonymsArray = []
       data.synonyms?.forEach( e => {
         const elem = { value: e }
-        genreArray.push(elem)
+        synonymsArray.push(elem)
       })
       this.infoArr = [
         {
           title: 'format',
           values: [
             {
-              value: data.format
+              value: data?.format ?? '---'
             }
           ]
         },
@@ -142,15 +186,15 @@ export default {
           title: 'episodes',
           values: [
             {
-              value: data.episodes
+              value: data?.episodes ?? '---'
             }
           ]
         },
         {
-          title: 'episode duration',
+          title: 'duration',
           values: [
             {
-              value: data.episodeDuration
+              value: `${data?.duration ?? '---'}m`
             }
           ]
         },
@@ -158,7 +202,7 @@ export default {
           title: 'status',
           values: [
             {
-              value: data.status
+              value: data?.status ?? '---'
             }
           ]
         },
@@ -182,7 +226,7 @@ export default {
           title: 'season',
           values: [
             {
-              value: data.season
+              value: data?.season ?? '---'
             }
           ]
         },
@@ -190,7 +234,7 @@ export default {
           title: 'average score',
           values: [
             {
-              value: data.averageScore
+              value: data?.averageScore ?? '---'
             }
           ]
         },
@@ -198,7 +242,7 @@ export default {
           title: 'mean score',
           values: [
             {
-              value: data.meanScore
+              value: data?.meanScore ?? '---'
             }
           ]
         },
@@ -206,7 +250,7 @@ export default {
           title: 'popularity',
           values: [
             {
-              value: data.popularity
+              value: data?.popularity ?? '---'
             }
           ]
         },
@@ -214,7 +258,7 @@ export default {
           title: 'favorites',
           values: [
             {
-              value: data.favorites
+              value: data?.favourites ?? '---'
             }
           ]
         },
@@ -230,7 +274,7 @@ export default {
           title: 'source',
           values: [
             {
-              value: data.source
+              value: data?.source ?? '---'
             }
           ]
         },
@@ -238,7 +282,7 @@ export default {
           title: 'hashtag',
           values: [
             {
-              value: data.hashtag
+              value: data?.hashtag ?? '---'
             }
           ]
         },
@@ -250,7 +294,7 @@ export default {
           title: 'romaji',
           values: [
             {
-              value: data.romaji
+              value: data?.title?.romaji ?? '---'
             }
           ]
         },
@@ -258,7 +302,7 @@ export default {
           title: 'english',
           values: [
             {
-              value: data.english
+              value: data?.title?.english ?? '---'
             }
           ]
         },
@@ -266,7 +310,7 @@ export default {
           title: 'native',
           values: [
             {
-              value: data.native
+              value: data?.title?.native ?? '---'
             }
           ]
         },

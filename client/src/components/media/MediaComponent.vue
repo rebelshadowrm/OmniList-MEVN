@@ -26,9 +26,9 @@
       />
       <div class="main">
         <MediaCharacters v-if="section === 'overview' || section === 'characters'"
-                         :section="section"/>
+                         :section="section" :characters="data?.characters?.edges"/>
         <MediaStaff v-if="section === 'overview' || section === 'staff'"
-                    :section="section"/>
+                    :section="section" :staff="data?.staff?.edges"/>
         <MediaReviews v-if="section === 'overview' || section === 'reviews'"
                       :section="section"/>
         <MediaStats v-if="section === 'overview' || section === 'stats'"
@@ -205,6 +205,9 @@ option {
 .content .main {
   margin-top: var(--top-margin);
   grid-column: 4 / span 8;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
 @media only screen and (max-width: 48.375rem) {
