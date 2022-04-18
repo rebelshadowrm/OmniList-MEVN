@@ -1,7 +1,9 @@
 <template>
   <PostComponent v-if="isLoggedIn === true"/>
-  <Login @toggle-form="toggleForm" v-if="hasAccount === true && isLoggedIn === false"/>
-  <Register @toggle-form="toggleForm" v-if="hasAccount === false && isLoggedIn === false"/>
+  <div class="forms">
+    <Login @toggle-form="toggleForm" v-if="hasAccount === true && isLoggedIn === false"/>
+    <Register @toggle-form="toggleForm" v-if="hasAccount === false && isLoggedIn === false"/>
+  </div>
 </template>
 
 <script>
@@ -38,5 +40,7 @@ export default {
 </script>
 
 <style scoped>
-
+.forms {
+  margin-block: auto;
+}
 </style>

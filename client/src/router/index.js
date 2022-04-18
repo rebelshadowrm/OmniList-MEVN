@@ -3,7 +3,11 @@ import Home from "../views/Home.vue"
 import About from "../views/About.vue"
 import Profile from "../views/Profile.vue";
 import Anime from "../views/Anime.vue"
-import AnimeBrowse from "../views/AnimeBrowse.vue";
+import AnimeBrowse from "../views/AnimeBrowse.vue"
+import Discussions from "../views/Discussions.vue"
+import Discussion from "../views/Discussion.vue"
+import Reviews from "../views/Reviews.vue"
+import Review from "../views/Review.vue"
 
 const routes = [
     {
@@ -32,7 +36,29 @@ const routes = [
         name: 'Anime',
         component: Anime,
         props: true,
-    }
+    },
+    {
+        path: '/discussion/:id',
+        name: 'Discussion',
+        component: Discussion,
+        props: true,
+    },
+    {
+        path: '/discussions',
+        name: 'Discussions',
+        component: Discussions,
+    },
+    {
+        path: '/reviews',
+        name: 'Reviews',
+        component: Reviews,
+    },
+    {
+        path: '/review/:id',
+        name: 'Review',
+        component: Review,
+        props: true,
+    },
     ]
 
 const router = createRouter({

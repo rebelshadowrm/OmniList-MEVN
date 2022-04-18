@@ -47,6 +47,8 @@ export default {
 .character-card {
   flex: 1 1 30%;
   display: grid;
+  grid-template-columns: max-content 1fr;
+  justify-items: end;
   grid-template-areas:
       'img title'
       'img role';

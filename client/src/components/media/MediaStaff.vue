@@ -50,6 +50,8 @@ export default {
   grid-template-areas:
       'img title'
       'img role';
+  grid-template-columns: max-content 1fr;
+  justify-items: end;
   gap: 1rem;
   padding: 1rem;
   background-color: var(--clr-secondary-800-3);

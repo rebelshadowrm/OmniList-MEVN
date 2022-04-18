@@ -11,6 +11,8 @@
       <router-link to="/about">About</router-link>
       <router-link :to="'/profile/'+user.user?.userName ?? ''">Profile</router-link>
       <router-link to="/anime">Anime</router-link>
+      <router-link to="/discussions">Discussions</router-link>
+      <router-link to="/reviews">Reviews</router-link>
     </div>
     <p class="username" v-if="isLoggedIn">{{user?.user?.userName ?? ''}}</p>
     <img class="user" v-if="isLoggedIn" :src="user.user?.img ?? 'https://picsum.photos/seed/user/50'"  alt=""/>
@@ -36,7 +38,6 @@ header {
   position: relative;
   z-index: 1;
 }
-/*noinspection CssInvalidPropertyValue*/
 nav {
   display: grid;
   grid-auto-flow: column;
@@ -53,11 +54,12 @@ nav {
   grid-area: nav;
   display: flex;
   flex-direction: row;
-  gap: 1.25em;
+  gap: 1em;
   justify-self: center;
+  align-self: end;
+  transform: translate3d(0,0,0);
 }
 .nav-items a {
-  place-self: center;
   position: relative;
   display: inline-block;
   color: var(--clr-text);
@@ -76,11 +78,14 @@ nav {
   inset: auto 0 0 0;
   background: var(--clr-text);
   height: 2px;
-  transform: scaleX(0%);
+  border-radius: 5px;
+  visibility: hidden;
+  transform: scaleX(0);
   transition: transform ease .5s;
 }
 .nav-items a:hover::after {
-  transform: scaleX(100%);
+  visibility: visible;
+  transform: scaleX(1);
 }
 .logo-link {
   display: flex;
