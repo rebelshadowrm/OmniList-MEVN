@@ -17,8 +17,11 @@ const register = require('./routes/api/register')
 const user = require('./routes/api/user')
 const refresh = require('./routes/api/refresh')
 const logout = require('./routes/api/logout')
+const reviews = require('./routes/api/reviews')
+const discussions = require('./routes/api/discussions')
 
-
+app.use('/api/discussions', discussions)
+app.use('/api/reviews', reviews)
 app.use('/api/posts', posts)
 app.use('/api/login', login)
 app.use('/api/register', register)
