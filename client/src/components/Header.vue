@@ -9,20 +9,66 @@
     <div class="nav-items">
       <router-link  to="/">Home</router-link>
       <router-link to="/about">About</router-link>
-      <router-link :to="'/profile/'+user.user?.userName ?? ''">Profile</router-link>
       <router-link to="/anime">Anime</router-link>
       <router-link to="/discussions">Discussions</router-link>
       <router-link to="/reviews">Reviews</router-link>
     </div>
-    <p class="username" v-if="isLoggedIn">{{user?.user?.userName ?? ''}}</p>
-    <img class="user" v-if="isLoggedIn" :src="user.user?.img ?? 'https://picsum.photos/seed/user/50'"  alt=""/>
+    <div v-if="isLoggedIn" @click.prevent="toggle" class="dropdown">
+      <div class="dropdown-title">
+        <img class="user" v-if="isLoggedIn" :src="user.user?.img ?? 'https://picsum.photos/seed/user/50'"  alt=""/>
+        <p class="username" v-if="isLoggedIn">{{user?.user?.userName ?? ''}}</p>
+      </div>
+      <div v-if="dropdown" class="dropdown-items-nav">
+        <router-link :to="'/profile/'+user.user?.userName ?? ''">Profile</router-link>
+        <a href="">inbox</a>
+        <a href="">settings</a>
+        <a @click.prevent="logout" href="javascript:void(0)">logout</a>
+      </div>
+    </div>
+
   </nav>
 </header>
 </template>
 
 <script>
+import TokenService from "../TokenService";
+import router from "../router";
+import setLogin from "../composables/user";
 export default {
   name: "Header",
+  data() {
+    return {
+      dropdown: false,
+    }
+  },
+  methods: {
+    toggle(e) {
+      this.dropdown = !this.dropdown
+    },
+    async logout(e) {
+      const refreshToken = TokenService.getRefreshToken()
+      const res =await fetch("/api/logout",{
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify({
+          refreshToken
+        })
+      })
+      console.log('token', refreshToken)
+      console.log(res)
+      if(res.status === 204) {
+        const {setIsLoggedIn} = setLogin()
+        setIsLoggedIn(false)
+        TokenService.clearTokens()
+        await router.push('/')
+      } else {
+        alert('Something went wrong logging you out, please try again later.')
+      }
+    }
+  }
 }
 </script>
 <script setup>
@@ -47,6 +93,7 @@ nav {
   padding: .75rem;
   gap: 1.25em;
   overflow-x: auto;
+  overflow-y: clip;
   width: 100%;
   background-color: var(--clr-secondary-800-3);
 }
@@ -57,7 +104,6 @@ nav {
   gap: 1em;
   justify-self: center;
   align-self: end;
-  transform: translate3d(0,0,0);
 }
 .nav-items a {
   position: relative;
@@ -90,6 +136,7 @@ nav {
 .logo-link {
   display: flex;
   text-decoration: none;
+  place-items: end;
 }
 .logo-link span {
   font-size: var(--txt-med);
@@ -114,5 +161,6 @@ nav {
 }
 .username {
   place-self: end;
+  font-weight: 500;
 }
 </style>

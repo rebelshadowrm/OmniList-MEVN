@@ -28,7 +28,7 @@ router.post('/', async (req, res) => {
 // Delete Post
 router.delete('/:id', async (req, res) => {
     if(await PostModel.deleteOne({ _id: new mongodb.ObjectId(req.params.id) })) {
-        res.status(200).send({"id": req.params.id})
+        res.status(204).send({"id": req.params.id})
     } else {
         res.sendStatus(400)
     }

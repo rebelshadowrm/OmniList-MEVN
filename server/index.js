@@ -16,6 +16,7 @@ const login = require('./routes/api/login')
 const register = require('./routes/api/register')
 const user = require('./routes/api/user')
 const refresh = require('./routes/api/refresh')
+const logout = require('./routes/api/logout')
 
 
 app.use('/api/posts', posts)
@@ -23,6 +24,7 @@ app.use('/api/login', login)
 app.use('/api/register', register)
 app.use('/api/user', user)
 app.use('/api/refresh', refresh)
+app.use('/api/logout', logout)
 
 
 // Handle production
