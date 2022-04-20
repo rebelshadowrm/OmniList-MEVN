@@ -1,17 +1,24 @@
 <template>
 <div class="reviews">
+  <button @click.prevent="toggle = !toggle">Add Review</button>
+  <ThreadForm class="form" v-if="toggle"/>
   <ThreadCollection type="review" :threads="threads"/>
 </div>
 </template>
 
 <script>
 import ThreadCollection from "../components/thread/ThreadCollection.vue";
+import ThreadForm from "../components/thread/ThreadForm.vue";
 export default {
   name: "Reviews",
-  components: {ThreadCollection},
+  components: {
+    ThreadCollection,
+    ThreadForm
+  },
   data() {
     return {
-      threads: []
+      threads: [],
+      toggle: false
     }
   },
   created() {
@@ -113,5 +120,18 @@ export default {
 </script>
 
 <style scoped>
-
+.reviews {
+  width: min(100% - 2rem, 60rem);
+  margin-inline: auto;
+  margin-block: 2rem;
+}
+button {
+  display: block;
+  margin-inline: auto;
+}
+.form {
+  padding: 2rem;
+  max-width: min(100% - 2rem, 65ch);
+  margin-inline: auto;
+}
 </style>

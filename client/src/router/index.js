@@ -8,6 +8,7 @@ import Discussions from "../views/Discussions.vue"
 import Discussion from "../views/Discussion.vue"
 import Reviews from "../views/Reviews.vue"
 import Review from "../views/Review.vue"
+import Settings from "../views/Settings.vue";
 
 const routes = [
     {
@@ -59,6 +60,11 @@ const routes = [
         component: Review,
         props: true,
     },
+    {
+        path: '/settings',
+        name: 'Settings',
+        component: Settings
+    }
     ]
 
 const router = createRouter({
