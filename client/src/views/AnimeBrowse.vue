@@ -75,7 +75,9 @@ h1 {
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
-  gap: 2rem;
-  padding: 2rem;
+  gap: 1.5rem;
+  margin: 2rem;
+  justify-content: center;
 }
+
 </style>

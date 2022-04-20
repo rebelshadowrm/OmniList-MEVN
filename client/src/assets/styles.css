@@ -175,6 +175,7 @@ p {
     --ff-serif: 'Bitter', serif;
 
     /* Text sizing variables */
+    --txt-xsm: .7rem;
     --txt-small: .9rem;
     --txt-small-fluid: clamp(.5rem, calc(10px + 1vmin), .75rem );
     --txt-med: 1.1rem;
