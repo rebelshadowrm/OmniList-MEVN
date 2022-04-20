@@ -15,11 +15,11 @@
     </div>
     <div v-if="isLoggedIn" @click.prevent="toggle" class="dropdown">
       <div class="dropdown-title">
-        <img class="user" v-if="isLoggedIn" :src="user.user?.img ?? 'https://picsum.photos/seed/user/50'"  alt=""/>
+        <img class="user" v-if="isLoggedIn" :src="user?.user?.img ?? `https://picsum.photos/seed/${user?.user?.userName}/50`"  alt=""/>
         <p class="username" v-if="isLoggedIn">{{user?.user?.userName ?? ''}}</p>
       </div>
       <div v-if="dropdown" class="dropdown-items-nav">
-        <router-link :to="'/profile/'+user.user?.userName ?? ''">Profile</router-link>
+        <router-link :to="'/profile/'+user?.user?.userName ?? ''">Profile</router-link>
         <a href="">inbox</a>
         <a href="">settings</a>
         <a @click.prevent="logout" href="javascript:void(0)">logout</a>
@@ -57,8 +57,6 @@ export default {
           refreshToken
         })
       })
-      console.log('token', refreshToken)
-      console.log(res)
       if(res.status === 204) {
         const {setIsLoggedIn} = setLogin()
         setIsLoggedIn(false)
@@ -150,12 +148,12 @@ nav {
 .logo {
   grid-area: logo;
   aspect-ratio: 1;
-  height: 40px;
+  height: 50px;
 }
 .user {
   grid-area: user;
   aspect-ratio: 1;
-  height: 40px;
+  height: 36px;
   border: 1px inset hsl(var(--clr-white-200) / .5);
   border-radius: 10px;
 }

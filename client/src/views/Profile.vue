@@ -87,7 +87,7 @@ export default {
       //TODO: add better methods for image fallbacks
       this.img = user?.img ?? `https://picsum.photos/seed/${this.name}/260/280`
       this.imgAlt = user?.imgAlt ?? 'profile image'
-      this.bgImg = user?.bgImg ?? 'https://picsum.photos/2000/400'
+      this.bgImg = user?.bgImg ?? `https://picsum.photos/seed/${this.email}/2000/400`
     }
   }
 }

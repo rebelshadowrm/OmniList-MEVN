@@ -1,6 +1,6 @@
 <template>
-<div :style="cssProps">
-  <div class="hero" >
+<div>
+  <div class="hero" :style="`--bgImg: url(${backgroundImage})`" >
     <div class="user" >
       <img :src="img" :alt="imgAlt">
       <h1>{{username}}</h1>
@@ -19,18 +19,12 @@ export default {
     imgAlt: String,
     backgroundImage: String,
   },
-  computed: {
-    cssProps() {
-      return {
-        '--bgImg': 'url('+(this.backgroundImage)+')'
-      }
-    }
-  }
 }
 </script>
 
 <style scoped>
 .hero {
+  --bgImg: initial;
   display: grid;
   background-color: var(--clr-bg);
   background-image: var(--bgImg);
@@ -47,6 +41,7 @@ export default {
 }
 h1 {
   align-self: end;
+  filter: drop-shadow(2px 2px 1px hsl(0deg 0% 0% /.7));
 }
 img {
   margin-top: auto;
