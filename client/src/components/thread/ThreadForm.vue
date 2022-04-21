@@ -19,7 +19,13 @@
     </div>
     <div class="input">
       <label for="body">body</label>
-      <textarea name="body" id="body"></textarea>
+      <textarea
+          class="body"
+          rows="1"
+          name="body"
+          id="body"
+          @input="auto_height"
+      ></textarea>
     </div>
     <input type="submit" value="submit">
   </form>
@@ -127,15 +133,35 @@ export default {
     async find(e) {
       this.searching = true
       await this.findSubject(this.subject)
+    },
+    auto_height(e) {
+      e.target.style.height = "1px";
+      e.target.style.height = (e.target.scrollHeight)+"px";
     }
   }
 }
 </script>
 
 <style scoped>
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
 .input {
   display: flex;
   flex-direction: column;
+}
+.body,
+input[type=text]{
+  outline: none;
+  border: none;
+  line-height: 1;
+  width: 100%;
+  resize: none;
+  background-color: hsl(0deg 0% 15%);
+  color: var(--clr-text);
+  padding: .5em;
 }
 .outputs {
   margin: 1rem .5rem;
@@ -153,6 +179,22 @@ export default {
   background-color: var(--clr-secondary-400-3);
   cursor: pointer;
   border-radius: 3px;
-
+}
+label {
+  margin-bottom: .175rem;
+}
+input[type=submit],
+button {
+  border: none;
+  border-radius: 3px;
+  max-width: fit-content;
+  padding: .25rem .75rem;
+  font-size: var(--txt-med);
+  font-weight: 600;
+  margin-block: .5rem;
+  place-self: end;
+  color: var(--clr-text);
+  background-color: var(--clr-secondary-600);
+  cursor: pointer;
 }
 </style>

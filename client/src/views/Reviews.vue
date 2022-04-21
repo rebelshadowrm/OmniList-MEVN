@@ -55,6 +55,14 @@ export default {
 button {
   display: block;
   margin-inline: auto;
+  border: none;
+  border-radius: 3px;
+  padding: .25rem .75rem;
+  font-size: var(--txt-med);
+  font-weight: 600;
+  color: var(--clr-text);
+  background-color: var(--clr-secondary-600);
+  cursor: pointer;
 }
 .form {
   padding: 2rem;
