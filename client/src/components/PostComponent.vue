@@ -85,6 +85,7 @@ div.created-at {
   background-color: darkgreen;
   color: white;
   font-size: 13px;
+  letter-spacing: 1px;
 }
 
 p.text {

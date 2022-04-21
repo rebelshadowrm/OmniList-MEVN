@@ -1,9 +1,9 @@
 <template>
 <div class="response">
-  <p class="comment">{{response?.comment}}</p>
   <p class="username">
-    <router-link :to="`/profile/${response?.userName}`">{{response.userName}}</router-link>
+    <router-link :to="`/profile/${response?.comment?.user?.userName}`">{{response?.comment?.user?.userName}}</router-link>
   </p>
+  <p class="comment">{{response?.comment?.comment}}</p>
 </div>
 </template>
 
@@ -19,7 +19,8 @@ export default {
 <style scoped>
 .response {
   background-color: var(--clr-bg);
-  padding: 1em;
+  margin-inline: 1rem;
+  padding: 1em 2em;
   border-width: 1px;
   border-style: solid;
   border-color: var(--clr-border);
@@ -29,8 +30,10 @@ export default {
   font-size: var(--txt-med);
 }
 .username a {
+  display: block;
   font-size: var(--txt-small);
   text-decoration: none;
-  color: var(--clr-text)
+  color: var(--clr-text);
+  max-width: fit-content;
 }
 </style>

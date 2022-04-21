@@ -4,7 +4,7 @@
     <h2>{{title}}</h2>
   </router-link>
   <router-link class="img-link" :to="'/anime/' + id">
-    <img :src="img" alt="">
+    <img :src="img" alt="" loading="lazy">
   </router-link>
     <div class="sub">
       <div v-html="description"></div>

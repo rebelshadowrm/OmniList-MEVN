@@ -283,7 +283,7 @@ footer {
 .dropdown::after {
     content: '\25BC';
     position: absolute;
-    inset: auto .35em 30% auto;
+    inset: auto .35em 32.5% auto;
     transform: translateY(50%);
 }
 .dropdown-title {
@@ -299,7 +299,7 @@ footer {
 .dropdown-items-nav {
     position: fixed;
     background-color: var(--clr-secondary-800);
-    inset: auto 1rem -8.95rem auto;
+    inset: auto .9rem -9rem auto;
     width: 160px;
     padding-inline: .5rem;
     padding-block: .35rem;

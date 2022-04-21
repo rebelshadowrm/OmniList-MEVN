@@ -15,6 +15,12 @@ router.get('/', async (req, res) => {
         .populate('comments.comment.user'))
 })
 
+router.get('/:id', async (req, res) => {
+    res.send(await DiscussionModel.findById(req.params.id)
+        .populate('user')
+        .populate('comments.comment.user'))
+})
+
 // Add Discussion
 router.post('/', async (req, res) => {
     let discussion = await DiscussionModel.create({

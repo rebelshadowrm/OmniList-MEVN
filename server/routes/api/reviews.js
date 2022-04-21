@@ -15,6 +15,12 @@ router.get('/', async (req, res) => {
         .populate('comments.comment.user'))
 })
 
+router.get('/:id', async (req, res) => {
+    res.send(await ReviewModel.findById(req.params.id)
+        .populate('user')
+        .populate('comments.comment.user'))
+})
+
 // Add review
 router.post('/', async (req, res) => {
     let review = await ReviewModel.create({
