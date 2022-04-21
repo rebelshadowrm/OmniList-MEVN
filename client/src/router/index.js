@@ -9,6 +9,7 @@ import Discussion from "../views/Discussion.vue"
 import Reviews from "../views/Reviews.vue"
 import Review from "../views/Review.vue"
 import Settings from "../views/Settings.vue";
+import inbox from "../views/Inbox.vue";
 
 const routes = [
     {
@@ -64,6 +65,11 @@ const routes = [
         path: '/settings',
         name: 'Settings',
         component: Settings
+    },
+    {
+        path: '/inbox',
+        name: 'Inbox',
+        component: inbox
     }
     ]
 

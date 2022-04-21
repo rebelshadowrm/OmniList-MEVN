@@ -20,7 +20,7 @@
       </div>
       <div v-if="dropdown" class="dropdown-items-nav">
         <router-link :to="'/profile/'+user?.user?.userName ?? ''">Profile</router-link>
-        <a href="">inbox</a>
+        <router-link to="/inbox">inbox</router-link>
         <router-link to="/settings">settings</router-link>
         <a @click.prevent="logout" href="javascript:void(0)">logout</a>
       </div>
