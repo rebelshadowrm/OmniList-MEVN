@@ -1,9 +1,9 @@
 <template>
 <div class="thread-container">
-  <ThreadPost :post="post" />
+  <ThreadPost :type="type" :post="post" />
   <div class="replies">
     <ThreadResponseForm :type="type" :id="post.id" @update-replies="updateReplies" />
-    <ThreadResponse :response="response" v-for="response in responses" :key="response.id"/>
+    <ThreadResponse :type="type" :id="post.id" :response="response" v-for="response in responses" :key="response.id"/>
   </div>
 </div>
 </template>
@@ -39,8 +39,10 @@ export default {
   margin-inline: auto;
   padding: .6rem;
   max-width: min(100% - 4rem, 55rem);
+  /*
   background-color: var(--clr-secondary-800-3);
   border-radius: var(--radius);
+   */
   display: flex;
   flex-direction: column;
   gap: 1.5rem;

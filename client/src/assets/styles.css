@@ -61,6 +61,13 @@ select {
     font: inherit;
 }
 
+/* Default properties to Span textbox */
+span[role=textbox] {
+    white-space: pre-wrap;
+    overflow: hidden;
+    word-break: break-word;
+}
+
 /* Remove all animations and transitions for people that prefer not to see them */
 @media (prefers-reduced-motion: reduce) {
     * {
@@ -95,10 +102,10 @@ p {
     --clr-primary-s: 88%;
     --clr-secondary-s: var(--clr-primary-s);
     --clr-accent-s: var(--clr-primary-s);
-    --clr-200: 90%;
-    --clr-400: 70%;
-    --clr-600: 50%;
-    --clr-800: 30%;
+    --clr-200: 75%;
+    --clr-400: 55%;
+    --clr-600: 35%;
+    --clr-800: 15%;
     --opacity-1: .1;
     --opacity-3: .3;
     --opacity-5: .5;

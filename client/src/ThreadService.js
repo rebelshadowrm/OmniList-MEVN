@@ -68,6 +68,42 @@ class ThreadService {
         }
     }
 
+    // update Thread
+    static async updateDiscussion(id, data) {
+        try {
+            return await axios.put(`${url}discussions/${id}`, JSON.stringify(data))
+        }
+        catch(err) {
+            return err.response
+        }
+    }
+    static async updateReview(id, data) {
+        try {
+            return await axios.put(`${url}reviews/${id}`, JSON.stringify(data))
+        }
+        catch(err) {
+            return err.response
+        }
+    }
+
+    // delete Thread
+    static async deleteDiscussionById(id) {
+        try {
+            return await axios.delete(`${url}discussions/${id}`)
+        }
+        catch(err) {
+            return err.response
+        }
+    }
+    static async deleteReviewById(id) {
+        try {
+            return await axios.delete(`${url}reviews/${id}`)
+        }
+        catch(err) {
+            return err.response
+        }
+    }
+
     // create Comment
     static async createDiscussionComment(data) {
         try {
@@ -80,6 +116,46 @@ class ThreadService {
     static async createReviewComment(data) {
         try {
             return await axios.post(`${url}reviews/comment/add`, JSON.stringify(data))
+        }
+        catch(err) {
+            return err.response
+        }
+    }
+
+    // update Comment
+    static async updateDiscussionComment(data) {
+        try {
+            return await axios.put(`${url}discussions/comment/update`, JSON.stringify(data))
+        }
+        catch(err) {
+            return err.response
+        }
+    }
+    static async updateReviewComment(data) {
+        try {
+            return await axios.put(`${url}reviews/comment/update`, JSON.stringify(data))
+        }
+        catch(err) {
+            return err.response
+        }
+    }
+
+    // delete Comment
+    static async deleteDiscussionComment(data) {
+        try {
+            return await axios.delete(`${url}discussions/comment/delete`, {
+                data: JSON.stringify(data)
+            })
+        }
+        catch(err) {
+            return err.response
+        }
+    }
+    static async deleteReviewComment(data) {
+        try {
+            return await axios.delete(`${url}reviews/comment/delete`, {
+                data: JSON.stringify(data)
+            })
         }
         catch(err) {
             return err.response

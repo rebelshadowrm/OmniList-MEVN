@@ -78,5 +78,14 @@ aside {
 }
 .create-button {
   align-self: end;
+  border: none;
+  border-radius: 3px;
+  padding: .25rem .75rem;
+  font-size: var(--txt-med);
+  font-weight: 600;
+  margin-block: .5rem;
+  color: var(--clr-text);
+  background-color: var(--clr-secondary-600);
+  cursor: pointer;
 }
 </style>

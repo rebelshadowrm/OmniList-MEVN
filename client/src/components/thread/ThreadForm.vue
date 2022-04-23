@@ -156,7 +156,7 @@ form {
 input[type=text]{
   outline: none;
   border: none;
-  line-height: 1;
+  line-height: 1.25;
   width: 100%;
   resize: none;
   background-color: hsl(0deg 0% 15%);

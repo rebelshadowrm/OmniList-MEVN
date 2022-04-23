@@ -16,28 +16,39 @@ export default {
   data() {
     return {
       post: {},
-      responses: []
+      responses: [],
+    }
+  },
+  watch: {
+    responses() {
+      this.getDiscussion()
     }
   },
   async created() {
-    try {
-      const thread = await ThreadService.getDiscussionsById(this.id)
-      if(thread) {
-        this.post = {
-          subject: thread?.subject ?? '',
-          id: thread?._id ?? '',
-          title: thread?.title ?? '',
-          author: thread?.user?.userName ?? '',
-          body: thread?.body ?? ''
-        }
-        this.responses = thread?.comments ?? []
-      }
-
-    } catch(err) {
-      console.log(err.message)
-    }
+    await this.getDiscussion()
   },
   methods: {
+    async getDiscussion() {
+      try {
+        const thread = await ThreadService.getDiscussionsById(this.id)
+        if(thread) {
+          this.post = {
+            subject: thread?.subject ?? '',
+            subjectId: thread?.subjectId ?? '',
+            id: thread?._id ?? '',
+            title: thread?.title ?? '',
+            author: thread?.user?.userName ?? '',
+            authorId: thread?.user?._id ?? '',
+            authorImg: thread?.user?.img,
+            body: thread?.body ?? ''
+          }
+          this.responses = thread?.comments ?? []
+        }
+
+      } catch(err) {
+        console.log(err.message)
+      }
+    },
     updateReplies(data) {
       this.responses = data.comments
     }

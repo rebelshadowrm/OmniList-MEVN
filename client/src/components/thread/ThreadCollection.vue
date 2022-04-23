@@ -2,13 +2,13 @@
   <div class="threads-container">
     <div  v-if="threads.length > 0"
          v-for="thread in threads"
-         :key="thread.id" class="thread-card">
-        <router-link :to="`/${type}/${thread._id}`">
+         :key="thread?.id" class="thread-card">
+        <router-link :to="`/${type}/${thread?._id}`">
           <div class="thread-info">
-            <p class="title">{{thread.title}}</p>
-            <p class="subject">{{thread.subject}}</p>
-            <p class="comments">comments: {{thread.comments.length}}</p>
-            <p class="author">{{thread.author}}</p>
+            <p class="title">{{thread?.title}}</p>
+            <p class="subject">{{thread?.subject}}</p>
+            <p class="comments">comments: {{thread?.comments?.length}}</p>
+            <p class="author">{{thread?.user?.userName}}</p>
           </div>
       </router-link>
     </div>
@@ -34,6 +34,8 @@ export default {
   gap: 1.35rem;
 }
 a {
+  display: block;
+  padding: 1rem;
   text-decoration: none;
   color: var(--clr-text);
 }
@@ -42,7 +44,6 @@ a {
   border-radius: var(--radius);
   border-width: 1px;
   border-color: var(--clr-border);
-  padding: 1rem;
   background-color: var(--clr-secondary-800-3);
   width: calc(100% - 4rem);
   max-width: calc(100% - 4rem);

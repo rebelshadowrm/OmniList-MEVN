@@ -96,6 +96,7 @@ export default {
     cancel() {
       this.buttons = false
       this.comment = ''
+      document.querySelector('.comment').style.height = "max-content"
     },
     auto_height(e) {
       e.target.style.height = "1px";
@@ -135,11 +136,12 @@ button {
 .comment {
   outline: none;
   border: none;
-  line-height: 1;
+  line-height: 1.25;
   width: 100%;
   resize: none;
   background-color: transparent;
   color: var(--clr-text);
+  font-size: var(--txt-small);
 }
 hr {
   margin-top: 0;

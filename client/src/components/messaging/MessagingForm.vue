@@ -48,4 +48,17 @@ export default {
 hr {
   margin-top: -.25rem;
 }
+input[type=submit] {
+  border: none;
+  border-radius: 3px;
+  max-width: fit-content;
+  padding: .25rem .75rem;
+  font-size: var(--txt-med);
+  font-weight: 600;
+  margin-block: .5rem;
+  place-self: end;
+  color: var(--clr-text);
+  background-color: var(--clr-secondary-600);
+  cursor: pointer;
+}
 </style>

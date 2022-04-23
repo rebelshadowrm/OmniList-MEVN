@@ -44,7 +44,17 @@ const reviewSchema = new mongoose.Schema({
                 comment: {
                     type: String,
                     required: true,
-                }
+                },
+                flagged: {
+                    type: Boolean,
+                    required: true,
+                    default: false
+                },
+                suspended: {
+                    type: Boolean,
+                    required: true,
+                    default: false
+                },
             }
         }
     ]
