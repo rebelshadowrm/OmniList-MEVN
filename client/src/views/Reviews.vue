@@ -20,6 +20,11 @@ export default {
     ThreadCollection,
     ThreadForm
   },
+  watch: {
+    threads() {
+      this.getData()
+    }
+  },
   data() {
     return {
       threads: [],
@@ -27,14 +32,20 @@ export default {
     }
   },
   async created() {
-    const res = await ThreadService.getReviews()
-    if(res) {
-      this.threads = await res
-    }
+    await this.getData()
   },
   methods: {
+    async getData() {
+      try {
+        const res = await ThreadService.getReviews()
+        if(res) {
+          this.threads = await res
+        }
+      } catch(err) {
+        console.log(err.message)
+      }
+    },
     async updateData(data) {
-      console.log(data)
       if(data){
         this.threads.push(data)
       }

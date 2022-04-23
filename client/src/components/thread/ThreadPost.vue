@@ -46,7 +46,6 @@
 <script>
 import ThreadService from "../../ThreadService";
 import useUser from "../../composables/user";
-import router from "../../router";
 
 export default {
   name: "ThreadPost",
@@ -90,7 +89,6 @@ export default {
       const body = e.target.parentNode.parentNode.parentNode.querySelector(".body")
       const title = e.target.parentNode.parentNode.parentNode.querySelector(".title")
       const id = body.dataset.id
-      console.log(id)
       if (this.type === 'discussion') {
         try {
           const data = {
@@ -130,7 +128,7 @@ export default {
         try {
           const res = await ThreadService.deleteDiscussionById(id)
           if(res.status === 204) {
-            await router.go('/discussions')
+            await this.$router.push('/discussions')
           }
         } catch(err) {
           console.log(err.message)
@@ -140,7 +138,7 @@ export default {
         try {
           const res = await ThreadService.deleteReviewById(id)
           if (res.status === 204) {
-            await router.go('/reviews')
+            await this.$router.push('/reviews')
           }
         } catch(err) {
           console.log(err.message)

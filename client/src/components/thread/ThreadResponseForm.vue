@@ -59,7 +59,6 @@ export default {
       const {comment} = Object.fromEntries(new FormData(e.target))
       if(comment.length > 0) {
         try {
-          console.log(this.type)
           if(this.type === 'discussion') {
             const data = {
               discussionId: e.target.dataset.thread,
@@ -67,7 +66,6 @@ export default {
               comment
             }
             const res = await ThreadService.createDiscussionComment(data)
-            console.log(res)
             if(res.status === 201) {
               this.$emit('update-replies', res.data)
               this.cancel()
@@ -80,7 +78,6 @@ export default {
               comment
             }
             const res = await ThreadService.createReviewComment(data)
-            console.log(res)
             if(res.status === 201) {
               this.$emit('update-replies', res.data)
               this.cancel()

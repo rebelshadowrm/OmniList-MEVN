@@ -117,7 +117,6 @@ export default {
         const res = await fetch(url, options)
         if(res.ok) {
           const {data} = await res.json()
-          console.log(data)
           this.data = data.Page.media
         }
       } catch(err) {
@@ -125,7 +124,6 @@ export default {
       }
     },
     async select(e) {
-      console.log(e.target)
       this.subjectId = e.target.dataset.id
       this.subject = e.target.textContent
       this.searching = false
