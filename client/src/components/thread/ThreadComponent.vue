@@ -39,10 +39,6 @@ export default {
   margin-inline: auto;
   padding: .6rem;
   max-width: min(100% - 4rem, 55rem);
-  /*
-  background-color: var(--clr-secondary-800-3);
-  border-radius: var(--radius);
-   */
   display: flex;
   flex-direction: column;
   gap: 1.5rem;

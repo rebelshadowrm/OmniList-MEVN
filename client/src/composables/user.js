@@ -1,5 +1,5 @@
 import {reactive, readonly, computed} from 'vue'
-import TokenService from "../TokenService";
+import TokenService from "../services/TokenService";
 
 const state = reactive({
     userData: {

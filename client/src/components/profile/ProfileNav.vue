@@ -35,7 +35,7 @@ export default {
    max-width: 100vw;
    flex-direction: row;
    gap: 1.5rem;
-   background-color: var(--clr-secondary-800-5);
+   background-color: var(--clr-secondary-800);
    overflow-x: auto;
  }
  .profile-nav button:first-child {
@@ -48,11 +48,11 @@ export default {
    border: unset;
    background-color: transparent;
    cursor: pointer;
-   color: var(--clr-primary-400);
+   color: var(--clr-text);
    padding-block: .75rem;
  }
  button:hover {
-   color: var(--clr-accent-400);
+   color: var(--clr-accent-600);
  }
  button.active {
    color: var(--clr-accent-400);

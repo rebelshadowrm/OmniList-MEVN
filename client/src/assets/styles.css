@@ -194,13 +194,15 @@ p {
     --txt-xxl-fluid: clamp(4rem, 20vw, 12rem );
 
     /* shape - size variables */
-    --radius: 20px;
+    --radius: 10px;
     --radius-input: .5em;
 
 
     /* Defaults set for basic elements */
     --clr-bg: hsl(var(--clr-black-600));
     --clr-text: hsl(var(--clr-primary-h) calc(var(--clr-primary-s) * 2) var(--clr-400));
+    --clr-btn-bg: var(--clr-primary-800-7);
+    --clr-btn: var(--clr-secondary-200);
     /*--clr-text: hsl(var(--clr-white-400));*/
     --clr-border: var(--clr-accent-400-3);
 
@@ -327,4 +329,62 @@ footer {
 .dropdown-items-nav a:hover,
 .dropdown-items a:hover {
     background-color: hsl(0deg 0% 0% / .25);
+}
+
+/*********************************************************************
+                                TABLE
+********************************************************************/
+
+.v-table {
+    background-color: var(--clr-secondary-800-3);
+    margin-inline: auto;
+    width: 100%;
+    max-width: min(100%, 70rem);
+    --border: hsl(0deg 0% 100% / .15);
+    border-collapse: collapse;
+}
+.table-img-head {
+    min-width: 50px;
+    width: 5%;
+    aspect-ratio: 1 / 1.5;
+}
+.table-img-row {
+    border: none;
+    padding: .25rem;
+}
+.table-title-head {
+    width: 70%;
+}
+.table-title-row {
+    border-left: none;
+}
+
+.table-rating-head ,
+.table-progress-head {
+    width: max-content;
+}
+.table-rating-row {
+    text-align: center;
+}
+.table-progress-row {
+    text-align: right;
+}
+.table-progress-row {
+    border-right: 1px solid var(--border);
+}
+th {
+    padding: .5rem;
+}
+th span {
+    padding-left: .25rem;
+    cursor: default;
+    user-select: none;
+}
+thead {
+    background-color: var(--clr-secondary-200-3);
+}
+td {
+    padding: 0 .25rem;
+    border-bottom: 1px solid var(--border);
+    border-left: 1px solid var(--border);
 }

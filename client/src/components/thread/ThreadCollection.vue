@@ -44,7 +44,7 @@ a {
   border-radius: var(--radius);
   border-width: 1px;
   border-color: var(--clr-border);
-  background-color: var(--clr-secondary-800-3);
+  background-color: var(--clr-accent-800-3);
   width: calc(100% - 4rem);
   max-width: calc(100% - 4rem);
 }

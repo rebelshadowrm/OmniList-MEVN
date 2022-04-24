@@ -84,8 +84,8 @@ aside {
   font-size: var(--txt-med);
   font-weight: 600;
   margin-block: .5rem;
-  color: var(--clr-text);
-  background-color: var(--clr-secondary-600);
+  background: var(--clr-btn-bg);
+  color: var(--clr-btn);
   cursor: pointer;
 }
 </style>

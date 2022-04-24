@@ -1,5 +1,5 @@
 import axios from 'axios'
-import TokenService from "./TokenService"
+import TokenService from "./services/TokenService"
 
 
 export const axiosAuth = axios.create()

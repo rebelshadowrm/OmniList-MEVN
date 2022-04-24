@@ -32,7 +32,7 @@
 </template>
 
 <script>
-import ThreadService from "../../ThreadService";
+import ThreadService from "../../services/ThreadService";
 import useUser from "../../composables/user"
 export default {
   name: "ThreadForm",
@@ -174,7 +174,7 @@ input[type=text]{
   font-size: var(--txt-small);
 }
 .output-item:hover {
-  background-color: var(--clr-secondary-400-3);
+  background-color: var(--clr-secondary-200-1);
   cursor: pointer;
   border-radius: 3px;
 }
@@ -191,8 +191,8 @@ button {
   font-weight: 600;
   margin-block: .5rem;
   place-self: end;
-  color: var(--clr-text);
-  background-color: var(--clr-secondary-600);
+  background: var(--clr-btn-bg);
+  color: var(--clr-btn);
   cursor: pointer;
 }
 </style>

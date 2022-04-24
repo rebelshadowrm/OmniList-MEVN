@@ -30,7 +30,7 @@
 </template>
 
 <script>
-import TokenService from "../TokenService";
+import TokenService from "../services/TokenService";
 import router from "../router";
 import setLogin from "../composables/user";
 export default {
@@ -92,7 +92,7 @@ nav {
   overflow-x: auto;
   overflow-y: clip;
   width: 100%;
-  background-color: var(--clr-secondary-800-3);
+  background-color: var(--clr-secondary-800-5);
 }
 .nav-items {
   grid-area: nav;
@@ -107,13 +107,13 @@ nav {
   display: inline-block;
   color: var(--clr-text);
   font-size: var(--txt-med);
-  font-weight: 200;
+  font-weight: 300;
   font-family: var(--ff-mono);
   text-decoration: none;
   text-transform: uppercase;
 }
 .nav-items a.active {
-  font-weight: 500;
+  font-weight: 600;
 }
 .nav-items a::after {
   content: '';
@@ -140,7 +140,7 @@ nav {
   align-self: end;
   text-transform: initial;
   color: hsl(204deg 80% 55%);
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: 1px;
   margin-left: -.3rem;
 }

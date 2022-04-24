@@ -6,7 +6,7 @@
 
 <script>
 import ThreadComponent from "../components/thread/ThreadComponent.vue";
-import ThreadService from "../ThreadService";
+import ThreadService from "../services/ThreadService";
 export default {
   name: "Review",
   components: {ThreadComponent},

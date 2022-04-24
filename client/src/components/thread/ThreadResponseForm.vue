@@ -33,7 +33,7 @@
 <script>
 
 import useUser from "../../composables/user";
-import ThreadService from "../../ThreadService";
+import ThreadService from "../../services/ThreadService";
 
 export default {
   name: "ThreadCreateResponse",
@@ -154,8 +154,8 @@ hr {
   cursor: pointer;
 }
 .submit {
-  background-color: var(--clr-secondary-600);
-  color: var(--clr-text);
+  background: var(--clr-btn-bg);
+  color: var(--clr-btn);
   cursor: pointer;
 }
 .disabled {

@@ -19,8 +19,8 @@ export default {
 </script>
 <script setup>
 import useUsers from "./composables/user";
-import TokenService from "./TokenService";
-import UserService from "./UserService";
+import TokenService from "./services/TokenService";
+import UserService from "./services/UserService";
 import useTheme from "./composables/theme";
 
 async function setup() {

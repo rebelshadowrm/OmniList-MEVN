@@ -44,7 +44,7 @@
 </template>
 
 <script>
-import ThreadService from "../../ThreadService";
+import ThreadService from "../../services/ThreadService";
 import useUser from "../../composables/user";
 
 export default {
@@ -220,12 +220,6 @@ export default {
   position: relative;
   padding: 1em 2em;
   background-color: var(--clr-bg);
-  /*
-  border-radius: var(--radius);
-  border-width: 1px;
-  border-style: solid;
-  border-color: var(--clr-border);
-   */
   border-bottom: 1px solid hsl(0deg 0% 100% / .5);
   line-height: 1.25;
 }
@@ -299,7 +293,7 @@ button {
   border: none;
   outline: none;
   font-weight: 500;
-  padding: .15rem .55rem;
+  padding: .35rem .55rem;
   font-size: var(--txt-med);
 }
 .cancel {
@@ -308,8 +302,8 @@ button {
   cursor: pointer;
 }
 .save {
-  background-color: var(--clr-secondary-600);
-  color: var(--clr-text);
+  background: var(--clr-btn-bg);
+  color: var(--clr-btn);
   cursor: pointer;
 }
 
@@ -343,7 +337,7 @@ i {
   padding: 0 .5rem;
 }
 .menu-item:hover {
-  background-color: var(--clr-secondary-600-3);
+  background-color: var(--clr-secondary-200-1);
   cursor: pointer;
 }
 </style>

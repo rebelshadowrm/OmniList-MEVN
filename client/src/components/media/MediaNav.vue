@@ -52,7 +52,7 @@ button {
   padding-block: .75rem;
 }
 button:hover {
-  color: var(--clr-accent-400);
+  color: var(--clr-accent-600);
 }
 button.active {
   color: var(--clr-accent-400);

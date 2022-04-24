@@ -8,14 +8,20 @@
     <div class="card">
       <img class="card-img" :src="data?.coverImage?.large" alt="">
       <div class="btn-container">
-        <button>Add to List</button>
-        <select name="addMedia" id="addMedia">
-          <option value=""></option>
-          <option value="watching">Set as Watching</option>
-          <option value="planning">Set as Planning</option>
-        </select>
+        <div v-if="added" class="added">
+          added options here
+        </div>
+        <div v-else class="toAdd">
+          <button @click.prevent="addToList">Add to List</button>
+          <select name="addMedia" id="addMedia">
+            <option value=""></option>
+            <option value="watching">Set as Watching</option>
+            <option value="planning">Set as Planning</option>
+          </select>
+        </div>
       </div>
-      <div class="favorite">
+      <div @click="favoriteAnime"
+          :class="favorite ? 'favorite favorited' : 'favorite'">
         <i class="fas fa-heart"></i>
       </div>
     </div>
@@ -45,6 +51,7 @@ import MediaCharacters from "./MediaCharacters.vue";
 import MediaReviews from "./MediaReviews.vue";
 import MediaStats from "./MediaStats.vue"
 import MediaStaff from "./MediaStaff.vue"
+import useUser from "../../composables/user"
 
 export default {
   name: "MediaComponent",
@@ -58,17 +65,45 @@ export default {
   },
   props: {
     data: Object,
-    info: Array
+    info: Array,
+    added: Boolean,
+    favorite: Boolean
   },
+  emits: [
+      'update-favorite',
+      'add-to-list'
+  ],
   data() {
     return {
       section: '',
     }
   },
+  mounted() {
+    window.scrollTo(0,0);
+  },
   methods: {
     activeSection(section) {
       this.section = section
     },
+    async favoriteAnime() {
+      this.$emit('update-favorite', !this.favorite)
+    },
+    async addToList() {
+      const {getUser} = useUser()
+      const {user} = getUser().value
+      const data = {
+        user: user._id,
+        animeId: this?.data?.id,
+        title: this?.data?.title?.english ?? this?.data?.title?.romaji ?? this?.data?.title?.native,
+        progress: -1,
+        totalEpisodes: this?.data?.episodes ?? -1,
+        rating: -1,
+        format: this?.data?.format,
+        genre: this?.data?.genres
+
+      }
+      this.$emit('add-to-list', data)
+    }
   }
 }
 </script>
@@ -78,7 +113,7 @@ export default {
   display: grid;
   grid-template-columns: repeat(12, 1fr);
   grid-template-rows: repeat(2, 17.5vh) 175px max-content 1fr;
-  background-color: var(--clr-secondary-800-3);
+  background-color: var(--clr-secondary-800-5);
   column-gap: 2rem;
   row-gap: .3rem;
 }
@@ -130,18 +165,20 @@ export default {
 .btn-container {
   grid-area: btn;
   align-self: end;
+}
+.toAdd {
   display: flex;
   border-width: 1px;
   border-style: solid;
   border-color: var(--clr-border);
   border-radius: 5px;
-  color: var(--clr-secondary-400);
-  background-color: var(--clr-primary-800-7);
+  background: var(--clr-btn-bg);
+  color: var(--clr-btn);
   max-width: max-content;
 }
 
 i {
-  color: white;
+  color: hsl(0deg 0% 95%);
 }
 
 .favorite {
@@ -151,6 +188,15 @@ i {
   padding: .25rem .5rem;
   border-radius: 5px;
   place-self: end;
+  cursor: pointer;
+}
+.favorited {
+  background-color: transparent;
+  cursor: default;
+}
+.favorited i {
+  color: hsl(337, 100%, 40%);
+  transform: scale(1.75);
 }
 
 button {
@@ -160,6 +206,7 @@ button {
   padding: .23rem 1.4rem;
   border-right: 1px solid var(--clr-border);
   width: 100%;
+  cursor: pointer;
 }
 
 select {
@@ -169,6 +216,7 @@ select {
   color: inherit;
   max-width: 20px;
   padding-inline: .25rem;
+  cursor: pointer;
 }
 
 option {
@@ -197,7 +245,7 @@ option {
   display: flex;
   flex-direction: column;
   width: 215px;
-  background-color: var(--clr-secondary-800-3);
+  background-color: var(--clr-secondary-800-5);
   border-radius: 3px;
   padding-bottom: 1rem;
 }

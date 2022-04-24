@@ -52,8 +52,8 @@ export default {
   max-height: min-content;
   gap: 1rem;
   padding: 1rem;
-  background-color: var(--clr-secondary-800-3);
-  border-radius: var(--radius);
+  background-color: var(--clr-secondary-800-5);
+  border-radius: 10px;
   font-size: var(--txt-xsm);
 }
 .title-link,
@@ -71,6 +71,7 @@ img {
   height: 100%;
   max-height: var(--rowHeight);
   aspect-ratio: 1 / 1.5;
+  border-radius: 5px;
 }
 h2 {
   font-size: var(--txt-med);
@@ -81,6 +82,9 @@ h2 {
   grid-area: info;
   max-height: var(--rowHeight);
   overflow-y: auto;
+}
+.sub div {
+  padding-right: .5rem;
 }
 .info,
 .genres {

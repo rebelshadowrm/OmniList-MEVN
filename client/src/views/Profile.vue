@@ -21,7 +21,7 @@
 </template>
 
 <script>
-import UserService from "../UserService"
+import UserService from "../services/UserService"
 import useUser from "../composables/user"
 import ProfileHeader from "../components/profile/ProfileHeader.vue"
 import ProfileNav from "../components/profile/ProfileNav.vue"

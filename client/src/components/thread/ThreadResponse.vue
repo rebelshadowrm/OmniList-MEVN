@@ -38,7 +38,7 @@
 
 <script>
 import useUser from "../../composables/user"
-import ThreadService from "../../ThreadService";
+import ThreadService from "../../services/ThreadService";
 
 export default {
   name: "ThreadResponse",
@@ -185,13 +185,6 @@ export default {
   position: relative;
   margin-inline: 1rem;
   padding: 1em 2em;
-  /*
-  background-color: var(--clr-bg);
-  border-width: 1px;
-  border-style: solid;
-  border-color: var(--clr-border);
-  border-radius: var(--radius);
-   */
 }
 
 .comment {
@@ -234,8 +227,8 @@ button {
 }
 
 .save {
-  background-color: var(--clr-secondary-600);
-  color: var(--clr-text);
+  background: var(--clr-btn-bg);
+  color: var(--clr-btn);
   cursor: pointer;
 }
 
@@ -274,7 +267,7 @@ i {
 }
 
 .menu-item:hover {
-  background-color: var(--clr-secondary-600-3);
+  background-color: var(--clr-secondary-200-1);
   cursor: pointer;
 }
 

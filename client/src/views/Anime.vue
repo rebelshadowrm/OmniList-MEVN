@@ -1,9 +1,18 @@
 <template>
-  <MediaComponent :data="data" :info="infoArr"/>
+  <MediaComponent
+      @update-favorite="updateFavorite"
+      @add-to-list="addToList"
+      :favorite="favorite"
+      :added="added"
+      :data="data"
+      :info="infoArr"
+  />
 </template>
 
 <script>
 import MediaComponent from "../components/media/MediaComponent.vue"
+import AnimeService from "../services/AnimeService";
+import useUser from "../composables/user"
 export default {
   name: "Anime",
   components: {
@@ -12,7 +21,9 @@ export default {
   data() {
     return {
       data: {},
-      infoArr: []
+      infoArr: [],
+      added: false,
+      favorite: false,
     }
   },
   props: {
@@ -83,6 +94,7 @@ export default {
                   month
                   day
                 }
+                id
                 genres
                 episodes
                 status
@@ -114,12 +126,44 @@ export default {
       if(res.ok) {
         const {data} = await res.json()
         this.dataSetup(data.Media)
+        this.addedCheck(data.Media.id)
       }
     } catch (err) {
       console.log(err.message)
     }
   },
   methods: {
+    updateFavorite(val) {
+      //TODO: Check favorite
+      console.log(val)
+      this.favorite = val
+    },
+    async addToList(data) {
+      try {
+        console.log(data)
+        const res = await AnimeService.createAnimeListItem(data)
+        if(res.status === 201) {
+          this.added = true
+        }
+      } catch (err) {
+        console.log(err.message)
+      }
+    },
+    async addedCheck(id) {
+      try {
+        const {getUser} = useUser()
+        const {user} = getUser().value
+        const animeId = await AnimeService.getUserAnimeListItem(user?._id, id)
+        console.log(id)
+        console.log(animeId)
+        if(animeId && animeId.animeId === id) {
+          this.added = true
+        }
+      } catch(err) {
+        console.log(err.message)
+      }
+
+    },
     dataSetup(data) {
       this.data = data
 

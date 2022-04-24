@@ -13,7 +13,7 @@
 <script>
 import ThreadCollection from "../components/thread/ThreadCollection.vue";
 import ThreadForm from "../components/thread/ThreadForm.vue";
-import ThreadService from "../ThreadService";
+import ThreadService from "../services/ThreadService";
 export default {
   name: "Discussions",
   components: {
@@ -32,6 +32,7 @@ export default {
     }
   },
   async created() {
+    window.scrollTo(0,0);
     await this.getData()
   },
   methods: {
@@ -71,8 +72,8 @@ button {
   padding: .25rem .75rem;
   font-size: var(--txt-med);
   font-weight: 600;
-  color: var(--clr-text);
-  background-color: var(--clr-secondary-600);
+  background: var(--clr-btn-bg);
+  color: var(--clr-btn);
   cursor: pointer;
 }
 .form {

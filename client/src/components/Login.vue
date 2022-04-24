@@ -18,8 +18,8 @@
 </template>
 
 <script>
-import UserService from "../UserService.js"
-import TokenService from "../TokenService.js"
+import UserService from "../services/UserService.js"
+import TokenService from "../services/TokenService.js"
 import useUsers from "../composables/user.js"
 
 export default {
@@ -64,17 +64,18 @@ export default {
 
 <style scoped>
 form {
-  background: var(--clr-secondary-600-5);
-  color: var(--clr-primary-400);
+  background: var(--clr-secondary-800-5);
+  color: var(--clr-text);
   max-width: calc(100% - 6rem);
   width: 100%;
   margin: 0 auto;
-  padding: 2em;
+  padding: 1.5rem;
+  margin-block: 1rem;
   display: flex;
   flex-direction: column;
   border: 1px solid var(--clr-border);
-  border-radius: var(--radius);
-  gap: .75rem;
+  border-radius: 10px;
+  gap: .5rem;
 }
 h1 {
   font-size: var(--txt-lrg);
@@ -97,9 +98,9 @@ input[type=submit],
   font-weight: 600;
   padding: .5em 1em;
   max-width: max-content;
-  background: var(--clr-secondary-600-7);
   border-color: var(--clr-border);
-  color: var(--clr-primary-400);
+  background: var(--clr-btn-bg);
+  color: var(--clr-btn);
 }
 .toggle button {
   padding: .15em .5em;

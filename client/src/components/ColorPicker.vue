@@ -51,7 +51,7 @@
 <script>
 import useTheme from "../composables/theme.js"
 import useUser from '../composables/user.js'
-import UserService from "../UserService";
+import UserService from "../services/UserService";
 
 export default {
   name: "ColorPicker",
@@ -172,7 +172,7 @@ button {
 }
 .more-options-btn {
   font-weight: 600;
-  background-color: var(--clr-secondary-800-3);
+  background-color: var(--clr-accent-800-3);
   padding: .4rem .75rem;
 }
 .unset-btn {

@@ -38,7 +38,7 @@
 </template>
 
 <script>
-import UserService from "../UserService";
+import UserService from "../services/UserService";
 
 export default {
   name: "Register",
@@ -103,7 +103,7 @@ export default {
 
 <style scoped>
 form {
-  background: var(--clr-secondary-600-5);
+  background: var(--clr-secondary-800-5);
   color: var(--clr-primary-400);
   max-width: calc(100% - 6rem);
   width: 100%;
@@ -136,9 +136,9 @@ input[type=submit],
   font-weight: 600;
   padding: .5em 1em;
   max-width: max-content;
-  background: var(--clr-secondary-600-7);
   border-color: var(--clr-border);
-  color: var(--clr-primary-400);
+  background: var(--clr-btn-bg);
+  color: var(--clr-btn);
 }
 .toggle button {
   padding: .15em .5em;
@@ -187,9 +187,9 @@ input[type=password] {
   flex-direction: column;
   gap: .5em;
   padding: 1rem 1.25rem;
-  border-radius: var(--radius);
-  background: var(--clr-secondary-400-3);
-  color: var(--clr-primary-400);
+  border-radius: 5px;
+  background: var(--clr-secondary-600-3);
+  color: var(--clr-text);
 }
 input[type=checkbox] {
   display: none;

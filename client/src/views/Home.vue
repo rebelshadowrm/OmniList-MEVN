@@ -11,7 +11,7 @@ import PostComponent from "../components/PostComponent.vue"
 import Login from "../components/Login.vue"
 import Register from "../components/Register.vue";
 import useUser from "../composables/user.js"
-import UserService from "../UserService";
+import UserService from "../services/UserService";
 
 export default {
   name: "Home",
@@ -41,6 +41,7 @@ export default {
 
 <style scoped>
 .forms {
+  padding: 2rem;
   margin-block: auto;
 }
 </style>

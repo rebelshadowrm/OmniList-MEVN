@@ -54,7 +54,7 @@ export default {
   justify-items: end;
   gap: 1rem;
   padding: 1rem;
-  background-color: var(--clr-secondary-800-3);
+  background-color: var(--clr-secondary-800-5);
   border-radius: 10px;
   min-width: 28ch;
 }
