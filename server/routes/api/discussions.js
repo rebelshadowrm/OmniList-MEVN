@@ -21,6 +21,24 @@ router.get('/:id', async (req, res) => {
         .populate('comments.comment.user'))
 })
 
+// Get discussion by anime
+router.get('/anime/:id', async (req, res) => {
+    res.send(await DiscussionModel
+        .where('subjectId')
+        .equals(req?.params?.id)
+        .populate('user')
+        .populate('comments.comment.user'))
+})
+
+// Get discussion by user
+router.get('/user/:id', async (req, res) => {
+    res.send(await DiscussionModel
+        .where('user')
+        .equals(req?.params?.id)
+        .populate('user')
+        .populate('comments.comment.user'))
+})
+
 // Add Discussion
 router.post('/', async (req, res) => {
     let discussion = await DiscussionModel.create({

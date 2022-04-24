@@ -2,23 +2,23 @@
   <div v-if="isLoading" class="loading">
     <h2>Loading...</h2>
   </div>
- <div v-else class="loaded">
-   <ThreadCollection type="review" :threads="reviews"/>
- </div>
+  <div v-else class="loaded">
+    <ThreadCollection type="review" :threads="discussions"/>
+  </div>
 </template>
 
 <script>
 import ThreadCollection from "../thread/ThreadCollection.vue";
-import useUser from "../../composables/user";
+import useUser from "../../composables/user"
 import ThreadService from "../../services/ThreadService";
 export default {
-  name: "ProfileReviews",
+  name: "ProfileDiscussions",
   components: {
     ThreadCollection
   },
   data() {
     return {
-      reviews: [],
+      discussions: [],
       isLoading: false,
     }
   },
@@ -26,16 +26,17 @@ export default {
     const {getUser} = useUser()
     const {user} = getUser().value
     this.isLoading = true
-    await this.getReviews(user._id)
+    await this.getDiscussions(user._id)
   },
   methods: {
-    async getReviews(id) {
+    async getDiscussions(id) {
       try {
-        this.reviews = await ThreadService.getReviewsByUser(id)
+        this.discussions = await ThreadService.getDiscussionsByUser(id)
         this.isLoading = false
       } catch(err) {
         console.log(err.message)
       }
+
     }
   }
 }

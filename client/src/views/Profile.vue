@@ -13,32 +13,32 @@
     <ProfileOverview v-if="section === 'overview'"/>
     <ProfileAnimeList v-if="section === 'animelist'"/>
     <ProfileFavorites v-if="section === 'favorites'"/>
-    <ProfileStats v-if="section === 'stats'"/>
     <ProfileSocials v-if="section === 'socials'"/>
     <ProfileReviews v-if="section === 'reviews'"/>
+    <ProfileDiscussions v-if="section === 'discussions'"/>
   </div>
 </section>
 </template>
 
 <script>
 import UserService from "../services/UserService"
-import useUser from "../composables/user"
 import ProfileHeader from "../components/profile/ProfileHeader.vue"
 import ProfileNav from "../components/profile/ProfileNav.vue"
 import ProfileOverview from "../components/profile/ProfileOverview.vue";
 import ProfileAnimeList from "../components/profile/ProfileAnimeList.vue";
 import ProfileFavorites from "../components/profile/ProfileFavorites.vue";
-import ProfileStats from "../components/profile/ProfileStats.vue";
+import ProfileDiscussions from "../components/profile/ProfileDiscussions.vue";
 import ProfileSocials from "../components/profile/ProfileSocials.vue";
 import ProfileReviews from "../components/profile/ProfileReviews.vue";
 import useTheme from "../composables/theme";
 
+
 export default {
   name: "Profile",
   components: {
+    ProfileDiscussions,
     ProfileReviews,
     ProfileSocials,
-    ProfileStats,
     ProfileFavorites,
     ProfileAnimeList,
     ProfileOverview,
@@ -113,9 +113,19 @@ export default {
     },
   },
   beforeRouteLeave(to, from, next) {
-    const { getLocalColors, setTheme} = useTheme()
-    const color = getLocalColors()
-    setTheme(color)
+    const { getLocalColors, HexToHSL, setPrimaryColor,
+            setSecondaryColor, setAccentColor} = useTheme()
+    const colors = getLocalColors()
+    const primaryHSL = HexToHSL(colors?.primaryColor ?? '#ff0000')
+    setPrimaryColor(primaryHSL)
+    if(colors?.secondaryColor) {
+      const secondaryHSL = HexToHSL(colors.secondaryColor)
+      setSecondaryColor(secondaryHSL)
+    }
+    if(colors?.accentColor) {
+      const accentHSL = HexToHSL(colors.accentColor)
+      setAccentColor(accentHSL)
+    }
     next()
   }
 }

@@ -50,6 +50,56 @@ class ThreadService {
         })
     }
 
+    // get Threads by Anime ID
+    static async getDiscussionsByAnime(id) {
+        return this.getThreadByAnime('discussions', id)
+    }
+    static async getReviewsByAnime(id) {
+        return this.getThreadByAnime('reviews', id)
+    }
+    static async getThreadByAnime(type, id) {
+        return new Promise(async (resolve, reject) => {
+            try {
+                const res = await axios.get(`${url}${type}/anime/${id}`)
+                const data = res.data
+                resolve(
+                    data.map(threads => ({
+                        ...threads,
+                        createdAt: new Date(threads.createdAt),
+                        updatedAt: new Date(threads.updatedAt)
+                    }))
+                )
+            } catch(err) {
+                reject(err)
+            }
+        })
+    }
+
+    // get Threads by User ID
+    static async getDiscussionsByUser(id) {
+        return this.getThreadByUser('discussions', id)
+    }
+    static async getReviewsByUser(id) {
+        return this.getThreadByUser('reviews', id)
+    }
+    static async getThreadByUser(type, id) {
+        return new Promise(async (resolve, reject) => {
+            try {
+                const res = await axios.get(`${url}${type}/user/${id}`)
+                const data = res.data
+                resolve(
+                    data.map(threads => ({
+                        ...threads,
+                        createdAt: new Date(threads.createdAt),
+                        updatedAt: new Date(threads.updatedAt)
+                    }))
+                )
+            } catch(err) {
+                reject(err)
+            }
+        })
+    }
+
     // create Thread
     static async createDiscussion(data) {
         try {

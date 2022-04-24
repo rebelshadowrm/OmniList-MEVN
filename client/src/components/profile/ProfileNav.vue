@@ -3,9 +3,9 @@
   <button @click="selected('overview')" :class="active === 'overview' ? 'active' : ''">Overview</button>
   <button @click="selected('animelist')" :class="active === 'animelist' ? 'active' : ''">AnimeList</button>
   <button @click="selected('favorites')" :class="active === 'favorites' ? 'active' : ''">Favorites</button>
-  <button @click="selected('stats')" :class="active === 'stats' ? 'active' : ''">Stats</button>
   <button @click="selected('socials')" :class="active === 'socials' ? 'active' : ''">Socials</button>
   <button @click="selected('reviews')" :class="active === 'reviews' ? 'active' : ''">Reviews</button>
+  <button @click="selected('discussions')" :class="active === 'discussions' ? 'active' : ''">Discussions</button>
 </div>
 </template>
 

@@ -4,7 +4,6 @@ const dotenv = require("dotenv")
 dotenv.config()
 require('../../database')
 const ReviewModel = require('../../models/review')
-
 const router = express.Router()
 
 
@@ -17,6 +16,24 @@ router.get('/', async (req, res) => {
 
 router.get('/:id', async (req, res) => {
     res.send(await ReviewModel.findById(req.params.id)
+        .populate('user')
+        .populate('comments.comment.user'))
+})
+
+// Get reviews by anime
+router.get('/anime/:id', async (req, res) => {
+    res.send(await ReviewModel
+        .where('subjectId')
+        .equals(req?.params?.id)
+        .populate('user')
+        .populate('comments.comment.user'))
+})
+
+// Get reviews by user
+router.get('/user/:id', async (req, res) => {
+    res.send(await ReviewModel
+        .where('user')
+        .equals(req?.params?.id)
         .populate('user')
         .populate('comments.comment.user'))
 })

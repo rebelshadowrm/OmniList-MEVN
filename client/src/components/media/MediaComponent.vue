@@ -36,9 +36,9 @@
         <MediaStaff v-if="section === 'overview' || section === 'staff'"
                     :section="section" :staff="data?.staff?.edges"/>
         <MediaReviews v-if="section === 'overview' || section === 'reviews'"
-                      :section="section"/>
-        <MediaStats v-if="section === 'overview' || section === 'stats'"
-                    :section="section"/>
+                      :section="section" :reviews="reviews"/>
+        <MediaDiscussions v-if="section === 'overview' || section === 'discussions'"
+                    :section="section" :discussions="discussions"/>
       </div>
     </div>
   </div>
@@ -49,25 +49,28 @@ import MediaPageNav from "./MediaNav.vue";
 import MediaAside from "./MediaAside.vue";
 import MediaCharacters from "./MediaCharacters.vue";
 import MediaReviews from "./MediaReviews.vue";
-import MediaStats from "./MediaStats.vue"
 import MediaStaff from "./MediaStaff.vue"
+import MediaDiscussions from "./MediaDiscussions.vue";
 import useUser from "../../composables/user"
+
 
 export default {
   name: "MediaComponent",
   components: {
+    MediaDiscussions,
     MediaReviews,
     MediaCharacters,
     MediaAside,
     MediaPageNav,
-    MediaStats,
     MediaStaff
   },
   props: {
     data: Object,
     info: Array,
     added: Boolean,
-    favorite: Boolean
+    favorite: Boolean,
+    discussions: Array,
+    reviews: Array
   },
   emits: [
       'update-favorite',
@@ -79,6 +82,7 @@ export default {
     }
   },
   mounted() {
+    console.log(this.reviews)
     window.scrollTo(0,0);
   },
   methods: {

@@ -2,6 +2,8 @@
   <MediaComponent
       @update-favorite="updateFavorite"
       @add-to-list="addToList"
+      :discussions="discussionArr"
+      :reviews="reviewArr"
       :favorite="favorite"
       :added="added"
       :data="data"
@@ -13,6 +15,7 @@
 import MediaComponent from "../components/media/MediaComponent.vue"
 import AnimeService from "../services/AnimeService";
 import useUser from "../composables/user"
+import ThreadService from "../services/ThreadService";
 export default {
   name: "Anime",
   components: {
@@ -24,6 +27,8 @@ export default {
       infoArr: [],
       added: false,
       favorite: false,
+      discussionArr: [],
+      reviewArr: []
     }
   },
   props: {
@@ -126,13 +131,30 @@ export default {
       if(res.ok) {
         const {data} = await res.json()
         this.dataSetup(data.Media)
-        this.addedCheck(data.Media.id)
+        await this.addedCheck(data.Media.id)
+        await this.populateReviews(data.Media.id)
+        await this.populateDiscussions(data.Media.id)
       }
     } catch (err) {
       console.log(err.message)
     }
   },
   methods: {
+    async populateDiscussions(id) {
+      try {
+        this.discussionArr = await ThreadService.getDiscussionsByAnime(id)
+      } catch(err) {
+        console.log(err.message)
+      }
+
+    },
+    async populateReviews(id) {
+      try {
+        this.reviewArr = await ThreadService.getReviewsByAnime(id)
+      } catch(err) {
+        console.log(err.message)
+      }
+    },
     updateFavorite(val) {
       //TODO: Check favorite
       console.log(val)
@@ -154,8 +176,6 @@ export default {
         const {getUser} = useUser()
         const {user} = getUser().value
         const animeId = await AnimeService.getUserAnimeListItem(user?._id, id)
-        console.log(id)
-        console.log(animeId)
         if(animeId && animeId.animeId === id) {
           this.added = true
         }

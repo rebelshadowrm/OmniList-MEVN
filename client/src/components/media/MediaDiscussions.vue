@@ -1,18 +1,18 @@
 <template>
-  <h2>Reviews</h2>
-  <ThreadCollection type="review" :threads="reviewSlice"/>
+  <h2>Discussions</h2>
+  <ThreadCollection type="discussion" :threads="discussionSlice"/>
 </template>
 
 <script>
 import ThreadCollection from "../thread/ThreadCollection.vue";
 export default {
-  name: "MediaReviews",
+  name: "MediaDiscussions",
   components: {
     ThreadCollection
   },
   props: {
     section: String,
-    reviews: Array,
+    discussions: Array
   },
   data() {
     return {
@@ -20,18 +20,19 @@ export default {
     }
   },
   computed: {
-    reviewSlice() {
-      return this?.limit ? this?.reviews?.slice(0, this?.limit) : this?.reviews
+    discussionSlice() {
+      return this?.limit ? this?.discussions?.slice(0, this?.limit) : this?.discussions
     }
   },
   created() {
-    if (this && this?.section === 'reviews') this.limit = null
+    if (this && this?.section === 'discussions') this.limit = null
     if (this && this?.section === 'overview') this.limit = 3
   },
   updated() {
-    if (this && this?.section === 'reviews') this.limit = null
+    if (this && this?.section === 'discussions') this.limit = null
     if (this && this?.section === 'overview') this.limit = 3
   }
+
 }
 </script>
 
