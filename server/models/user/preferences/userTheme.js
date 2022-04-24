@@ -2,19 +2,19 @@ const mongoose = require('mongoose')
 
 const userThemeSchema = new mongoose.Schema({
     listTheme: {
-        type: [],
+        type: {},
         required: false,
-        default: () => []
+        default: () => {}
     },
     dashboardTheme: {
-        type: [],
+        type: {},
         required: false,
-        default: () => []
+        default: () => {}
     },
     profileTheme: {
-        type: [],
+        type: {},
         required: false,
-        default: () => []
+        default: () => {}
     }
 })
 

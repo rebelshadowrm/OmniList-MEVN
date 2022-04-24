@@ -2,6 +2,7 @@ const mongoose = require('mongoose')
 const timestamp = require("../plugins/timestamp");
 const validator = require('validator').default
 const UserPreferences = require('./userPreferences').schema
+const UserProfile = require('./userProfile').schema
 
 const userSchema = new mongoose.Schema({
     userName: {
@@ -36,12 +37,20 @@ const userSchema = new mongoose.Schema({
     role: {
         type: String,
         uppercase: true,
+        default: () => 'user'
     },
     userPreferences: {
         type: UserPreferences,
         required: false,
+        ref: 'UserPreferencesModel',
         default: () => {}
-    }
+    },
+    userProfile: {
+        type: UserProfile,
+        required: false,
+        ref: 'UserProfileModel',
+        default: () => {}
+    },
 }, {
     collection: 'users'
 })

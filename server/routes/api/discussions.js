@@ -46,6 +46,9 @@ router.put('/:id', async (req, res) => {
         const discussion = await DiscussionModel.findOne({_id: req.params.id})
         discussion.title = req?.body?.title ?? discussion.title
         discussion.body = req?.body?.body ?? discussion.body
+        discussion.flagged = req?.body?.flagged ?? discussion.flagged
+        discussion.suspended = req?.body?.suspended ?? discussion.suspended
+
         const result = await discussion.save()
         if(result) {
             res.sendStatus(200)
@@ -115,7 +118,9 @@ router.put('/comment/update', async (req, res) => {
         const discussion = await DiscussionModel.findOne({_id: req.body.discussionId})
         const comments = discussion.comments
         const comment = comments.find( ({_id}) => _id == req.body.commentId )
-        comment.comment.comment = req.body.comment
+        comment.comment.comment = req?.body?.comment ?? comment.comment.comment
+        comment.comment.suspended = req?.body?.suspended ?? comment.comment.suspended
+        comment.comment.flagged = req?.body?.flagged ?? comment.comment.flagged
         discussion.comments = comments
         const result = await discussion.save()
         if(result) {

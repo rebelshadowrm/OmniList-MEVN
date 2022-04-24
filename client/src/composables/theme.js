@@ -16,13 +16,10 @@ const getters = {
     getLocalColors: () => {
         return JSON.parse(localStorage.getItem("color"))
     },
-    getFetchedTheme: () => {
-        //TODO: fetch user's theme
-    }
 }
 
 const setters = {
-    setTheme: (clr) => {
+     setTheme: (clr) => {
         const color = getters.getLocalColors()
         if(color) {
             color.primaryColor = clr?.primaryColor ?? color.primaryColor

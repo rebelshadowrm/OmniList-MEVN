@@ -1,37 +1,45 @@
 <template>
-<div class="response">
-  <p class="username">
-    <router-link :to="`/profile/${response?.comment?.user?.userName}`">
-      <img :src="response?.comment?.user?.img ?? `https://picsum.photos/seed/${response?.comment?.user?.userName}/50`" alt="">
-    </router-link>
-    <router-link :to="`/profile/${response?.comment?.user?.userName}`">{{response?.comment?.user?.userName}}</router-link>
-  </p>
-  <span :data-id="response?._id" role="textbox" contenteditable="false" class="comment">{{response?.comment?.comment}}</span>
-  <div class="inputs">
-    <hr/>
-    <div class="buttons">
-      <button @click="cancel" class="cancel">cancel</button>
-      <button @click="saveComment" class="save">save</button>
+  <div class="response">
+    <p class="username">
+      <router-link :to="`/profile/${response?.comment?.user?.userName}`">
+        <img :src="response?.comment?.user?.img ?? `https://picsum.photos/seed/${response?.comment?.user?.userName}/50`"
+             alt="">
+      </router-link>
+      <router-link :to="`/profile/${response?.comment?.user?.userName}`">{{ response?.comment?.user?.userName }}
+      </router-link>
+    </p>
+    <span :data-id="response?._id" role="textbox" contenteditable="false"
+          class="comment">{{ response?.comment?.comment }}</span>
+    <div class="inputs">
+      <hr/>
+      <div class="buttons">
+        <button @click="cancel" class="cancel">cancel</button>
+        <button @click="saveComment" class="save">save</button>
+      </div>
     </div>
-  </div>
-  <i @click="menuToggle = !menuToggle" class="fas fa-ellipsis-v"></i>
-  <ul  v-if="menuToggle" class="menu">
-    <li v-if="response?.comment?.user?._id !== loggedInUser?.user?._id"
-        @click="reportComment" class="menu-item">Report</li>
-    <li v-if="loggedInUser?.user?.role === 'admin'"
-        @click="suspendComment" class="menu-item">Suspend</li>
-    <li v-if="response?.comment?.user?._id === loggedInUser?.user?._id"
-        @click="editComment" class="menu-item">Edit</li>
-    <li v-if="response?.comment?.user?._id === loggedInUser?.user?._id"
-        @click="deleteComment" class="menu-item">Delete</li>
-  </ul>
+    <i @click="menuToggle = !menuToggle" class="fas fa-ellipsis-v"></i>
+    <ul v-if="menuToggle" class="menu">
+      <li v-if="response?.comment?.user?._id !== loggedInUser?.user?._id"
+          @click="reportComment" class="menu-item">Report
+      </li>
+      <li v-if="loggedInUser?.user?.role === 'admin'"
+          @click="suspendComment" class="menu-item">Suspend
+      </li>
+      <li v-if="response?.comment?.user?._id === loggedInUser?.user?._id"
+          @click="editComment" class="menu-item">Edit
+      </li>
+      <li v-if="response?.comment?.user?._id === loggedInUser?.user?._id"
+          @click="deleteComment" class="menu-item">Delete
+      </li>
+    </ul>
 
-</div>
+  </div>
 </template>
 
 <script>
 import useUser from "../../composables/user"
 import ThreadService from "../../ThreadService";
+
 export default {
   name: "ThreadResponse",
   props: {
@@ -51,15 +59,60 @@ export default {
     this.loggedInUser = getUser()
   },
   methods: {
-    reportComment(e) {
+    async reportComment(e) {
       this.menuToggle = false;
       const comment = e.target.parentNode.parentNode.querySelector(".comment")
       const commentId = comment.dataset.id
+      if (this.type === 'discussion') {
+        const data = {
+          discussionId: this.id,
+          commentId,
+          flagged: true
+        }
+        console.log(data)
+        const res = await ThreadService.updateDiscussionComment(data)
+        if (res.status === 200) {
+          comment.contentEditable = false
+        }
+      }
+      if (this.type === 'review') {
+        const data = {
+          reviewId: this.id,
+          commentId,
+          flagged: true
+        }
+        const res = await ThreadService.updateReviewComment(data)
+        if (res.status === 200) {
+          comment.contentEditable = false
+        }
+      }
     },
-    suspendComment(e) {
+    async suspendComment(e) {
       this.menuToggle = false;
       const comment = e.target.parentNode.parentNode.querySelector(".comment")
       const commentId = comment.dataset.id
+      if (this.type === 'discussion') {
+        const data = {
+          discussionId: this.id,
+          commentId,
+          suspended: true
+        }
+        const res = await ThreadService.updateDiscussionComment(data)
+        if (res.status === 200) {
+          comment.contentEditable = false
+        }
+      }
+      if (this.type === 'review') {
+        const data = {
+          reviewId: this.id,
+          commentId,
+          suspended: true
+        }
+        const res = await ThreadService.updateReviewComment(data)
+        if (res.status === 200) {
+          comment.contentEditable = false
+        }
+      }
     },
     editComment(e) {
       this.menuToggle = false;
@@ -67,28 +120,28 @@ export default {
       this.revertComment = comment.textContent
       comment.contentEditable = true
     },
-    async saveComment(e){
+    async saveComment(e) {
       const comment = e.target.parentNode.parentNode.parentNode.querySelector(".comment")
       const commentId = comment.dataset.id
-      if(this.type === 'discussion') {
+      if (this.type === 'discussion') {
         const data = {
           discussionId: this.id,
           commentId,
           comment: comment.textContent
         }
         const res = await ThreadService.updateDiscussionComment(data)
-        if(res.status === 200) {
+        if (res.status === 200) {
           comment.contentEditable = false
         }
       }
-      if(this.type === 'review') {
+      if (this.type === 'review') {
         const data = {
           reviewId: this.id,
           commentId,
           comment: comment.textContent
         }
         const res = await ThreadService.updateReviewComment(data)
-        if(res.status === 200) {
+        if (res.status === 200) {
           comment.contentEditable = false
         }
       }
@@ -97,23 +150,23 @@ export default {
       this.menuToggle = false;
       const comment = e.target.parentNode.parentNode.querySelector(".comment")
       const commentId = comment.dataset.id
-      if(this.type === 'discussion') {
+      if (this.type === 'discussion') {
         const data = {
           discussionId: this.id,
           commentId
         }
         const res = await ThreadService.deleteDiscussionComment(data)
-        if(res.status === 204) {
+        if (res.status === 204) {
           comment.parentNode.remove()
         }
       }
-      if(this.type === 'review') {
+      if (this.type === 'review') {
         const data = {
           reviewId: this.id,
           commentId
         }
         const res = await ThreadService.deleteReviewComment(data)
-        if(res.status === 204) {
+        if (res.status === 204) {
           comment.parentNode.remove()
         }
       }
@@ -140,6 +193,7 @@ export default {
   border-radius: var(--radius);
    */
 }
+
 .comment {
   line-height: 1.25;
   display: inline-block;
@@ -151,16 +205,20 @@ export default {
   border: none;
   outline: none;
 }
+
 .comment[contenteditable = false] {
   cursor: default;
 }
+
 .comment[contenteditable = false] + .inputs {
   display: none;
 }
+
 .buttons {
   display: flex;
   place-content: end;
 }
+
 button {
   border: none;
   outline: none;
@@ -168,19 +226,23 @@ button {
   padding: .15rem .55rem;
   font-size: var(--txt-med);
 }
+
 .cancel {
   background-color: transparent;
   color: var(--clr-text);
   cursor: pointer;
 }
+
 .save {
   background-color: var(--clr-secondary-600);
   color: var(--clr-text);
   cursor: pointer;
 }
+
 hr {
   margin-top: 0;
 }
+
 i {
   position: absolute;
   inset: 1rem 2rem auto auto;
@@ -189,9 +251,11 @@ i {
   opacity: 0;
   cursor: pointer;
 }
+
 .response:hover i {
   opacity: 1
 }
+
 .menu {
   position: absolute;
   inset: 3.5rem -1.75rem auto auto;
@@ -204,21 +268,26 @@ i {
   border-color: var(--clr-border);
   background-color: var(--clr-bg);
 }
+
 .menu-item {
   padding: 0 .5rem;
 }
+
 .menu-item:hover {
   background-color: var(--clr-secondary-600-3);
   cursor: pointer;
 }
+
 .username {
   display: flex;
   gap: .5rem;
 }
+
 .username img {
   height: 35px;
   border-radius: var(--radius);
 }
+
 .username a {
   display: block;
   font-size: var(--txt-small);

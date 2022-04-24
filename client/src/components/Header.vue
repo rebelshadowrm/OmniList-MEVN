@@ -25,7 +25,6 @@
         <a @click.prevent="logout" href="javascript:void(0)">logout</a>
       </div>
     </div>
-
   </nav>
 </header>
 </template>

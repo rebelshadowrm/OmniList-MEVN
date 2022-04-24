@@ -10,26 +10,32 @@ const CalendarPreferences = require('./preferences/userCalendarPreferences').sch
 const userPreferencesSchema = new mongoose.Schema({
     themes: {
         type: UserTheme,
+        ref: 'UserThemeModel',
         default: () => {}
     },
     profileLayout: {
         type: ProfileLayout,
+        ref: 'ProfileLayoutModel',
         default: () => {}
     },
     dashboardLayout: {
         type: DashboardLayout,
+        ref: 'DashboardLayoutModel',
         default: () => {}
     },
     newsPreferences: {
         type: NewsPreferences,
+        ref: 'NewsPreferencesModel',
         default: () => {}
     },
     listPreferences: {
         type: ListPreferences,
+        ref: 'ListPreferencesModel',
         default: () => {}
     },
     calendarPreferences: {
         type: CalendarPreferences,
+        ref: 'CalendarPreferencesModel',
         default: () => {}
     }
 

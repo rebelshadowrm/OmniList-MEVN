@@ -46,6 +46,8 @@ router.put('/:id', async (req, res) => {
         const review = await ReviewModel.findOne({_id: req.params.id})
         review.title = req?.body?.title ?? review.title
         review.body = req?.body?.body ?? review.body
+        review.flagged = req?.body?.flagged ?? review.flagged
+        review.suspended = req?.body?.suspended ?? review.suspended
         const result = await review.save()
         if(result) {
             res.sendStatus(200)
@@ -116,6 +118,8 @@ router.put('/comment/update', async (req, res) => {
         const comments = review.comments
         const comment = comments.find( ({_id}) => _id == req.body.commentId )
         comment.comment.comment = req.body.comment
+        comment.comment.suspended = req?.body?.suspended ?? comment.comment.suspended
+        comment.comment.flagged = req?.body?.flagged ?? comment.comment.flagged
         review.comments = comments
         const result = await review.save()
         if(result) {

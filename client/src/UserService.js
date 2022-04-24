@@ -66,6 +66,15 @@ class UserService {
             return err.response
         }
     }
+
+    // update user
+    static async updateUser(id, data) {
+        try {
+            return await axios.put(`${url}user/${id}`, JSON.stringify(data))
+        } catch (err) {
+            return err
+        }
+    }
 }
 
 export default UserService

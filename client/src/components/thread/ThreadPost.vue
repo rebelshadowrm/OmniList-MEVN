@@ -66,15 +66,73 @@ export default {
     this.loggedInUser = getUser()
   },
   methods: {
-    reportPost(e) {
+    async reportPost(e) {
       this.menuToggle = false;
-      const body = e.target.parentNode.parentNode.querySelector(".body")
+      const body = e.target.parentNode.parentNode.parentNode.querySelector(".body")
+      const title = e.target.parentNode.parentNode.parentNode.querySelector(".title")
       const id = body.dataset.id
+      if (this.type === 'discussion') {
+        try {
+          const data = {
+            flagged: true,
+          }
+          const res = await ThreadService.updateDiscussion(id, data)
+          if (res.status === 200) {
+            body.contentEditable = false
+            title.contentEditable = false
+          }
+        } catch(err) {
+          console.log(err.message)
+        }
+      }
+      if (this.type === 'review') {
+        try {
+          const data = {
+            flagged: true,
+          }
+          const res = await ThreadService.updateReview(id, data)
+          if (res.status === 200) {
+            body.contentEditable = false
+            title.contentEditable = false
+          }
+        } catch(err) {
+          console.log(err.message)
+        }
+      }
     },
-    suspendPost(e) {
+    async suspendPost(e) {
       this.menuToggle = false;
-      const body = e.target.parentNode.parentNode.querySelector(".body")
+      const body = e.target.parentNode.parentNode.parentNode.querySelector(".body")
+      const title = e.target.parentNode.parentNode.parentNode.querySelector(".title")
       const id = body.dataset.id
+      if (this.type === 'discussion') {
+        try {
+          const data = {
+            suspended: true
+          }
+          const res = await ThreadService.updateDiscussion(id, data)
+          if (res.status === 200) {
+            body.contentEditable = false
+            title.contentEditable = false
+          }
+        } catch(err) {
+          console.log(err.message)
+        }
+      }
+      if (this.type === 'review') {
+        try {
+          const data = {
+            suspended: true
+          }
+          const res = await ThreadService.updateReview(id, data)
+          if (res.status === 200) {
+            body.contentEditable = false
+            title.contentEditable = false
+          }
+        } catch(err) {
+          console.log(err.message)
+        }
+      }
     },
     editPost(e) {
       this.menuToggle = false;

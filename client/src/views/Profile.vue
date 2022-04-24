@@ -1,5 +1,5 @@
 <template>
-<section>
+<section id="profile">
   <header>
     <ProfileHeader
         :username="name"
@@ -31,6 +31,7 @@ import ProfileFavorites from "../components/profile/ProfileFavorites.vue";
 import ProfileStats from "../components/profile/ProfileStats.vue";
 import ProfileSocials from "../components/profile/ProfileSocials.vue";
 import ProfileReviews from "../components/profile/ProfileReviews.vue";
+import useTheme from "../composables/theme";
 
 export default {
   name: "Profile",
@@ -88,7 +89,34 @@ export default {
       this.img = user?.img ?? `https://picsum.photos/seed/${this.name}/260/280`
       this.imgAlt = user?.imgAlt ?? 'profile image'
       this.bgImg = user?.bgImg ?? `https://picsum.photos/seed/${this.email}/2000/400`
-    }
+      const { getLocalColors, HexToHSL,
+              setSecondaryColor, setPrimaryColor,
+              setAccentColor} = useTheme()
+      const localColors = getLocalColors()
+      const colors = user?.userPreferences?.themes?.profileTheme
+      const primaryHSL = HexToHSL(colors?.primaryColor ?? localColors?.primaryColor ?? '#ff0000')
+        setPrimaryColor(primaryHSL)
+      if(colors?.secondaryColor) {
+        const secondaryHSL = HexToHSL(colors.secondaryColor)
+        setSecondaryColor(secondaryHSL)
+      } else if (localColors?.secondaryColor) {
+        const secondaryHSL = HexToHSL(localColors.secondaryColor)
+        setSecondaryColor(secondaryHSL)
+      }
+      if(colors?.accentColor) {
+        const accentHSL = HexToHSL(colors.accentColor)
+        setAccentColor(accentHSL)
+      } else if (localColors.accentColor) {
+        const accentHSL = HexToHSL(localColors.accentColor)
+        setAccentColor(accentHSL)
+      }
+    },
+  },
+  beforeRouteLeave(to, from, next) {
+    const { getLocalColors, setTheme} = useTheme()
+    const color = getLocalColors()
+    setTheme(color)
+    next()
   }
 }
 </script>

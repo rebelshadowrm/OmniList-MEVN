@@ -38,4 +38,28 @@ router.get('/username/:username', authenticateToken, async (req, res) => {
     }
 })
 
+// Update User
+router.put('/:id', authenticateToken, async (req, res) => {
+    const user = await UserModel.findById(req.params.id)
+    if(user) {
+        if(req?.body?.userName) {
+            const userName = await UserModel.findOne({userName: req.body.userName})
+            if(userName) res.sendStatus(400)
+            user.userName = req?.body?.userName ?? user.userName
+        }
+        user.firstName = req?.body?.firstName
+        user.lastName = req?.body?.lastName
+        if(user.role === 'admin') {
+            user.role = req?.body?.role ?? user.role
+        }
+        user.userPreferences = req?.body?.userPreferences ?? user.userPreferences
+        user.userPreferences.themes.profileTheme = req?.body?.userPreferences.themes.profileTheme ?? user.userPreferences.themes.profileTheme
+        user.userProfile = req?.body?.userProfile ?? user.userProfile
+        user.save()
+        res.status(200).send(user)
+    } else {
+        res.sendStatus(400)
+    }
+})
+
 module.exports = router

@@ -1,15 +1,15 @@
 <template>
   <div class="container">
-    <ProfileColorPicker />
+    <ColorPicker />
   </div>
 </template>
 
 <script>
-import ProfileColorPicker from "../components/profile/ProfileColorPicker.vue"
+import ColorPicker from "../components/ColorPicker.vue"
 export default {
   name: "Settings",
   components: {
-    ProfileColorPicker,
+    ColorPicker,
   },
 
 }
