@@ -36,7 +36,7 @@ async function setup() {
           setSecondaryColor, setAccentColor} = useTheme()
         const colors = checkUser?.data?.userPreferences?.themes?.profileTheme
         setTheme(colors)
-        const primaryHSL = HexToHSL(colors?.primaryColor ?? '#ff0000')
+        const primaryHSL = HexToHSL(colors?.primaryColor ?? '#e85e30')
         setPrimaryColor(primaryHSL)
         if(colors?.secondaryColor) {
           const secondaryHSL = HexToHSL(colors.secondaryColor)

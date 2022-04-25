@@ -33,6 +33,7 @@
 import TokenService from "../services/TokenService";
 import router from "../router";
 import setLogin from "../composables/user";
+import useTheme from "../composables/theme"
 export default {
   name: "Header",
   data() {
@@ -60,11 +61,13 @@ export default {
         const {setIsLoggedIn} = setLogin()
         setIsLoggedIn(false)
         TokenService.clearTokens()
+        const {clearThemes} = useTheme()
+        clearThemes()
         await router.push('/')
       } else {
         alert('Something went wrong logging you out, please try again later.')
       }
-    }
+    },
   }
 }
 </script>

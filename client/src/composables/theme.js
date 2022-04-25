@@ -28,7 +28,7 @@ const setters = {
             localStorage.setItem("color", JSON.stringify(color))
         } else {
             const newColor = {
-                primaryColor: clr?.primaryColor ?? '#ff0000',
+                primaryColor: clr?.primaryColor ?? '#e85e30',
                 secondaryColor: clr?.secondaryColor,
                 accentColor: clr?.accentColor
             }
@@ -51,6 +51,15 @@ const setters = {
 }
 
 const methods = {
+        clearThemes: () => {
+            document.documentElement.style.removeProperty('--clr-primary-h')
+            document.documentElement.style.removeProperty('--clr-primary-s')
+            document.documentElement.style.removeProperty('--clr-secondary-h')
+            document.documentElement.style.removeProperty('--clr-secondary-s')
+            document.documentElement.style.removeProperty('--clr-accent-h')
+            document.documentElement.style.removeProperty('--clr-accent-s')
+            localStorage.removeItem('color')
+        },
         HexToHSL: (H) => {
             // Convert hex to RGB first
             let r = 0, g = 0, b = 0

@@ -21,6 +21,7 @@
 import UserService from "../services/UserService.js"
 import TokenService from "../services/TokenService.js"
 import useUsers from "../composables/user.js"
+import useTheme from "../composables/theme"
 
 export default {
   name: "Login",
@@ -34,6 +35,7 @@ export default {
   methods: {
     async login() {
       const {setUser, decodeJWT} = useUsers()
+
       if(this.email.trim() !== '' && this.password.trim() !== '') {
         const data = {
           "email": this.email,
@@ -46,6 +48,7 @@ export default {
           setUser(user)
           TokenService.setAccessToken(accessToken)
           TokenService.setRefreshToken(refreshToken)
+          this.themeSetup(user)
           this.email = ''
           this.password = ''
         } else {
@@ -57,6 +60,22 @@ export default {
     },
     hasAccount() {
       this.$emit('toggle-form', false)
+    },
+    themeSetup(user) {
+      const { setTheme, HexToHSL, setPrimaryColor,
+              setSecondaryColor, setAccentColor} = useTheme()
+      const colors = user?.userPreferences?.themes?.profileTheme
+      setTheme(colors)
+      const primaryHSL = HexToHSL(colors?.primaryColor ?? '#e85e30')
+      setPrimaryColor(primaryHSL)
+      if(colors?.secondaryColor) {
+        const secondaryHSL = HexToHSL(colors.secondaryColor)
+        setSecondaryColor(secondaryHSL)
+      }
+      if(colors?.accentColor) {
+        const accentHSL = HexToHSL(colors.accentColor)
+        setAccentColor(accentHSL)
+      }
     }
   }
 }

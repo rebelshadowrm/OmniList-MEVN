@@ -111,7 +111,7 @@ export default {
       } = useTheme()
       const localColors = getLocalColors()
       const colors = user?.userPreferences?.themes?.profileTheme
-      const primaryHSL = HexToHSL(colors?.primaryColor ?? localColors?.primaryColor ?? '#ff0000')
+      const primaryHSL = HexToHSL(colors?.primaryColor ?? localColors?.primaryColor ?? '#e85e30')
       setPrimaryColor(primaryHSL)
       if (colors?.secondaryColor) {
         const secondaryHSL = HexToHSL(colors.secondaryColor)
@@ -123,7 +123,7 @@ export default {
       if (colors?.accentColor) {
         const accentHSL = HexToHSL(colors.accentColor)
         setAccentColor(accentHSL)
-      } else if (localColors.accentColor) {
+      } else if (localColors?.accentColor) {
         const accentHSL = HexToHSL(localColors.accentColor)
         setAccentColor(accentHSL)
       }
@@ -141,14 +141,16 @@ export default {
       setSecondaryColor, setAccentColor
     } = useTheme()
     const colors = getLocalColors()
-    const primaryHSL = HexToHSL(colors?.primaryColor ?? '#ff0000')
-    setPrimaryColor(primaryHSL)
+    if(colors?.primaryColor) {
+      const primaryHSL = HexToHSL(colors?.primaryColor)
+      setPrimaryColor(primaryHSL)
+    }
     if (colors?.secondaryColor) {
-      const secondaryHSL = HexToHSL(colors.secondaryColor)
+      const secondaryHSL = HexToHSL(colors?.secondaryColor)
       setSecondaryColor(secondaryHSL)
     }
     if (colors?.accentColor) {
-      const accentHSL = HexToHSL(colors.accentColor)
+      const accentHSL = HexToHSL(colors?.accentColor)
       setAccentColor(accentHSL)
     }
     next()

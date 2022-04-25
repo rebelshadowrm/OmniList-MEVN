@@ -96,10 +96,10 @@ p {
     --clr-white-800: 0 0% 65%;
 
     /*TODO: Add primary/secondary */
-    --clr-primary-h: 8deg;
+    --clr-primary-h: 15deg;
     --clr-secondary-h: calc(var(--clr-primary-h) + 180deg);
     --clr-accent-h: calc(var(--clr-secondary-h) + 270deg);
-    --clr-primary-s: 88%;
+    --clr-primary-s: 80%;
     --clr-secondary-s: var(--clr-primary-s);
     --clr-accent-s: var(--clr-primary-s);
     --clr-200: 75%;
