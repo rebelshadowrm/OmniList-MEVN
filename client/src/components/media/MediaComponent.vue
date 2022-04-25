@@ -157,7 +157,8 @@ export default {
         } else {
           try {
             const data = {status}
-            await AnimeService.updateAnimeListItem(user?._id, animeId, data)
+            const res = await AnimeService.updateAnimeListItem(user?._id, animeId, data)
+            console.log(res)
           } catch (err) {
             console.log(err.message)
           }

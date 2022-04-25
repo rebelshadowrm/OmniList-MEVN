@@ -76,6 +76,7 @@ router.put('/:userId/:animeId', async (req, res) => {
             //optional updates
             anime.progress = req?.body?.progress ?? anime.progress
             anime.rating = req?.body?.rating ?? anime.rating
+            anime.status = req?.body?.status ?? anime.status
 
             //Very niche updates
             anime.image = req?.body?.image ?? anime.image

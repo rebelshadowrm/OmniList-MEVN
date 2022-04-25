@@ -8,6 +8,7 @@
 
     <div class="nav-items">
       <router-link  to="/">Home</router-link>
+      <router-link v-if="user?.user?.role === 'ADMIN'" to="/admin">Admin</router-link>
       <router-link to="/about">About</router-link>
       <router-link to="/anime">Anime</router-link>
       <router-link to="/discussions">Discussions</router-link>

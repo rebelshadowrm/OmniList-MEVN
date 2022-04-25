@@ -352,16 +352,19 @@ footer {
     border: none;
     padding: .25rem;
 }
-.table-title-head {
-    width: 70%;
-}
+
 .table-title-row {
     border-left: none;
 }
 
-.table-rating-head ,
+.table-title-head {
+    width: 74%;
+}
+.table-rating-head {
+    width: 9%;
+}
 .table-progress-head {
-    width: max-content;
+    width: 13%;
 }
 .table-rating-row {
     text-align: center;

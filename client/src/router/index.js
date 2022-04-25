@@ -10,6 +10,7 @@ import Reviews from "../views/Reviews.vue"
 import Review from "../views/Review.vue"
 import Settings from "../views/Settings.vue";
 import inbox from "../views/Inbox.vue";
+import AdminPanel from "../views/AdminPanel.vue";
 
 const routes = [
     {
@@ -70,6 +71,11 @@ const routes = [
         path: '/inbox',
         name: 'Inbox',
         component: inbox
+    },
+    {
+        path: '/admin',
+        name: 'AdminPanel',
+        component: AdminPanel
     }
     ]
 
