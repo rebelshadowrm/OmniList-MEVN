@@ -11,10 +11,17 @@
     </template>
     <template #body="{ rows }">
       <tr v-for="row in rows" :key="row.id">
-        <td class="table-img-row"><img :src="row.img" :alt="row.title"></td>
+        <td class="table-img-row"><img :src="row.image" :alt="row.title"></td>
         <td class="table-title-row">{{ row.title }}</td>
         <td class="table-rating-row">
-          <select id="rating" name="rating" class="rating-dropdown" :value="row.rating" >
+          <select @change="updateRating"
+                  :disabled="loggedInUser?.user?._id !== user?._id"
+                  :data-id="row.animeId"
+                  id="rating"
+                  name="rating"
+                  class="rating-dropdown"
+                  :value="row.rating < 1 ? 0 : row.rating" >
+            <option value="0">—</option>
             <option value="1">1</option>
             <option value="2">2</option>
             <option value="3">3</option>
@@ -28,12 +35,17 @@
           </select>
         </td>
         <td class="table-progress-row">
-          <span @blur="progressChange" role="textbox" contenteditable="true" class="anime-progress">
-            {{ row.progress }}
+          <span @blur="progressChange"
+                @keydown.enter.prevent="blur"
+                :data-id="row.animeId"
+                role="textbox"
+                :contenteditable="loggedInUser?.user?._id === user?._id"
+                class="anime-progress">
+            {{ row.progress < 1 ? 0 : row.progress }}
           </span>
           <span class="slash">&nbsp;/&nbsp;</span>
-          <span class="totalEps">{{ row.totalEps}}</span>
-          <i @click="increase" class="fas fa-plus addIcon"></i>
+          <span class="totalEps">{{ row?.totalEpisodes < 1 ? '—' : row?.totalEpisodes ?? '—'}}</span>
+          <i v-if="loggedInUser?.user?._id === user?._id" @click="increase" class="fas fa-plus addIcon"></i>
         </td>
       </tr>
     </template>
@@ -41,69 +53,86 @@
 </template>
 
 <script>
+import useUser from "../composables/user"
+import AnimeService from "../services/AnimeService";
+import UserService from "../services/UserService";
 export default {
   name: "ListComponent",
   data: () => ({
-    animeList: []
+    animeList: [],
+    user: {},
+    loggedInUser: {}
   }),
-  created() {
-    this.animeList = [
-      {
-        img: 'https://via.placeholder.com/50',
-        title: 'Naruto',
-        rating: 8,
-        progress: 135,
-        totalEps: 300,
-        status: 'watching'
-      },
-      {
-        img: 'https://via.placeholder.com/50',
-        title: 'Naruto',
-        rating: 5,
-        progress: 150,
-        totalEps: 300,
-        status: 'watching'
-      },
-      {
-        img: 'https://via.placeholder.com/50',
-        title: 'Naruto',
-        rating: 7,
-        progress: 200,
-        totalEps: 300,
-        status: 'watching'
-      },
-      {
-        img: 'https://via.placeholder.com/50',
-        title: 'Naruto',
-        rating: 1,
-        progress: 250,
-        totalEps: 300,
-        status: 'watching'
-      },
-    ]
+  async created() {
+    try {
+      const {getUser} = useUser()
+      this.loggedInUser = getUser()
+      const username = this?.$route?.params?.username
+      const res =  await UserService.getUserByUsername(username)
+      if(res.status === 200) {
+        this.user = res.data
+      }
+      if(this?.user?._id) {
+        this.animeList = await AnimeService.getUserAnimeList(this?.user?._id)
+      }
+    } catch(err) {
+      console.log(err.message)
+    }
   },
   methods: {
-    increase(e) {
+    blur(e) {
+      e.target.blur()
+    },
+    async updateRating(e) {
+      const animeId = e.target.dataset.id
+      const rating = e.target.value
+      if(this?.user?._id) {
+        try {
+          const data = {rating}
+          await AnimeService.updateAnimeListItem(this?.user?._id, animeId, data)
+        } catch (err) {
+          console.log(err.message)
+        }
+      }
+    },
+    async increase(e) {
       const progress = e.target.parentNode.querySelector('.anime-progress')
+      const animeId = progress.dataset.id
       const totalEps = e.target.parentNode.querySelector('.totalEps')
       let progressNum = parseInt(progress.textContent)
       const totalEpsNum = parseInt(totalEps.textContent)
       if(progressNum < totalEpsNum) {
         progressNum++
-        this.updateList()
+        await this.updateListProgress(animeId, progressNum)
+        progress.textContent = progressNum.toString()
+      } else if(totalEps.textContent === '—') {
+        progressNum++
+        await this.updateListProgress(animeId, progressNum)
         progress.textContent = progressNum.toString()
       }
     },
-    progressChange(e) {
-      const progressInt = parseInt(e.target.textContent)
-      const totalEpsInt = parseInt(e.target.parentNode.querySelector('.totalEps').textContent)
-      if(progressInt > totalEpsInt) {
-        this.updateList()
-        e.target.textContent = totalEpsInt
+    async progressChange(e) {
+      let progressInt = parseInt(e.target.textContent)
+      const animeId = e.target.dataset.id
+      if(!progressInt || progressInt < 0) { e.target.textContent = 0 }
+      const totalEps = e.target.parentNode.querySelector('.totalEps').textContent
+      const totalEpsInt = parseInt(totalEps)
+      if(progressInt > totalEpsInt) { progressInt = totalEpsInt }
+      if(progressInt) {
+        await this.updateListProgress(animeId, progressInt)
+        e.target.textContent = progressInt.toString()
       }
+
     },
-    async updateList(data) {
-      //TODO: API call
+    async updateListProgress(animeId, progress) {
+      if(this?.user?._id) {
+        try {
+          const data = { progress }
+          await AnimeService.updateAnimeListItem(this?.user?._id, animeId, data)
+        } catch(err) {
+          console.log(err.message)
+        }
+      }
     }
   }
 }
@@ -126,8 +155,15 @@ export default {
   border-color: var(--border);
   outline: none;
 }
+select[disabled] {
+  border: none;
+}
+
 option {
   text-align: center;
   background-color: var(--clr-bg);
+}
+.anime-progress {
+  padding: .2rem .5rem;
 }
 </style>

@@ -2,26 +2,45 @@
   <div class="media-grid">
     <img v-if="data?.bannerImage" class="hero-img" :src="data?.bannerImage" alt="">
     <div class="text">
-      <h1 class="title">{{data?.title?.english ?? data?.title?.romaji}}</h1>
+      <h1 class="title">{{ data?.title?.english ?? data?.title?.romaji }}</h1>
       <div v-html="data?.description" class="description"></div>
     </div>
     <div class="card">
       <img class="card-img" :src="data?.coverImage?.large" alt="">
       <div class="btn-container">
         <div v-if="added" class="added">
-          added options here
+          <select @change="updateStatus"
+                  :data-id="listItem?.animeId"
+                  :data-delete="listItem?._id"
+                  class="status"
+                  name="status"
+                  id="status"
+                  :value="listItem?.status">
+            <option value="watching">Watching</option>
+            <option value="on-hold">On-Hold</option>
+            <option value="completed">Completed</option>
+            <option value="dropped">Dropped</option>
+            <optgroup label="">
+              <option value="remove">REMOVE</option>
+            </optgroup>
+          </select>
+          <div class="progress-container">
+            <span @keydown.enter.prevent="blur"
+                  @blur="updateProgress"
+                  :data-id="listItem?.animeId"
+                  class="progress"
+                  role="textbox"
+                  contenteditable="true"
+            >{{ listItem?.progress < 1 ? 0 : listItem?.progress }}</span>&nbsp;/&nbsp;
+            <span class="totalEps">{{ listItem?.totalEpisodes < 1 ? '—' : listItem?.totalEpisodes }}</span>
+          </div>
         </div>
         <div v-else class="toAdd">
           <button @click.prevent="addToList">Add to List</button>
-          <select name="addMedia" id="addMedia">
-            <option value=""></option>
-            <option value="watching">Set as Watching</option>
-            <option value="planning">Set as Planning</option>
-          </select>
         </div>
       </div>
       <div @click="favoriteAnime"
-          :class="favorite ? 'favorite favorited' : 'favorite'">
+           :class="favorite ? 'favorite favorited' : 'favorite'">
         <i class="fas fa-heart"></i>
       </div>
     </div>
@@ -38,7 +57,7 @@
         <MediaReviews v-if="section === 'overview' || section === 'reviews'"
                       :section="section" :reviews="reviews"/>
         <MediaDiscussions v-if="section === 'overview' || section === 'discussions'"
-                    :section="section" :discussions="discussions"/>
+                          :section="section" :discussions="discussions"/>
       </div>
     </div>
   </div>
@@ -52,6 +71,7 @@ import MediaReviews from "./MediaReviews.vue";
 import MediaStaff from "./MediaStaff.vue"
 import MediaDiscussions from "./MediaDiscussions.vue";
 import useUser from "../../composables/user"
+import AnimeService from "../../services/AnimeService";
 
 
 export default {
@@ -70,11 +90,13 @@ export default {
     added: Boolean,
     favorite: Boolean,
     discussions: Array,
-    reviews: Array
+    reviews: Array,
+    listItem: Object
   },
   emits: [
-      'update-favorite',
-      'add-to-list'
+    'update-favorite',
+    'add-to-list',
+    'set-added'
   ],
   data() {
     return {
@@ -82,10 +104,67 @@ export default {
     }
   },
   mounted() {
-    console.log(this.reviews)
-    window.scrollTo(0,0);
+    window.scrollTo(0, 0);
   },
   methods: {
+    blur(e) {
+      e.target.blur()
+    },
+    async updateProgress(e) {
+      let progressInt = parseInt(e.target.textContent)
+      const animeId = e.target.dataset.id
+      if (!progressInt || progressInt < 0) {
+        e.target.textContent = 0
+      }
+      const totalEps = e.target.parentNode.querySelector('.totalEps').textContent
+      const totalEpsInt = parseInt(totalEps)
+      if (progressInt > totalEpsInt) {
+        progressInt = totalEpsInt
+      }
+      if (progressInt) {
+        await this.updateListProgress(animeId, progressInt)
+        e.target.textContent = progressInt.toString()
+      }
+    },
+    async updateListProgress(animeId, progress) {
+      const {getUser} = useUser()
+      const {user} = getUser().value
+      if (user?._id) {
+        try {
+          const data = {progress}
+          await AnimeService.updateAnimeListItem(user?._id, animeId, data)
+        } catch (err) {
+          console.log(err.message)
+        }
+      }
+    },
+    async updateStatus(e) {
+      const animeId = e.target.dataset.id
+      const status = e.target.value
+      const {getUser} = useUser()
+      const {user} = getUser().value
+      if (user?._id) {
+        if (status === 'remove') {
+          try {
+            const listId = e?.target?.dataset?.delete
+            if (listId) {
+              await AnimeService.deleteAnimeListItem(listId)
+              this.$emit('set-added', false)
+            }
+          } catch (err) {
+            console.log(err.message)
+          }
+        } else {
+          try {
+            const data = {status}
+            await AnimeService.updateAnimeListItem(user?._id, animeId, data)
+          } catch (err) {
+            console.log(err.message)
+          }
+        }
+
+      }
+    },
     activeSection(section) {
       this.section = section
     },
@@ -99,9 +178,11 @@ export default {
         user: user._id,
         animeId: this?.data?.id,
         title: this?.data?.title?.english ?? this?.data?.title?.romaji ?? this?.data?.title?.native,
-        progress: -1,
-        totalEpisodes: this?.data?.episodes ?? -1,
-        rating: -1,
+        status: 'watching',
+        progress: 0,
+        totalEpisodes: this?.data?.episodes ?? 0,
+        rating: 0,
+        image: this?.data?.coverImage?.large ?? 'https://via.placeholder.com/50',
         format: this?.data?.format,
         genre: this?.data?.genres
 
@@ -170,15 +251,11 @@ export default {
   grid-area: btn;
   align-self: end;
 }
+
 .toAdd {
   display: flex;
-  border-width: 1px;
-  border-style: solid;
-  border-color: var(--clr-border);
   border-radius: 5px;
-  background: var(--clr-btn-bg);
-  color: var(--clr-btn);
-  max-width: max-content;
+  width: max-content;
 }
 
 i {
@@ -191,38 +268,64 @@ i {
   width: max-content;
   padding: .25rem .5rem;
   border-radius: 5px;
-  place-self: end;
+  align-self: start;
+  justify-self: end;
   cursor: pointer;
 }
+
 .favorited {
   background-color: transparent;
   cursor: default;
 }
+
 .favorited i {
   color: hsl(337, 100%, 40%);
   transform: scale(1.75);
 }
 
 button {
-  background: transparent;
-  border: none;
-  color: inherit;
-  padding: .23rem 1.4rem;
-  border-right: 1px solid var(--clr-border);
+  padding: .25rem 1.5rem;
   width: 100%;
+  background-color: var(--clr-btn-bg);
+  color: var(--clr-btn);
+  font-size: var(--txt-small);
+  font-weight: 500;
+  letter-spacing: 1px;
+  border-color: hsl(0deg 0% 100% / .3);
+  border-radius: 5px;
   cursor: pointer;
+}
+
+.added {
+  display: flex;
+  flex-direction: column;
+  gap: .3rem;
+}
+
+.progress-container {
+  gap: .2rem;
+  place-self: end;
+  display: flex;
+  align-items: baseline;
+}
+
+.progress {
+  padding: 0 .5rem;
 }
 
 select {
+  color: var(--clr-text);
   background: transparent;
-  border: none;
   outline: none;
-  color: inherit;
-  max-width: 20px;
-  padding-inline: .25rem;
-  cursor: pointer;
+  font-size: var(--txt-small);
 }
 
+.status {
+  padding: .25rem;
+  border: 1px solid var(--clr-border);
+}
+
+optgroup,
 option {
   background-color: var(--clr-bg);
 }
@@ -266,6 +369,10 @@ option {
   .media-grid {
     grid-template-rows: 17.5vh repeat(3, max-content) 1fr;
     row-gap: .5rem;
+  }
+
+  .favorite {
+    place-self: end;
   }
 
   .text {

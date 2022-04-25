@@ -31,18 +31,11 @@ export default {
 <style scoped>
 .media-nav {
   display: flex;
-  max-width: 100vw;
+  width: min(100% - 2rem, 60rem);
   flex-direction: row;
   gap: 1.5rem;
   background-color: transparent;
   overflow-x: auto;
-  place-content: center;
-}
-.profile-nav button:first-child {
-  margin-left: auto;
-}
-.profile-nav button:last-child {
-  margin-right: auto;
 }
 button {
   border: unset;

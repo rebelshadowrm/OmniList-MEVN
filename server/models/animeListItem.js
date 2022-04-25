@@ -16,6 +16,12 @@ const animeListItemSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+    status: {
+        type: String,
+        required: true,
+        lowercase: true,
+        default: () => 'watching'
+    },
     progress: {
       type: Number,
       required: true,

@@ -11,6 +11,7 @@
 import ThreadCollection from "../thread/ThreadCollection.vue";
 import useUser from "../../composables/user"
 import ThreadService from "../../services/ThreadService";
+import UserService from "../../services/UserService";
 export default {
   name: "ProfileDiscussions",
   components: {
@@ -23,10 +24,12 @@ export default {
     }
   },
   async created() {
-    const {getUser} = useUser()
-    const {user} = getUser().value
-    this.isLoading = true
-    await this.getDiscussions(user._id)
+    const username = this?.$route?.params?.username
+    const res =  await UserService.getUserByUsername(username)
+    if(res.status === 200) {
+      this.isLoading = true
+      await this.getDiscussions(res.data._id)
+    }
   },
   methods: {
     async getDiscussions(id) {

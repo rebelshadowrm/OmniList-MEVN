@@ -2,6 +2,8 @@
   <MediaComponent
       @update-favorite="updateFavorite"
       @add-to-list="addToList"
+      @set-added="setAdded"
+      :listItem="listItem"
       :discussions="discussionArr"
       :reviews="reviewArr"
       :favorite="favorite"
@@ -28,7 +30,8 @@ export default {
       added: false,
       favorite: false,
       discussionArr: [],
-      reviewArr: []
+      reviewArr: [],
+      listItem: {}
     }
   },
   props: {
@@ -146,7 +149,6 @@ export default {
       } catch(err) {
         console.log(err.message)
       }
-
     },
     async populateReviews(id) {
       try {
@@ -154,6 +156,9 @@ export default {
       } catch(err) {
         console.log(err.message)
       }
+    },
+    setAdded(val) {
+      this.added = val
     },
     updateFavorite(val) {
       //TODO: Check favorite
@@ -165,6 +170,7 @@ export default {
         console.log(data)
         const res = await AnimeService.createAnimeListItem(data)
         if(res.status === 201) {
+          this.listItem = res.data
           this.added = true
         }
       } catch (err) {
@@ -175,9 +181,10 @@ export default {
       try {
         const {getUser} = useUser()
         const {user} = getUser().value
-        const animeId = await AnimeService.getUserAnimeListItem(user?._id, id)
-        if(animeId && animeId.animeId === id) {
+        const listItem = await AnimeService.getUserAnimeListItem(user?._id, id)
+        if(listItem && listItem.animeId === id) {
           this.added = true
+          this.listItem = listItem
         }
       } catch(err) {
         console.log(err.message)

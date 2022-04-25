@@ -16,7 +16,7 @@ axiosAuth.interceptors.request.use(
         return config;
     },
     error => {
-        Promise.reject(error)
+        return Promise.reject(error)
     })
 
 
@@ -66,7 +66,7 @@ async function resetTokenAndReattemptRequest(error) {
             console.log('fetching access token')
             isAlreadyFetchingAccessToken = true;
             const response = await axios({
-                method: 'post',
+                method: 'POST',
                 url: `/api/refresh`,
                 data: {
                     token: refreshToken

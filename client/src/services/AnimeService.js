@@ -48,7 +48,7 @@ class AnimeService {
 
 
     // update anime list item
-    static async updateAnimeListItem(userId, animeId) {
+    static async updateAnimeListItem(userId, animeId, data) {
         try {
             return await axios.put(`${url}${userId}/${animeId}`, JSON.stringify(data))
         }

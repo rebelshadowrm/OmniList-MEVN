@@ -26,8 +26,7 @@ router.get('/:userId/:animeId/', async (req, res) => {
             .where('user')
             .equals(req?.params?.userId)
             .where('animeId')
-            .equals(req?.params?.animeId)
-            .select('animeId'))
+            .equals(req?.params?.animeId))
     }
 })
 
