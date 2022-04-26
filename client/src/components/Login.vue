@@ -34,28 +34,35 @@ export default {
   },
   methods: {
     async login() {
-      const {setUser, decodeJWT} = useUsers()
-
-      if(this.email.trim() !== '' && this.password.trim() !== '') {
-        const data = {
-          "email": this.email,
-          "password": this.password
-        }
-        const res = await UserService.loginUser(data)
-        if(res.status === 200) {
-          const {accessToken, refreshToken} = res.data
-          const user = decodeJWT(accessToken).user
-          setUser(user)
-          TokenService.setAccessToken(accessToken)
-          TokenService.setRefreshToken(refreshToken)
-          this.themeSetup(user)
-          this.email = ''
-          this.password = ''
+      try {
+        const {setUser, decodeJWT} = useUsers()
+        if (this.email.trim() !== '' && this.password.trim() !== '') {
+          const data = {
+            "email": this.email,
+            "password": this.password
+          }
+          const res = await UserService.loginUser(data)
+          if (res.status === 200) {
+            const {accessToken, refreshToken} = res?.data
+            const user = decodeJWT(accessToken)?.user
+            TokenService.setAccessToken(accessToken)
+            TokenService.setRefreshToken(refreshToken)
+            const response = await UserService.getUser(user?._id)
+            if(response.status === 200) {
+              const user = response.data
+              setUser(user)
+              this.themeSetup(user)
+              this.email = ''
+              this.password = ''
+            }
+          } else {
+            this.errorMsg = "Invalid login"
+          }
         } else {
-          this.errorMsg = "Invalid login"
+          this.errorMsg = "Email and Password and required fields"
         }
-      } else {
-        this.errorMsg = "Email and Password and required fields"
+      } catch(err) {
+        console.log(err)
       }
     },
     hasAccount() {

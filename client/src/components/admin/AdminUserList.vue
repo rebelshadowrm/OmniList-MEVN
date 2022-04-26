@@ -7,7 +7,7 @@
         <VTh class="table-email-head" sortKey="email">Email</VTh>
         <VTh class="table-updated-head" :customSort="dateSort">Updated</VTh>
         <VTh class="table-role-head" sortKey="role">Role</VTh>
-        <th></th>
+        <VTh class="table-status-head" sortKey="status">Status</VTh>
       </tr>
     </template>
     <template #body="{ rows }">
@@ -15,8 +15,33 @@
         <td class="table-username-row">{{ row?.userName }}</td>
         <td class="table-email-row">{{ row?.email }}</td>
         <td class="table-updated-row">{{ row?.updatedAt.toLocaleDateString() }}</td>
-        <td class="table-role-row">{{ row?.role }}</td>
-        <td class="table-remove-row"><button>remove</button></td>
+        <td class="table-role-row">
+          <select @change="updateRole"
+                  :disabled="currentUser?.user?.role !== 'ADMIN'"
+                  :data-id="row?._id"
+                  :value="row?.role"
+                  name="role"
+                  id="role">
+            <option value="USER">USER</option>
+            <option value="MOD">MOD</option>
+            <option value="ADMIN">ADMIN</option>
+          </select>
+        </td>
+        <td class="table-status-row">
+          <select @change="updateStatus"
+                  :disabled="!(currentUser?.user?.role === 'ADMIN' || currentUser?.user?.role === 'MOD')"
+                  :data-id="row?._id"
+                  name="status"
+                  id="status"
+                  :value="row?.status">
+            <option value="OK">OK</option>
+            <option value="REPORTED">REPORTED</option>
+            <option value="SUSPENDED">SUSPENDED</option>
+            <optgroup v-if="currentUser?.user?.status === 'ADMIN'" label="">
+              <option value="REMOVE">REMOVE</option>
+            </optgroup>
+          </select>
+        </td>
       </tr>
     </template>
   </VTable>
@@ -24,16 +49,19 @@
 
 <script>
 import UserService from "../../services/UserService";
-
+import useUser from "../../composables/user"
 export default {
   name: "AdminUserList",
   data() {
     return {
-      users: []
+      users: [],
+      currentUser: {}
     }
   },
   async created() {
+    const {getUser} = useUser()
     this.users = await UserService.getUsers()
+    this.currentUser = getUser()
   },
   methods: {
     dateSort(a, b, sortOrder) {
@@ -47,6 +75,24 @@ export default {
       } else {
         return 0
       }
+    },
+    async updateStatus(e) {
+      const userId = e?.target?.dataset?.id
+      const status = e?.target?.value
+      const data = { status }
+      if(userId) {
+        const res = await UserService.updateUser(userId, data)
+        console.log(res)
+      }
+    },
+    async updateRole(e) {
+      const userId = e?.target?.dataset?.id
+      const role = e?.target?.value
+      const data = { role }
+      if(userId) {
+        const res = await UserService.updateUser(userId, data)
+        console.log(res)
+      }
     }
   }
 }
@@ -59,13 +105,22 @@ export default {
   gap: 2rem;
   place-items: start;
 }
-button {
-  background-color: transparent;
+.table-updated-head,
+.table-role-head,
+.table-status-head {
+  width: 1%;
+}
+select,
+option {
   border: none;
   outline: none;
+  background-color: var(--clr-bg);
   color: var(--clr-text);
-  cursor: pointer;
-  padding: .5rem 0;
+  font-size: var(--txt-small);
+}
+
+select[disabled] {
+  appearance: none;
 }
 
 </style>

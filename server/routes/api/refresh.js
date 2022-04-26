@@ -13,7 +13,11 @@ router.post('/', async (req, res) => {
     if (await TokenModel.exists({refreshToken}) == null) return res.sendStatus(403)
     jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
         if (err) return res.status(403).send(err.message)
-        const accessToken = generateAccessToken(user.user)
+        const newUser = {
+            _id: user?.user?._id,
+            email: user?.user?.email
+        }
+        const accessToken = generateAccessToken(newUser)
         res.json({accessToken: accessToken})
     })
 })

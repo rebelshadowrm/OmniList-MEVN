@@ -18,6 +18,7 @@ import MediaComponent from "../components/media/MediaComponent.vue"
 import AnimeService from "../services/AnimeService";
 import useUser from "../composables/user"
 import ThreadService from "../services/ThreadService";
+import UserService from "../services/UserService";
 export default {
   name: "Anime",
   components: {
@@ -137,12 +138,22 @@ export default {
         await this.addedCheck(data.Media.id)
         await this.populateReviews(data.Media.id)
         await this.populateDiscussions(data.Media.id)
+        await this.setFavorite(data.Media.id)
+
       }
     } catch (err) {
       console.log(err.message)
     }
   },
   methods: {
+    async setFavorite(animeId) {
+      const {getUser} = useUser()
+      const {user} = getUser().value
+      const filter = user?.userProfile?.favorites?.animeFavorites?.filter( ({anime}) => anime?.id === animeId )
+      if(filter?.length > 0) {
+        this.favorite = true
+      }
+    },
     async populateDiscussions(id) {
       try {
         this.discussionArr = await ThreadService.getDiscussionsByAnime(id)
@@ -160,10 +171,30 @@ export default {
     setAdded(val) {
       this.added = val
     },
-    updateFavorite(val) {
-      //TODO: Check favorite
-      console.log(val)
-      this.favorite = val
+    async updateFavorite(val) {
+      try {
+        const {getUser} = useUser()
+        const {user} = getUser().value
+        if(user?._id) {
+          if(val === true) {
+            const data = {
+              addFavorite: this.data
+            }
+            const res = await UserService.updateUser(user?._id, data)
+            console.log(res)
+            this.favorite = val
+          } else if (val === false) {
+            const data = {
+              removeFavorite: this.data
+            }
+            const res = await UserService.updateUser(user?._id, data)
+            console.log(res)
+            this.favorite = val
+          }
+        }
+      } catch(err) {
+        console.log(err.message)
+      }
     },
     async addToList(data) {
       try {

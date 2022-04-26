@@ -227,7 +227,7 @@ export default {
 
 .card {
   grid-column: 2 / span 2;
-  grid-row: 2 / 4;
+  grid-row: 2 / span 3;
   z-index: 1;
   width: 215px;
   display: grid;
@@ -250,7 +250,7 @@ export default {
 
 .btn-container {
   grid-area: btn;
-  align-self: end;
+  align-self: baseline;
 }
 
 .toAdd {
@@ -269,7 +269,7 @@ i {
   width: max-content;
   padding: .25rem .5rem;
   border-radius: 5px;
-  align-self: start;
+  align-self: baseline;
   justify-self: end;
   cursor: pointer;
 }

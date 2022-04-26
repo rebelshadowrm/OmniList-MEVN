@@ -1,5 +1,6 @@
 <template>
   <form @submit.prevent="onSubmit">
+    <span v-if="error" class="error">{{error}}</span>
     <div class="input">
       <label for="title">Title</label>
       <input type="text" name="title" id="title">
@@ -45,7 +46,8 @@ export default {
       searching: false,
       subjectId: null,
       subject: '',
-      data: []
+      data: [],
+      error: ''
     }
   },
   created() {
@@ -56,6 +58,10 @@ export default {
       const {title, subject, body, subjectId} = Object.fromEntries(new FormData(e.target))
       const {getUser} = useUser()
       const {user} = getUser().value
+      this.error = ''
+      if(title?.trim()?.length < 1 || body?.trim()?.length < 1 || subject?.trim()?.length < 1) {
+        return this.error = 'Invalid entry! Make sure all the forms are filled'
+      }
       if(subjectId?.length > 0) {
         const data = {
           user: user._id,

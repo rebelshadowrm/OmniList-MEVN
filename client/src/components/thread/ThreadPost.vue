@@ -1,5 +1,6 @@
 <template>
   <div class="post">
+    <span v-if="error" class="error">{{error}}</span>
     <h1>
       <span role="textbox"
             contenteditable="false"
@@ -27,10 +28,10 @@
     </div>
     <i @click="menuToggle = !menuToggle" class="fas fa-ellipsis-v"></i>
     <ul v-if="menuToggle" class="menu">
-      <li v-if="post?.authorId !== loggedInUser?.user?._id"
+      <li v-if="post?.authorId !== loggedInUser?.user?._id && loggedInUser?.user?.role !== 'ADMIN' && loggedInUser?.user?.role !== 'MOD'"
           @click="reportPost" class="menu-item">Report
       </li>
-      <li v-if="loggedInUser?.user?.role === 'admin'"
+      <li v-if="loggedInUser?.user?.role === 'ADMIN' || loggedInUser?.user?.role === 'MOD'"
           @click="suspendPost" class="menu-item">Suspend
       </li>
       <li v-if="post?.authorId === loggedInUser?.user?._id"
@@ -59,6 +60,7 @@ export default {
       menuToggle: false,
       revertBody: '',
       revertTitle: '',
+      error: ''
     }
   },
   created() {
@@ -147,6 +149,10 @@ export default {
       const body = e.target.parentNode.parentNode.parentNode.querySelector(".body")
       const title = e.target.parentNode.parentNode.parentNode.querySelector(".title")
       const id = body.dataset.id
+      this.error = ''
+      if(title?.textContent?.trim()?.length < 1 || body?.textContent?.trim()?.length < 1) {
+        return this.error = 'Invalid! Title and Body cannot be empty.'
+      }
       if (this.type === 'discussion') {
         try {
           const data = {
@@ -206,6 +212,7 @@ export default {
     cancel(e) {
       const body = e.target.parentNode.parentNode.parentNode.querySelector(".body")
       const title = e.target.parentNode.parentNode.parentNode.querySelector(".title")
+      this.error = ''
       body.textContent = this.revertBody
       title.textContent = this.revertTitle
       body.contentEditable = false

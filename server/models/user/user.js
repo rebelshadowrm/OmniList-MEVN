@@ -37,20 +37,28 @@ const userSchema = new mongoose.Schema({
     role: {
         type: String,
         uppercase: true,
+        required: true,
         default: () => 'user'
     },
+    status: {
+        type: String,
+        uppercase: true,
+        required: true,
+        default: () => 'OK'
+,    },
     userPreferences: {
         type: UserPreferences,
-        required: false,
+        required: true,
         ref: 'UserPreferencesModel',
-        default: () => {}
-    },
+        default: () => UserPreferences
+    }
+    ,
     userProfile: {
         type: UserProfile,
-        required: false,
+        required: true,
         ref: 'UserProfileModel',
-        default: () => {}
-    },
+        default: () => UserProfile
+    }
 }, {
     collection: 'users'
 })

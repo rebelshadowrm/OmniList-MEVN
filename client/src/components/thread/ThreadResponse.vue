@@ -1,5 +1,6 @@
 <template>
   <div class="response">
+    <span v-if="error" class="error">{{error}}</span>
     <p class="username">
       <router-link :to="`/profile/${response?.comment?.user?.userName}`">
         <img :src="response?.comment?.user?.img ?? `https://picsum.photos/seed/${response?.comment?.user?.userName}/50`"
@@ -19,10 +20,10 @@
     </div>
     <i @click="menuToggle = !menuToggle" class="fas fa-ellipsis-v"></i>
     <ul v-if="menuToggle" class="menu">
-      <li v-if="response?.comment?.user?._id !== loggedInUser?.user?._id"
+      <li v-if="response?.comment?.user?._id !== loggedInUser?.user?._id && loggedInUser?.user?.role !== 'ADMIN' && loggedInUser?.user?.role !== 'MOD'"
           @click="reportComment" class="menu-item">Report
       </li>
-      <li v-if="loggedInUser?.user?.role === 'admin'"
+      <li v-if="loggedInUser?.user?.role === 'ADMIN' || loggedInUser?.user?.role === 'MOD'"
           @click="suspendComment" class="menu-item">Suspend
       </li>
       <li v-if="response?.comment?.user?._id === loggedInUser?.user?._id"
@@ -52,6 +53,7 @@ export default {
       menuToggle: false,
       loggedInUser: {},
       revertComment: '',
+      error: ''
     }
   },
   created() {
@@ -123,6 +125,10 @@ export default {
     async saveComment(e) {
       const comment = e.target.parentNode.parentNode.parentNode.querySelector(".comment")
       const commentId = comment.dataset.id
+      this.error = ''
+      if(comment?.textContent?.trim()?.length < 1) {
+        return this.error = 'Invalid! Comment cannot be empty.'
+      }
       if (this.type === 'discussion') {
         const data = {
           discussionId: this.id,
@@ -173,6 +179,7 @@ export default {
     },
     cancel(e) {
       const comment = e.target.parentNode.parentNode.parentNode.querySelector(".comment")
+      this.error = ''
       comment.textContent = this.revertComment
       comment.contentEditable = false
     },

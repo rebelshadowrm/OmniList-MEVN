@@ -14,8 +14,12 @@ const authenticateUser = async function(req, res, next) {
         if(user == null) return res.status(400).send('Cannot find user')
         //check password
         if(await bcrypt.compare(req.body.password, user.password)) {
-            const accessToken = generateAccessToken(user.toJSON())
-            const refreshToken = await generateRefreshToken(user.toJSON())
+            const newUser = {
+                _id: user?._id,
+                email: user?.email
+            }
+            const accessToken = generateAccessToken(newUser)
+            const refreshToken = await generateRefreshToken(newUser)
             //return tokens
             res.json({ accessToken: accessToken, refreshToken: refreshToken })
             next()
