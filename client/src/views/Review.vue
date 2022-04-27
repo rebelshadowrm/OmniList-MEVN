@@ -19,13 +19,12 @@ export default {
       responses: []
     }
   },
-  watch: {
-    responses() {
-      this.getReview()
-    }
-  },
   async created() {
     await this.getReview()
+    this.timer = setInterval(this.getReview, 5000)
+  },
+  beforeUnmount() {
+    this.cancelAutoUpdate()
   },
   methods: {
     async getReview() {
@@ -42,16 +41,23 @@ export default {
             authorImg: thread?.user?.img,
             body: thread?.body ?? ''
           }
-          this.responses = thread?.comments ?? []
+          const comments  = thread?.comments ?? []
+          const filtered = comments.filter( ({comment}) => comment.suspended === false)
+          filtered.sort( (a, b) => {
+            return new Date(b.comment.createdAt) - new Date(a.comment.createdAt)
+          })
+          this.responses = filtered
         }
-
       } catch (err) {
         console.log(err.message)
       }
     },
-    updateReplies(data) {
-      this.responses = data.comments
-    }
+    async updateReplies() {
+      await this.getReview()
+    },
+    cancelAutoUpdate() {
+      clearInterval(this.timer)
+    },
   }
 }
 </script>

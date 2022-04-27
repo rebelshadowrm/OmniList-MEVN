@@ -60,8 +60,18 @@ export default {
   },
   async created() {
     const {getUser} = useUser()
-    this.users = await UserService.getUsers()
-    this.currentUser = getUser()
+    try {
+      this.loading = true
+      const res = await UserService.getUsers()
+      if(res) {
+        this.users = res
+        this.currentUser = getUser()
+      }
+
+    } catch(err) {
+      console.log(err.message)
+    }
+
   },
   methods: {
     dateSort(a, b, sortOrder) {
@@ -99,6 +109,11 @@ export default {
 </script>
 
 <style scoped>
+.loading {
+  display: grid;
+  height: 100%;
+  place-items: center;
+}
 .user {
   display: grid;
   grid-auto-flow: column;

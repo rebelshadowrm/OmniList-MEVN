@@ -15,7 +15,10 @@ router.post('/', async (req, res) => {
         if (err) return res.status(403).send(err.message)
         const newUser = {
             _id: user?.user?._id,
-            email: user?.user?.email
+            userName: user?.user?.userName,
+            email: user?.user?.email,
+            status: user?.user?.status,
+            role: user?.user?.role
         }
         const accessToken = generateAccessToken(newUser)
         res.json({accessToken: accessToken})

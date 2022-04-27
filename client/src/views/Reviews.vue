@@ -20,27 +20,31 @@ export default {
     ThreadCollection,
     ThreadForm
   },
-  watch: {
-    threads() {
-      this.getData()
-    }
-  },
   data() {
     return {
       threads: [],
-      toggle: false
+      toggle: false,
+      timer: ''
     }
   },
   async created() {
     window.scrollTo(0,0);
     await this.getData()
+    this.timer = setInterval(this.getData, 20000)
+  },
+  beforeUnmount() {
+    this.cancelAutoUpdate()
   },
   methods: {
     async getData() {
       try {
         const res = await ThreadService.getReviews()
         if(res) {
-          this.threads = await res
+          const filtered = res.filter( ({suspended}) => suspended === false)
+          filtered.sort( (a, b) => {
+            return  b.createdAt - a.createdAt
+          })
+          this.threads = filtered
         }
       } catch(err) {
         console.log(err.message)
@@ -48,12 +52,15 @@ export default {
     },
     async updateData(data) {
       if(data){
-        this.threads.push(data)
+        this.threads.unshift(data)
       }
     },
     toggleForm(val) {
       this.toggle = val
-    }
+    },
+    cancelAutoUpdate() {
+      clearInterval(this.timer)
+    },
   }
 }
 </script>

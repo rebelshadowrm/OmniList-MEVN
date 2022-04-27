@@ -55,6 +55,11 @@ const reviewSchema = new mongoose.Schema({
                     required: true,
                     default: false
                 },
+                createdAt: {
+                    type: Date,
+                    immutable: true,
+                    default: () => Date.now(),
+                }
             }
         }
     ]

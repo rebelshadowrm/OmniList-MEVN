@@ -3,7 +3,7 @@
   <ThreadPost :type="type" :post="post" />
   <div class="replies">
     <ThreadResponseForm :type="type" :id="post.id" @update-replies="updateReplies" />
-    <ThreadResponse :type="type" :id="post.id" :response="response" v-for="response in responses" :key="response.id"/>
+    <ThreadResponse :type="type" :id="post.id" @update-replies="updateReplies" :response="response" v-for="response in responses" :key="response.id"/>
   </div>
 </div>
 </template>
@@ -26,8 +26,8 @@ export default {
   },
   emits: ['update-replies'],
   methods: {
-    updateReplies(data) {
-      this.$emit('update-replies', data)
+    async updateReplies(data) {
+      await this.$emit('update-replies', data)
     }
   }
 }

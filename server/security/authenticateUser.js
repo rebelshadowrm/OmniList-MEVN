@@ -16,7 +16,10 @@ const authenticateUser = async function(req, res, next) {
         if(await bcrypt.compare(req.body.password, user.password)) {
             const newUser = {
                 _id: user?._id,
-                email: user?.email
+                userName: user?.userName,
+                email: user?.email,
+                status: user?.status,
+                role: user?.role
             }
             const accessToken = generateAccessToken(newUser)
             const refreshToken = await generateRefreshToken(newUser)

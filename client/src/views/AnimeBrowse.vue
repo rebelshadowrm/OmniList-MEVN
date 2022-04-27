@@ -150,12 +150,12 @@ h1 {
 }
 .browse-items {
   display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
+  flex-flow: row wrap;
   gap: 1.5rem;
   margin: 2rem;
   justify-content: center;
 }
+
 .browse-options {
   padding: 2rem;
   width: 100%;

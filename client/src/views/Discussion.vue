@@ -19,13 +19,12 @@ export default {
       responses: [],
     }
   },
-  watch: {
-    responses() {
-      this.getDiscussion()
-    }
-  },
   async created() {
     await this.getDiscussion()
+    this.timer = setInterval(this.getDiscussion, 5000)
+  },
+  beforeUnmount() {
+    this.cancelAutoUpdate()
   },
   methods: {
     async getDiscussion() {
@@ -42,15 +41,20 @@ export default {
             authorImg: thread?.user?.img,
             body: thread?.body ?? ''
           }
-          this.responses = thread?.comments ?? []
+          const comments  = thread?.comments ?? []
+          const filtered = comments.filter( ({comment}) => comment.suspended === false)
+          filtered.sort( (a, b) => {
+            return new Date(b.comment.createdAt) - new Date(a.comment.createdAt)
+          })
+          this.responses = filtered
         }
 
       } catch(err) {
         console.log(err.message)
       }
     },
-    updateReplies(data) {
-      this.responses = data.comments
+    async updateReplies() {
+      await this.getDiscussion()
     }
   }
 }

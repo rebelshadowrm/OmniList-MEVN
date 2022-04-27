@@ -11,6 +11,7 @@ app.use(bodyParser.urlencoded({
 }))
 app.use(cors())
 
+const news = require('./routes/api/news')
 const posts = require('./routes/api/posts')
 const login = require('./routes/api/login')
 const register = require('./routes/api/register')
@@ -21,6 +22,7 @@ const reviews = require('./routes/api/reviews')
 const discussions = require('./routes/api/discussions')
 const anime = require('./routes/api/anime')
 
+app.use('/api/news', news)
 app.use('/api/anime', anime)
 app.use('/api/discussions', discussions)
 app.use('/api/reviews', reviews)

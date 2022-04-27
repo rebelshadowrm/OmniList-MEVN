@@ -134,7 +134,7 @@ router.put('/comment/update', async (req, res) => {
         const review = await ReviewModel.findOne({_id: req.body.reviewId})
         const comments = review.comments
         const comment = comments.find( ({_id}) => _id == req.body.commentId )
-        comment.comment.comment = req.body.comment
+        comment.comment.comment = req.body.comment ?? comment.comment.comment
         comment.comment.suspended = req?.body?.suspended ?? comment.comment.suspended
         comment.comment.flagged = req?.body?.flagged ?? comment.comment.flagged
         review.comments = comments

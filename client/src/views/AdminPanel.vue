@@ -1,14 +1,15 @@
 <template>
   <section>
     <header>
-      <span class="route-link" @click="section = 'user-list'">User List</span>
-      <span class="route-link" @click="section = 'user-reports'">User Reports</span>
-      <span class="route-link" @click="section = 'thread-reports'">Thread Reports</span>
-      <span class="route-link" @click="section = 'comment-reports'">Comment Reports</span>
+      <span :class="section === 'user-list' ? 'route-link active' : 'route-link'"
+            @click="section = 'user-list'">User List</span>
+      <span :class="section === 'thread-reports' ? 'route-link active' : 'route-link'"
+            @click="section = 'thread-reports'">Thread Reports</span>
+      <span :class="section === 'comment-reports' ? 'route-link active' : 'route-link'"
+            @click="section = 'comment-reports'">Comment Reports</span>
     </header>
     <div class="main">
       <AdminUserList v-if="section === 'user-list'"/>
-      <AdminUserReports v-if="section === 'user-reports'"/>
       <AdminThreadReports v-if="section === 'thread-reports'"/>
       <AdminCommentReports v-if="section === 'comment-reports'"/>
     </div>
@@ -17,7 +18,6 @@
 
 <script>
 import AdminUserList from "../components/admin/AdminUserList.vue";
-import AdminUserReports from "../components/admin/AdminUserReports.vue";
 import AdminThreadReports from "../components/admin/AdminThreadReports.vue";
 import AdminCommentReports from "../components/admin/AdminCommentReports.vue";
 
@@ -25,7 +25,6 @@ export default {
   name: "AdminPanel",
   components: {
     AdminUserList,
-    AdminUserReports,
     AdminThreadReports,
     AdminCommentReports
   },
@@ -43,11 +42,16 @@ header {
   margin-block: 1rem;
   width: fit-content;
   display: flex;
-  gap: 1rem;
+  gap: 2rem;
 }
 
 .route-link {
+  font-size: var(--txt-med);
   cursor: pointer;
+}
+.route-link.active {
+  font-weight: 600;
+  border-bottom: 1px solid var(--clr-text);
 }
 
 .main {

@@ -45,6 +45,10 @@ export default {
           if (res.status === 200) {
             const {accessToken, refreshToken} = res?.data
             const user = decodeJWT(accessToken)?.user
+            console.log(user)
+            if(user.status === 'SUSPENDED') {
+              return this.errorMsg = "This account has been suspended"
+            }
             TokenService.setAccessToken(accessToken)
             TokenService.setRefreshToken(refreshToken)
             const response = await UserService.getUser(user?._id)

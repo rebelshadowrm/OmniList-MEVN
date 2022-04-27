@@ -102,6 +102,7 @@ export default {
         const res = await ThreadService.updateDiscussionComment(data)
         if (res.status === 200) {
           comment.contentEditable = false
+          await this.$emit('update-replies', data)
         }
       }
       if (this.type === 'review') {
@@ -113,6 +114,7 @@ export default {
         const res = await ThreadService.updateReviewComment(data)
         if (res.status === 200) {
           comment.contentEditable = false
+          await this.$emit('update-replies', data)
         }
       }
     },
@@ -163,7 +165,8 @@ export default {
         }
         const res = await ThreadService.deleteDiscussionComment(data)
         if (res.status === 204) {
-          comment.parentNode.remove()
+          comment.contentEditable = false
+          await this.$emit('update-replies', data)
         }
       }
       if (this.type === 'review') {
@@ -173,7 +176,8 @@ export default {
         }
         const res = await ThreadService.deleteReviewComment(data)
         if (res.status === 204) {
-          comment.parentNode.remove()
+          comment.contentEditable = false
+          await this.$emit('update-replies', data)
         }
       }
     },
