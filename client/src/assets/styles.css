@@ -418,3 +418,7 @@ td {
 .multiselect__option--highlight::after {
     background: transparent;
 }
+.multiselect__tag {
+    font-weight: 500;
+    background: var(--clr-secondary-400-5);
+}
