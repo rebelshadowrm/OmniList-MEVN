@@ -169,11 +169,28 @@ export default {
             console.log(err.message)
           }
         } else {
-          try {
-            const data = { status }
-            await AnimeService.updateAnimeListItem(user?._id, animeId, data)
-          } catch (err) {
-            console.log(err.message)
+          if (status === 'completed') {
+            try {
+              const currentEps = document.querySelector('.progress')
+              const totalEps = document.querySelector('.totalEps').textContent
+              if(parseInt(totalEps)) {
+                currentEps.textContent = totalEps
+                const data = {
+                  status,
+                  progress: parseInt(totalEps)
+                }
+                await AnimeService.updateAnimeListItem(user?._id, animeId, data)
+              }
+            } catch (err) {
+              console.log(err.message)
+            }
+          } else {
+            try {
+              const data = { status }
+              await AnimeService.updateAnimeListItem(user?._id, animeId, data)
+            } catch (err) {
+              console.log(err.message)
+            }
           }
         }
 
