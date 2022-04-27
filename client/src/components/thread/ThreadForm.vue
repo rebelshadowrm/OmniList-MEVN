@@ -3,7 +3,7 @@
     <span v-if="error" class="error">{{error}}</span>
     <div class="input">
       <label for="title">Title</label>
-      <input type="text" name="title" id="title">
+      <input v-model="title" type="text" name="title" id="title">
     </div>
     <div class="input">
       <label for="subject">Subject</label>
@@ -21,6 +21,7 @@
     <div class="input">
       <label for="body">body</label>
       <textarea
+          v-model="body"
           class="body"
           rows="1"
           name="body"
@@ -46,6 +47,8 @@ export default {
       searching: false,
       subjectId: null,
       subject: '',
+      title: '',
+      body: '',
       data: [],
       error: ''
     }
@@ -81,6 +84,10 @@ export default {
           }
           if(res.status === 201) {
             this.$emit('update-data', res.data)
+            this.title = ''
+            this.body = ''
+            this.subject = ''
+            this.subjectId = null
             this.$emit('toggle-form', false)
           }
         } catch(err) {

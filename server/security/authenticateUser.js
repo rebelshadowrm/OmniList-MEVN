@@ -34,7 +34,7 @@ const authenticateUser = async function(req, res, next) {
     }
 }
 const generateAccessToken = (user) => {
-    return jwt.sign({user}, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1m'})
+    return jwt.sign({user}, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '15m'})
 }
 const generateRefreshToken = async (user) => {
      const token = await TokenModel.create({
