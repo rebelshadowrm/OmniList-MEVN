@@ -86,22 +86,34 @@ const router = createRouter({
     linkExactActiveClass: "active"
 })
 
-router.beforeEach( async(to, from, next) => {
+router.beforeEach(async (to, from, next) => {
     const {getIsLoggedIn, getUser} = useUser()
     const isAuthenticated = getIsLoggedIn().value
     const {user} = getUser().value
 
-    if(!isAuthenticated &&
+    if (!isAuthenticated &&
         to.name !== 'Home'
     ) {
-        if(isAuthenticated &&
-            user?.role === 'ADMIN' ||
-            user?.role === 'MOD' &&
-            to.name === 'AdminPanel'
+        if (!isAuthenticated &&
+            to.name !== 'Anime'
         ) {
-            next({ name: 'AdminPanel'})
+            if (!isAuthenticated &&
+                to.name !== 'AnimeBrowse'
+            ) {
+                if (isAuthenticated &&
+                    user?.role === 'ADMIN' ||
+                    user?.role === 'MOD' &&
+                    to.name === 'AdminPanel'
+                ) {
+                    next({name: 'AdminPanel'})
+                } else {
+                    next({name: 'Home'})
+                }
+            } else {
+                next()
+            }
         } else {
-            next({ name: 'Home' })
+            next()
         }
     } else {
         next()
