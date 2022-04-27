@@ -62,15 +62,11 @@ export default {
     }
   },
   async beforeCreate() {
-    this.$watch(
-        async () => this.$route.params,
-        async (toParams) => {
-          const {username} = await toParams
-          if (username) {
-            const {data} = await UserService.getUserByUsername(username)
-            await this.updateProfile(data)
-          }
-        })
+        const username = this?.$route?.params?.username
+        if (username) {
+          const {data} = await UserService.getUserByUsername(username)
+          await this.updateProfile(data)
+        }
     if (this.username) {
       const {data} = await UserService.getUserByUsername(this.username)
       await this.updateProfile(data)

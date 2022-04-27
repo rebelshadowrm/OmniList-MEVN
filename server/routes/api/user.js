@@ -56,6 +56,7 @@ router.put('/:id', authenticateToken, async (req, res) => {
                 user.lastName = req?.body?.lastName
                 user.userPreferences = req?.body?.userPreferences ?? user.userPreferences
                 user.userPreferences.themes.profileTheme = req?.body?.userPreferences?.themes?.profileTheme ?? user.userPreferences.themes.profileTheme
+                user.userProfile.bio = req?.body?.bio ?? user.userProfile.bio
                 if(req?.body?.addFavorite) {
                     const add = req?.body?.addFavorite
                     const filter = user?.userProfile?.favorites?.animeFavorites

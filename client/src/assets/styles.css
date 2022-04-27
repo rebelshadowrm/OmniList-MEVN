@@ -391,3 +391,30 @@ td {
     border-bottom: 1px solid var(--border);
     border-left: 1px solid var(--border);
 }
+
+/*********************************************************************
+                                MULTI SELECT
+********************************************************************/
+
+.multiselect * {
+    color: var(--clr-text);
+    border: none;
+}
+.multiselect *::placeholder {
+    color: var(--clr-text);
+}
+.multiselect__single,
+.multiselect__tags,
+.multiselect__tags input,
+.multiselect__option:not(.multiselect__option--highlight) {
+    background: var(--clr-bg);
+}
+.multiselect__single {
+    cursor: pointer;
+}
+.multiselect__option--highlight {
+    background: hsl(0deg 0% 10% / .9);
+}
+.multiselect__option--highlight::after {
+    background: transparent;
+}

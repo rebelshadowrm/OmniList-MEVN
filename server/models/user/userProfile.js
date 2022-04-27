@@ -56,7 +56,11 @@ const userProfileSchema = new mongoose.Schema({
                 lowercase: true
             }
         }
-    ]
+    ],
+    bio: {
+        type: String,
+        required: false
+    }
 })
 
 module.exports = mongoose.model('UserProfileModel', userProfileSchema)
