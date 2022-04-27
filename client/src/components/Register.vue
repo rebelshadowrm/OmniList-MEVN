@@ -63,7 +63,7 @@ export default {
       ) {
         const expression = /^\S+@\S+\.\S+$/ig
         const regex = new RegExp(expression)
-        if(!this.password.match(regex)) {
+        if(!this.email.match(regex)) {
           this.errorMsg = 'Invalid email format!'
         } else {
           if(this.password.trim() === this.repeatPassword.trim()) {
