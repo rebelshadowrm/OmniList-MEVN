@@ -93,7 +93,6 @@ router.put('/:id', authenticateToken, async (req, res) => {
             if(req?.user?.user?.role === 'ADMIN') {
                 user.role = req?.body?.role ?? user.role
             }
-            console.log(req?.user?.user)
             if(req?.user?.user?.role === 'ADMIN' || req?.user?.user?.role === 'MOD') {
                 user.status = req?.body?.status ?? user.status
             }

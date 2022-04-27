@@ -11,7 +11,7 @@ const userPreferencesSchema = new mongoose.Schema({
     themes: {
         type: UserTheme,
         ref: 'UserThemeModel',
-        default: () => {}
+        default: () => UserTheme
     },
     profileLayout: {
         type: ProfileLayout,

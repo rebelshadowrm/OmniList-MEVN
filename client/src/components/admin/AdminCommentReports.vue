@@ -11,7 +11,11 @@
       </template>
       <template #body="{ rows }">
         <tr v-for="row in rows" :key="row.id">
-          <td class="table-username-row">{{ row?.user?.userName }}</td>
+          <td class="table-username-row">
+            <router-link :to="`/profile/${row?.user?.userName}`">
+              {{ row?.user?.userName }}
+            </router-link>
+          </td>
           <td class="table-comment-row">{{ row?.comment }}</td>
         </tr>
       </template>
@@ -27,7 +31,11 @@
       </template>
       <template #body="{ rows }">
         <tr v-for="row in rows" :key="row.id">
-          <td class="table-username-row">{{ row?.user?.userName }}</td>
+          <td class="table-username-row">
+            <router-link :to="`/profile/${row?.user?.userName}`">
+              {{ row?.user?.userName }}
+            </router-link>
+          </td>
           <td class="table-comment-row">{{ row?.comment }}</td>
         </tr>
       </template>
@@ -50,28 +58,30 @@ export default {
     const discussions = await ThreadService.getDiscussions()
     const reviews = await ThreadService.getReviews()
     const threads = []
-    discussions.forEach(e => {
-      threads.push(e)
-    })
-    reviews.forEach(e => {
-      threads.push(e)
-    })
-    threads.push(reviews)
-    const commentsArr = []
-    threads.forEach( ({comments}) => {
-      comments?.forEach(e => {
-        commentsArr.push(e.comment)
+    if(discussions && reviews) {
+      discussions?.forEach(e => {
+        threads.push(e)
       })
-    })
-    this.suspendedData = commentsArr.filter(({suspended}) => suspended === true)
-    const flagged = commentsArr.filter(({flagged}) => flagged === true)
-    let reported = []
-    flagged.forEach( e => {
-      if(e.suspended === false) {
-        reported.push(e)
-      }
-    })
-    this.reportedData = reported
+      reviews?.forEach(e => {
+        threads.push(e)
+      })
+      threads.push(reviews)
+      const commentsArr = []
+      threads.forEach( ({comments}) => {
+        comments?.forEach(e => {
+          commentsArr.push(e.comment)
+        })
+      })
+      this.suspendedData = commentsArr.filter(({suspended}) => suspended === true)
+      const flagged = commentsArr.filter(({flagged}) => flagged === true)
+      let reported = []
+      flagged.forEach( e => {
+        if(e.suspended === false) {
+          reported.push(e)
+        }
+      })
+      this.reportedData = reported
+    }
   }
 }
 </script>
@@ -80,5 +90,9 @@ export default {
 h2 {
   display: inline-block;
   margin-block: 1.25rem;
+}
+a {
+  text-decoration: none;
+  color: var(--clr-text);
 }
 </style>

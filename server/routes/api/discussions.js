@@ -4,25 +4,26 @@ const dotenv = require("dotenv")
 dotenv.config()
 require('../../database')
 const DiscussionModel = require('../../models/discussion')
+const authenticateToken = require("../../security/authenticateToken");
 
 const router = express.Router()
 
 
 // Get Discussions
-router.get('/', async (req, res) => {
+router.get('/', authenticateToken, async (req, res) => {
     res.send(await DiscussionModel.find()
         .populate('user')
         .populate('comments.comment.user'))
 })
 
-router.get('/:id', async (req, res) => {
+router.get('/:id', authenticateToken, async (req, res) => {
     res.send(await DiscussionModel.findById(req.params.id)
         .populate('user')
         .populate('comments.comment.user'))
 })
 
 // Get discussion by anime
-router.get('/anime/:id', async (req, res) => {
+router.get('/anime/:id', authenticateToken, async (req, res) => {
     res.send(await DiscussionModel
         .where('subjectId')
         .equals(req?.params?.id)
@@ -31,7 +32,7 @@ router.get('/anime/:id', async (req, res) => {
 })
 
 // Get discussion by user
-router.get('/user/:id', async (req, res) => {
+router.get('/user/:id', authenticateToken, async (req, res) => {
     res.send(await DiscussionModel
         .where('user')
         .equals(req?.params?.id)
@@ -40,7 +41,7 @@ router.get('/user/:id', async (req, res) => {
 })
 
 // Add Discussion
-router.post('/', async (req, res) => {
+router.post('/', authenticateToken, async (req, res) => {
     let discussion = await DiscussionModel.create({
         user: req.body.user,
         title: req.body.title,
@@ -59,7 +60,7 @@ router.post('/', async (req, res) => {
 })
 
 // Update Discussion
-router.put('/:id', async (req, res) => {
+router.put('/:id', authenticateToken, async (req, res) => {
     try {
         const discussion = await DiscussionModel.findOne({_id: req.params.id})
         discussion.title = req?.body?.title ?? discussion.title
@@ -79,7 +80,7 @@ router.put('/:id', async (req, res) => {
 })
 
 // Delete Discussion
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', authenticateToken, async (req, res) => {
     if(await DiscussionModel.deleteOne({ _id: req.params.id })) {
         res.sendStatus(204)
     } else {
@@ -88,7 +89,7 @@ router.delete('/:id', async (req, res) => {
 })
 
 // Delete Comment
-router.delete('/comment/delete', async (req, res) => {
+router.delete('/comment/delete', authenticateToken, async (req, res) => {
     try {
         const discussion = await DiscussionModel.findOne({_id: req.body.discussionId})
         let comments = discussion.comments
@@ -106,7 +107,7 @@ router.delete('/comment/delete', async (req, res) => {
 })
 
 // Add Comment
-router.post('/comment/add', async (req, res) => {
+router.post('/comment/add', authenticateToken, async (req, res) => {
     try {
         let discussion = await DiscussionModel.findOne({_id: req.body.discussionId})
         const comments = discussion.comments
@@ -131,7 +132,7 @@ router.post('/comment/add', async (req, res) => {
 })
 
 // Update Comment
-router.put('/comment/update', async (req, res) => {
+router.put('/comment/update', authenticateToken, async (req, res) => {
     try {
         const discussion = await DiscussionModel.findOne({_id: req.body.discussionId})
         const comments = discussion.comments

@@ -88,6 +88,7 @@ export default {
         this.firstName = ''
         this.lastName = ''
         this.errorMsg = ''
+        this.$emit('toggle-form', true)
       } else if(res.status === 422) {
         this.errorMsg = "Email already in use"
       } else {

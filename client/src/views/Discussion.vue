@@ -55,6 +55,9 @@ export default {
     },
     async updateReplies() {
       await this.getDiscussion()
+    },
+    cancelAutoUpdate() {
+      clearInterval(this.timer)
     }
   }
 }

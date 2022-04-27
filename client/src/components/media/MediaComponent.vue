@@ -118,8 +118,22 @@ export default {
       }
       const totalEps = e.target.parentNode.querySelector('.totalEps').textContent
       const totalEpsInt = parseInt(totalEps)
-      if (progressInt > totalEpsInt) {
+      if (progressInt > totalEpsInt || progressInt === totalEpsInt) {
         progressInt = totalEpsInt
+        try {
+          const {getUser} = useUser()
+          const {user} = getUser().value
+          if(user?._id) {
+            const data = { status: 'completed' }
+            const res = await AnimeService.updateAnimeListItem(user?._id, animeId, data)
+            if(res.status === 200) {
+              const statusElem = document.querySelector('.status')
+              statusElem.value = 'completed'
+            }
+          }
+        } catch (err) {
+          console.log(err.message)
+        }
       }
       if (progressInt) {
         await this.updateListProgress(animeId, progressInt)
@@ -156,9 +170,8 @@ export default {
           }
         } else {
           try {
-            const data = {status}
-            const res = await AnimeService.updateAnimeListItem(user?._id, animeId, data)
-            console.log(res)
+            const data = { status }
+            await AnimeService.updateAnimeListItem(user?._id, animeId, data)
           } catch (err) {
             console.log(err.message)
           }

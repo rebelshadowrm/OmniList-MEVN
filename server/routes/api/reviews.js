@@ -4,24 +4,25 @@ const dotenv = require("dotenv")
 dotenv.config()
 require('../../database')
 const ReviewModel = require('../../models/review')
+const authenticateToken = require("../../security/authenticateToken");
 const router = express.Router()
 
 
 // Get Reviews
-router.get('/', async (req, res) => {
+router.get('/', authenticateToken, async (req, res) => {
     res.send(await ReviewModel.find()
         .populate('user')
         .populate('comments.comment.user'))
 })
 
-router.get('/:id', async (req, res) => {
+router.get('/:id', authenticateToken, async (req, res) => {
     res.send(await ReviewModel.findById(req.params.id)
         .populate('user')
         .populate('comments.comment.user'))
 })
 
 // Get reviews by anime
-router.get('/anime/:id', async (req, res) => {
+router.get('/anime/:id', authenticateToken, async (req, res) => {
     res.send(await ReviewModel
         .where('subjectId')
         .equals(req?.params?.id)
@@ -30,7 +31,7 @@ router.get('/anime/:id', async (req, res) => {
 })
 
 // Get reviews by user
-router.get('/user/:id', async (req, res) => {
+router.get('/user/:id', authenticateToken, async (req, res) => {
     res.send(await ReviewModel
         .where('user')
         .equals(req?.params?.id)
@@ -39,7 +40,7 @@ router.get('/user/:id', async (req, res) => {
 })
 
 // Add review
-router.post('/', async (req, res) => {
+router.post('/', authenticateToken, async (req, res) => {
     let review = await ReviewModel.create({
         user: req.body.user,
         title: req.body.title,
@@ -58,7 +59,7 @@ router.post('/', async (req, res) => {
 })
 
 // Update Review
-router.put('/:id', async (req, res) => {
+router.put('/:id', authenticateToken, async (req, res) => {
     try {
         const review = await ReviewModel.findOne({_id: req.params.id})
         review.title = req?.body?.title ?? review.title
@@ -77,7 +78,7 @@ router.put('/:id', async (req, res) => {
 })
 
 // Delete Review
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', authenticateToken, async (req, res) => {
     if(await ReviewModel.deleteOne({ _id: req.params.id })) {
         res.sendStatus(204)
     } else {
@@ -86,7 +87,7 @@ router.delete('/:id', async (req, res) => {
 })
 
 // Delete Comment
-router.delete('/comment/delete', async (req, res) => {
+router.delete('/comment/delete', authenticateToken, async (req, res) => {
     try {
         const review = await ReviewModel.findOne({_id: req.body.reviewId})
         let comments = review.comments
@@ -104,7 +105,7 @@ router.delete('/comment/delete', async (req, res) => {
 })
 
 // Add Comment
-router.post('/comment/add', async (req, res) => {
+router.post('/comment/add', authenticateToken, async (req, res) => {
     try {
         let review = await ReviewModel.findOne({_id: req.body.reviewId})
         const comments = review.comments
@@ -129,7 +130,7 @@ router.post('/comment/add', async (req, res) => {
 })
 
 // Update Comment
-router.put('/comment/update', async (req, res) => {
+router.put('/comment/update', authenticateToken, async (req, res) => {
     try {
         const review = await ReviewModel.findOne({_id: req.body.reviewId})
         const comments = review.comments

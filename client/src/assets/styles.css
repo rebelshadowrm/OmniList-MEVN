@@ -95,7 +95,6 @@ p {
     --clr-white-600: 0 0% 75%;
     --clr-white-800: 0 0% 65%;
 
-    /*TODO: Add primary/secondary */
     --clr-primary-h: 15deg;
     --clr-secondary-h: calc(var(--clr-primary-h) + 180deg);
     --clr-accent-h: calc(var(--clr-secondary-h) + 270deg);

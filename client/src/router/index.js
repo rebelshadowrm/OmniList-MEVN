@@ -1,4 +1,5 @@
 import {createRouter, createWebHistory} from "vue-router"
+import useUser from "../composables/user"
 import Home from "../views/Home.vue"
 import About from "../views/About.vue"
 import Profile from "../views/Profile.vue";
@@ -77,12 +78,36 @@ const routes = [
         name: 'AdminPanel',
         component: AdminPanel
     }
-    ]
+]
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
     routes,
     linkExactActiveClass: "active"
+})
+
+router.beforeEach( async(to, from, next) => {
+    const {getIsLoggedIn, getUser} = useUser()
+    const isAuthenticated = getIsLoggedIn().value
+    const {user} = getUser().value
+
+    if(!isAuthenticated &&
+        to.name !== 'Home'
+    ) {
+        if(isAuthenticated &&
+            user?.role === 'ADMIN' ||
+            user?.role === 'MOD' &&
+            to.name === 'AdminPanel'
+        ) {
+            next({ name: 'AdminPanel'})
+        } else {
+            next({ name: 'Home' })
+        }
+    } else {
+        next()
+    }
+
+
 })
 
 export default router

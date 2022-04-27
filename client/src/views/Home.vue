@@ -1,5 +1,5 @@
 <template>
-  <div v-if="loading" class="loading">
+  <div  v-if="loading && isLoggedIn === true" class="loading">
     <h1>Loading...</h1>
   </div>
   <div v-else class="loaded">
@@ -28,16 +28,13 @@
 </template>
 
 <script>
-import PostComponent from "../components/PostComponent.vue"
 import Login from "../components/Login.vue"
 import Register from "../components/Register.vue";
 import useUser from "../composables/user.js"
-import UserService from "../services/UserService";
 
 export default {
   name: "Home",
   components: {
-    PostComponent,
     Login,
     Register
   },
@@ -58,7 +55,7 @@ export default {
     if(res.ok) {
       const data = await res.json()
       const {entry} = data.feed
-      this.newsArr = entry
+      this.newsArr  = entry
       this.loading = false
     }
   },

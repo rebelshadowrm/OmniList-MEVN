@@ -3,12 +3,13 @@ const dotenv = require("dotenv")
 dotenv.config()
 require('../../database')
 const AnimeListItemModel = require('../../models/animeListItem')
+const authenticateToken = require("../../security/authenticateToken");
 
 const router = express.Router()
 
 
 // Get Anime List Items by UserId
-router.get('/:id', async (req, res) => {
+router.get('/:id', authenticateToken, async (req, res) => {
     if(req?.params?.userId == 'undefined') res.sendStatus(400)
     res.send(await AnimeListItemModel
         .where('user')
@@ -17,7 +18,7 @@ router.get('/:id', async (req, res) => {
 })
 
 // Get Anime List Item by UserId then AnimeId
-router.get('/:userId/:animeId/', async (req, res) => {
+router.get('/:userId/:animeId/', authenticateToken, async (req, res) => {
     if(req?.params?.userId == 'undefined') {
         res.sendStatus(400)
     } else {
@@ -31,7 +32,7 @@ router.get('/:userId/:animeId/', async (req, res) => {
 })
 
 // Add Anime List Item
-router.post('/', async (req, res) => {
+router.post('/', authenticateToken, async (req, res) => {
     if(req?.body?.user == 'undefined') {
         res.sendStatus(400)
     } else {
@@ -61,7 +62,7 @@ router.post('/', async (req, res) => {
 })
 
 // Update Anime List Item
-router.put('/:userId/:animeId', async (req, res) => {
+router.put('/:userId/:animeId', authenticateToken, async (req, res) => {
     if(req?.params?.userId == 'undefined') {
         res.sendStatus(400)
     } else {
@@ -98,7 +99,7 @@ router.put('/:userId/:animeId', async (req, res) => {
 })
 
 // Delete Anime List Item
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', authenticateToken, async (req, res) => {
     if(req?.params?.userId == 'undefined') {
         res.sendStatus(400)
     } else {

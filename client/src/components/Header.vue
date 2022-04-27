@@ -7,12 +7,12 @@
     </router-link>
 
     <div class="nav-items">
-      <router-link  to="/">Home</router-link>
-      <router-link v-if="user?.user?.role === 'ADMIN'" to="/admin">Admin</router-link>
-      <router-link to="/about">About</router-link>
-      <router-link to="/anime">Anime</router-link>
-      <router-link to="/discussions">Discussions</router-link>
-      <router-link to="/reviews">Reviews</router-link>
+      <router-link v-if="isLoggedIn" to="/">Home</router-link>
+      <router-link v-if="user?.user?.role === 'ADMIN' || user?.user?.role === 'MOD'" to="/admin">Admin</router-link>
+      <router-link v-if="isLoggedIn" to="/about">About</router-link>
+      <router-link v-if="isLoggedIn" to="/anime">Anime</router-link>
+      <router-link v-if="isLoggedIn" to="/discussions">Discussions</router-link>
+      <router-link v-if="isLoggedIn" to="/reviews">Reviews</router-link>
     </div>
     <div v-if="isLoggedIn" @click.prevent="toggle" class="dropdown">
       <div class="dropdown-title">

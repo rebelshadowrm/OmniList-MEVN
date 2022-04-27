@@ -15,14 +15,6 @@ export default {
   name: "MediaAside",
   props: {
     infos: Array,
-  },
-  data() {
-    return {
-      infoArr: [],
-    }
-  },
-  created() {
-
   }
 }
 </script>

@@ -156,14 +156,20 @@ export default {
     },
     async populateDiscussions(id) {
       try {
-        this.discussionArr = await ThreadService.getDiscussionsByAnime(id)
+        const res = await ThreadService.getDiscussionsByAnime(id)
+        if(res) {
+          this.discussionArr = res
+        }
       } catch(err) {
         console.log(err.message)
       }
     },
     async populateReviews(id) {
       try {
-        this.reviewArr = await ThreadService.getReviewsByAnime(id)
+        const res = await ThreadService.getReviewsByAnime(id)
+        if(res) {
+          this.reviewArr = res
+        }
       } catch(err) {
         console.log(err.message)
       }
@@ -180,15 +186,13 @@ export default {
             const data = {
               addFavorite: this.data
             }
-            const res = await UserService.updateUser(user?._id, data)
-            console.log(res)
+            await UserService.updateUser(user?._id, data)
             this.favorite = val
           } else if (val === false) {
             const data = {
               removeFavorite: this.data
             }
-            const res = await UserService.updateUser(user?._id, data)
-            console.log(res)
+            await UserService.updateUser(user?._id, data)
             this.favorite = val
           }
         }
@@ -198,7 +202,6 @@ export default {
     },
     async addToList(data) {
       try {
-        console.log(data)
         const res = await AnimeService.createAnimeListItem(data)
         if(res.status === 201) {
           this.listItem = res.data
@@ -212,10 +215,12 @@ export default {
       try {
         const {getUser} = useUser()
         const {user} = getUser().value
-        const listItem = await AnimeService.getUserAnimeListItem(user?._id, id)
-        if(listItem && listItem.animeId === id) {
-          this.added = true
-          this.listItem = listItem
+        if(user?._id) {
+          const listItem = await AnimeService.getUserAnimeListItem(user?._id, id)
+          if(listItem && listItem.animeId === id) {
+            this.added = true
+            this.listItem = listItem
+          }
         }
       } catch(err) {
         console.log(err.message)

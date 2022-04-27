@@ -7,7 +7,7 @@
       <hr/>
       <div class="buttons">
         <button @click="cancel" class="cancel">cancel</button>
-        <button @click="saveComment" class="save">save</button>
+        <button @click="save" class="save">save</button>
       </div>
     </div>
     <button v-if="user?._id === currentUser?.user?._id"
@@ -48,17 +48,23 @@ export default {
         })
   },
   async beforeCreate() {
-    const {getUser} = useUser()
-    this.currentUser = getUser()
-    const username = this?.$route?.params?.username
-    if(username) {
-      const res = await UserService.getUserByUsername(username)
-      if(res.status === 200) {
-        this.user = res.data
-        const {bio} = res.data.userProfile
-        this.bio = bio
+    try {
+      const username = this?.$route?.params?.username
+      if(username) {
+        const res = await UserService.getUserByUsername(username)
+        if(res.status === 200) {
+          const {getUser} = useUser()
+          this.currentUser = getUser()
+          this.user = res.data
+          const {bio} = res.data.userProfile
+          this.bio = bio
+        }
       }
+    } catch(err) {
+      console.log(err.message)
     }
+
+
   },
   methods: {
     async updateBio(data) {
@@ -72,14 +78,12 @@ export default {
       bio.contentEditable = true
 
     },
-    async saveComment(e) {
+    async save(e) {
       const bio = document.querySelector('.bio-text')
-      console.log(bio.textContent)
       const data = {
         bio: bio.textContent
       }
       if(this?.user?._id) {
-        console.log(data)
         const res = await UserService.updateUser(this?.user?._id, data)
         if (res.status === 200) {
           bio.contentEditable = false

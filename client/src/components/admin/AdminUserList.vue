@@ -12,7 +12,11 @@
     </template>
     <template #body="{ rows }">
       <tr v-for="row in rows" :key="row.id">
-        <td class="table-username-row">{{ row?.userName }}</td>
+        <td class="table-username-row">
+          <router-link :to="`/profile/${row?.userName}`">
+            {{ row?.userName }}
+          </router-link>
+        </td>
         <td class="table-email-row">{{ row?.email }}</td>
         <td class="table-updated-row">{{ row?.updatedAt.toLocaleDateString() }}</td>
         <td class="table-role-row">
@@ -91,8 +95,7 @@ export default {
       const status = e?.target?.value
       const data = { status }
       if(userId) {
-        const res = await UserService.updateUser(userId, data)
-        console.log(res)
+        await UserService.updateUser(userId, data)
       }
     },
     async updateRole(e) {
@@ -100,8 +103,7 @@ export default {
       const role = e?.target?.value
       const data = { role }
       if(userId) {
-        const res = await UserService.updateUser(userId, data)
-        console.log(res)
+        await UserService.updateUser(userId, data)
       }
     }
   }
@@ -136,6 +138,11 @@ option {
 
 select[disabled] {
   appearance: none;
+}
+
+a {
+  text-decoration: none;
+  color: var(--clr-text);
 }
 
 </style>

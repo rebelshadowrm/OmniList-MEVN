@@ -147,12 +147,10 @@ export default {
         const {getUser} = useUser()
         const {user} = getUser().value
         const id = e?.target?.dataset?.id
-        console.log(id)
         const data = {
           removeSocial: id
         }
         const res = await UserService.updateUser(user?._id, data)
-        console.log(res)
         if (res.status === 200) {
           const {socials} = res?.data?.userProfile
           this.socials = socials

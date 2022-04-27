@@ -137,7 +137,6 @@ export default {
       setTheme(clr)
     },
     async unsetColor(e) {
-      console.log(e.target)
       const {getLocalColors, setTheme} = useTheme()
       const type = e?.target?.dataset?.type
       const id = e?.target?.dataset?.id
