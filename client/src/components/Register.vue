@@ -24,11 +24,11 @@
   </div>
   <div class="input">
     <label for="password">password</label>
-    <input id="password" name="password" v-model="password" type="text">
+    <input id="password" name="password" v-model="password" type="password">
   </div>
   <div class="input">
     <label for="repeatPassword">repeat password</label>
-    <input id="repeatPassword" name="repeatPassword" v-model="repeatPassword" type="text">
+    <input id="repeatPassword" name="repeatPassword" v-model="repeatPassword" type="password">
   </div>
   <input type="submit" value="register">
   <div class="toggle">
@@ -61,10 +61,16 @@ export default {
           this.password.trim() !== '' &&
           this.repeatPassword.trim() !== ''
       ) {
-        if(this.password.trim() === this.repeatPassword.trim()) {
-          await this.createUser(e)
+        const expression = /^\S+@\S+\.\S+$/ig
+        const regex = new RegExp(expression)
+        if(!this.password.match(regex)) {
+          this.errorMsg = 'Invalid email format!'
         } else {
-          this.errorMsg = "Passwords don't match"
+          if(this.password.trim() === this.repeatPassword.trim()) {
+            await this.createUser(e)
+          } else {
+            this.errorMsg = "Passwords don't match"
+          }
         }
       } else {
         this.errorMsg = "Email and Password are required!"
