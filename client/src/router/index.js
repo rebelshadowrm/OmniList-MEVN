@@ -90,36 +90,46 @@ router.beforeEach(async (to, from, next) => {
     const {getIsLoggedIn, getUser} = useUser()
     const isAuthenticated = getIsLoggedIn().value
     const {user} = getUser().value
-
-    if (!isAuthenticated &&
-        to.name !== 'Home'
-    ) {
-        if (!isAuthenticated &&
-            to.name !== 'Anime'
-        ) {
-            if (!isAuthenticated &&
-                to.name !== 'AnimeBrowse'
-            ) {
-                if (isAuthenticated &&
-                    user?.role === 'ADMIN' ||
-                    user?.role === 'MOD' &&
-                    to.name === 'AdminPanel'
-                ) {
-                    next({name: 'AdminPanel'})
-                } else {
-                    next({name: 'Home'})
-                }
-            } else {
-                next()
+    const authUser = async (to) => {
+        if(isAuthenticated) {
+            // Admin / Mod s
+            if(user?.role === 'ADMIN' || user?.role === 'MOD') {
+                if(to.name === 'AdminPanel') return true
             }
-        } else {
-            next()
+            if(to.name === 'Home') return true
+            if(to.name === 'About') return true
+            if(to.name === 'Profile') return true
+            if(to.name === 'AnimeBrowse') return true
+            if(to.name === 'Anime') return true
+            if(to.name === 'Discussions') return true
+            if(to.name === 'Discussion') return true
+            if(to.name === 'Reviews') return true
+            if(to.name === 'Review') return true
+            if(to.name === 'Settings') return true
+            if(to.name === 'Inbox') return true
         }
-    } else {
+        if(!isAuthenticated) {
+            if(to.name === 'Home') return true
+            if(to.name === 'About') return true
+            if(to.name === 'Profile') return true
+            if(to.name === 'AnimeBrowse') return true
+            if(to.name === 'Anime') return true
+            if(to.name === 'Discussions') return true
+            if(to.name === 'Discussion') return true
+            if(to.name === 'Reviews') return true
+            if(to.name === 'Review') return true
+        }
+        return false
+    }
+    if (await authUser(to)){
         next()
+    } else {
+        next({name : 'Home'})
     }
 
 
 })
+
+
 
 export default router
