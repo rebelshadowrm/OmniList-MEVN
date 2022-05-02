@@ -21,6 +21,7 @@ router.get('/', async (req, res) => {
         resp.on('end', () => {
             parseString(data, function (err, result) {
                 const {feed} = result
+                console.log(feed)
                 if(feed) {
                     res.status(200).send({feed})
                 } else {

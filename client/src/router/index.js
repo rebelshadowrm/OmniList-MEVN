@@ -91,11 +91,9 @@ router.beforeEach(async (to, from, next) => {
     const isAuthenticated = getIsLoggedIn().value
     const {user} = getUser().value
     const authUser = async (to) => {
+
+        // Logged in
         if(isAuthenticated) {
-            // Admin / Mod s
-            if(user?.role === 'ADMIN' || user?.role === 'MOD') {
-                if(to.name === 'AdminPanel') return true
-            }
             if(to.name === 'Home') return true
             if(to.name === 'About') return true
             if(to.name === 'Profile') return true
@@ -107,7 +105,14 @@ router.beforeEach(async (to, from, next) => {
             if(to.name === 'Review') return true
             if(to.name === 'Settings') return true
             if(to.name === 'Inbox') return true
+
+            // Admin/Mod only
+            if(user?.role === 'ADMIN' || user?.role === 'MOD') {
+                if(to.name === 'AdminPanel') return true
+            }
         }
+
+        // Logged out
         if(!isAuthenticated) {
             if(to.name === 'Home') return true
             if(to.name === 'About') return true

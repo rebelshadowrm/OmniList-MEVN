@@ -12,7 +12,10 @@
         <div v-for="news in newsArr"
              :key="news.id"
              class="news-card">
-          <span class="category">{{news?.category[0]?.$?.term}}</span>
+          <span class="category">
+               <span v-for="category in news?.category"
+                     :key="category.id">{{category?.$?.term}}</span>
+          </span>
           <a :href="news?.id[0]">
             <h2>{{news?.title[0]?._}}</h2>
           </a>
@@ -54,6 +57,7 @@ export default {
     const res = await fetch('/api/news')
     if(res.ok) {
       const data = await res.json()
+      console.log(data)
       const {entry} = data.feed
       this.newsArr  = entry
       this.loading = false
@@ -109,13 +113,16 @@ h2 {
   font-size: var(--txt-small);
 }
 .category {
-  display: block;
+  display: inline-flex;
   background-color: var(--clr-secondary-400-5);
   border-radius: 1vmin 1vmin 0 0;
   padding: .2rem .4rem;
   font-weight: 500;
   font-size: var(--txt-small);
   text-align: center;
+  gap: 1rem;
+  width: 100%;
+  justify-content: center;
 }
 a {
   text-decoration: none;
