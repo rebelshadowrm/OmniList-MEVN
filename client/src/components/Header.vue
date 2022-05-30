@@ -7,13 +7,14 @@
     </router-link>
 
     <div class="nav-items">
-      <router-link v-if="isLoggedIn" to="/">Home</router-link>
+      <router-link to="/">Home</router-link>
       <router-link v-if="user?.user?.role === 'ADMIN' || user?.user?.role === 'MOD'" to="/admin">Admin</router-link>
-      <router-link v-if="isLoggedIn" to="/about">About</router-link>
-      <router-link v-if="isLoggedIn" to="/anime">Anime</router-link>
+      <router-link to="/about">About</router-link>
+      <router-link to="/anime">Anime</router-link>
       <router-link v-if="isLoggedIn" to="/discussions">Discussions</router-link>
       <router-link v-if="isLoggedIn" to="/reviews">Reviews</router-link>
     </div>
+    <router-link class="login-link" v-if="!isLoggedIn" to="/login">Login / Register</router-link>
     <div v-if="isLoggedIn" @click.prevent="toggle" class="dropdown">
       <div class="dropdown-title">
         <img class="user" v-if="isLoggedIn" :src="user?.user?.img ?? `https://picsum.photos/seed/${user?.user?.userName}/50`"  alt=""/>
@@ -163,5 +164,13 @@ nav {
 .username {
   place-self: end;
   font-weight: 500;
+}
+.login-link {
+  text-decoration: none;
+  color: var(--clr-text);
+  font-weight: 600;
+  font-size: var(--txt-small);
+  align-self: center;
+  letter-spacing: 1px;
 }
 </style>

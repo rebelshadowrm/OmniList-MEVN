@@ -1,9 +1,9 @@
 <template>
-  <div  v-if="loading && isLoggedIn === true" class="loading">
+  <div  v-if="loading" class="loading">
     <h1>Loading...</h1>
   </div>
   <div v-else class="loaded">
-    <div v-if="isLoggedIn === true" class="news">
+    <div class="news">
       <div class="credit">
         <h1>News</h1>
         <p>Brought to you by <a href="https://www.animenewsnetwork.com">Anime News Network</a></p>
@@ -24,23 +24,13 @@
       </div>
     </div>
   </div>
-  <div class="forms">
-    <Login @toggle-form="toggleForm" v-if="hasAccount === true && isLoggedIn === false"/>
-    <Register @toggle-form="toggleForm" v-if="hasAccount === false && isLoggedIn === false"/>
-  </div>
 </template>
 
 <script>
-import Login from "../components/Login.vue"
-import Register from "../components/Register.vue";
 import useUser from "../composables/user.js"
 
 export default {
   name: "Home",
-  components: {
-    Login,
-    Register
-  },
   data() {
     return {
       isLoggedIn: false,
@@ -63,19 +53,12 @@ export default {
       this.loading = false
     }
   },
-  methods: {
-    toggleForm(e) {
-      this.hasAccount = e
-    },
-  }
+
 }
 </script>
 
 <style scoped>
-.forms {
-  padding: 2rem;
-  margin-block: auto;
-}
+
 .loading {
   display: grid;
   place-items: center;

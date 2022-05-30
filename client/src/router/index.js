@@ -12,6 +12,7 @@ import Review from "../views/Review.vue"
 import Settings from "../views/Settings.vue";
 import inbox from "../views/Inbox.vue";
 import AdminPanel from "../views/AdminPanel.vue";
+import LoginRegister from "../views/LoginRegister.vue";
 
 const routes = [
     {
@@ -77,6 +78,11 @@ const routes = [
         path: '/admin',
         name: 'AdminPanel',
         component: AdminPanel
+    },
+    {
+        path: '/login',
+        name: 'LoginRegister',
+        component: LoginRegister
     }
 ]
 
@@ -123,6 +129,7 @@ router.beforeEach(async (to, from, next) => {
             if(to.name === 'Discussion') return true
             if(to.name === 'Reviews') return true
             if(to.name === 'Review') return true
+            if(to.name === 'LoginRegister') return true
         }
         return false
     }
