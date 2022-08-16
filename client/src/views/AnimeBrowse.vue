@@ -164,6 +164,7 @@ h1 {
   gap: 1rem;
   align-items: baseline;
   justify-content: space-around;
+  max-width: 100vw;
 }
 .genres {
   width: 17rem;
