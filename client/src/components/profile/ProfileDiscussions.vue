@@ -3,7 +3,7 @@
     <h2>Loading...</h2>
   </div>
   <div v-else class="loaded">
-    <ThreadCollection type="review" :threads="discussions"/>
+    <ThreadCollection type="discussion" :threads="discussions"/>
   </div>
 </template>
 

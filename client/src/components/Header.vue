@@ -91,7 +91,6 @@ nav {
   grid-auto-flow: column;
   grid-template-columns: max-content 1fr max-content;
   grid-template-areas:'logo nav user';
-  max-width: 100vw;
   padding: .75rem;
   gap: 1.25em;
   overflow-x: auto;

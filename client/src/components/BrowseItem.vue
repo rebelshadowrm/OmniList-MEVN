@@ -55,6 +55,7 @@ export default {
   background-color: var(--clr-secondary-800-5);
   border-radius: 10px;
   font-size: var(--txt-xsm);
+  max-width: 100%;
 }
 .title-link,
 .img-link {
