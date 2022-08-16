@@ -77,6 +77,7 @@ export default {
   flex-wrap: wrap;
   margin-block: 2rem;
   gap: 1.25rem;
+  padding-inline: 1.25rem;
   justify-content: center;
 }
 .news-card {

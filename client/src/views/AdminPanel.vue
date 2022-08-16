@@ -37,12 +37,17 @@ export default {
 </script>
 
 <style scoped>
+section {
+  max-width: 100vw;
+}
 header {
   margin-inline: auto;
   margin-block: 1rem;
+  padding-inline: 2rem;
   width: fit-content;
   display: flex;
   gap: 2rem;
+  overflow-y: auto;
 }
 
 .route-link {
@@ -57,5 +62,6 @@ header {
 .main {
   width: min(100% - 4rem, 60rem);
   margin-inline: auto;
+  overflow-y: auto;
 }
 </style>

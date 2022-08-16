@@ -181,12 +181,12 @@ p {
     --ff-serif: 'Bitter', serif;
 
     /* Text sizing variables */
-    --txt-xsm: .7rem;
-    --txt-small: .9rem;
+    --txt-xsm: .65rem;
+    --txt-small: .8rem;
     --txt-small-fluid: clamp(.5rem, calc(10px + 1vmin), .75rem );
-    --txt-med: 1.1rem;
+    --txt-med: 1rem;
     --txt-med-fluid: clamp(1rem, 3vw, 1.5rem);
-    --txt-lrg: 1.75rem;
+    --txt-lrg: 1.65rem;
     --txt-lrg-fluid: clamp(1.75rem, 4vw, 2.5rem );
     --txt-xlrg: 3.5rem;
     --txt-xlrg-fluid: clamp(2.5rem, 10vw, 6rem );

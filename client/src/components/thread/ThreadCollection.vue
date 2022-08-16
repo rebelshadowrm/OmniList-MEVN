@@ -45,8 +45,7 @@ a {
   border-width: 1px;
   border-color: var(--clr-border);
   background-color: var(--clr-accent-800-3);
-  width: calc(100% - 4rem);
-  max-width: calc(100% - 4rem);
+  width: 100%;
 }
 .thread-info {
   display: grid;
@@ -71,5 +70,15 @@ a {
 .thread-info .author {
   grid-area: author;
   font-size: var(--txt-small);
+}
+
+@media only screen and (max-width: 600px) {
+  .thread-info {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      'title title'
+      'subject subject'
+      'author comments';
+  }
 }
 </style>
