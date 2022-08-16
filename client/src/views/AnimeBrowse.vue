@@ -169,6 +169,10 @@ h1 {
 .genres {
   width: 17rem;
 }
+.search {
+  max-width: 100%;
+}
+
 .search input {
   color: var(--clr-text);
   background-color: var(--clr-bg);
@@ -177,6 +181,7 @@ h1 {
   border-bottom: 2px solid hsl(0deg 0% 100% / .3);
   outline: none;
   font-size: 1.75rem;
+  max-width: 100%;
 }
 .search input:focus-visible {
   box-shadow: 0 10px 0 -5px var(--clr-border);

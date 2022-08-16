@@ -421,3 +421,7 @@ td {
     font-weight: 500;
     background: var(--clr-secondary-400-5);
 }
+
+.multiselect__single {
+    padding: 0;
+}
