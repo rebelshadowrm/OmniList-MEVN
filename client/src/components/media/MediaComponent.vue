@@ -446,6 +446,7 @@ option {
 
   .btn-container {
     max-width: 100%;
+    align-self: end;
   }
 
   .card-img {
