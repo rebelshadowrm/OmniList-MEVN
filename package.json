@@ -4,8 +4,8 @@
   "description": "Anime List with M.E.V.N. stack",
   "main": "index.js",
   "scripts": {
-    "start": "node server/index.js",
-    "dev": "nodemon server/index.js"
+    "start": "set NODE_ENV=production&& node server/index.js",
+    "dev": "set NODE_ENV=dev&& nodemon server/index.js"
   },
   "keywords": [],
   "author": "",

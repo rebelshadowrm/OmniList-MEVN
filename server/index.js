@@ -1,6 +1,8 @@
 const express = require('express')
 const bodyParser = require('body-parser')
 const cors = require('cors')
+const dotenv = require("dotenv")
+dotenv.config()
 
 const app = express()
 
@@ -34,6 +36,7 @@ app.use('/api/logout', logout)
 
 // Handle production
 if (process.env.NODE_ENV === 'production') {
+
     // Static folder
     app.use(express.static(__dirname + '/public/'))
 
