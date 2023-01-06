@@ -35,7 +35,7 @@ app.use('/api/logout', logout)
 
 
 // Handle production
-if (process.env.NODE_ENV === 'production') {
+if (process.env.NODE_ENV !== 'dev') {
 
     // Static folder
     app.use(express.static(__dirname + '/public/'))
