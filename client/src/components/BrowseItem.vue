@@ -105,6 +105,7 @@ h2:hover::before {
   max-height: var(--rowHeight);
   overflow-y: auto;
 }
+
 .sub::-webkit-scrollbar {
   width: .3rem;
 }

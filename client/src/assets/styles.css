@@ -215,27 +215,31 @@ p {
 /*********************************************************************
                             SCROLL BAR STYLE
 ********************************************************************/
-/* Chrome / Safari */
-::-webkit-scrollbar {
-    display: block;
-    width: 0.45rem;
-    height: 0.45rem;
+@supports (not selector(::-webkit-scrollbar)) {
+    html {
+        scrollbar-color: var(--clr-primary-400) var(--clr-secondary-400);
+        scrollbar-gutter: stable;
+        scrollbar-width: thin;
+    }
 }
-::-webkit-scrollbar-track {
-    background: var(--clr-primary-400);
+@supports selector(::-webkit-scrollbar) {
+    ::-webkit-scrollbar {
+        display: block;
+        width: 0.45rem;
+        height: 0.45rem;
+    }
+    ::-webkit-scrollbar-track {
+        background: var(--clr-primary-400);
+    }
+    ::-webkit-scrollbar-thumb {
+        border-radius: 100vh;
+        background: var(--clr-secondary-400);
+    }
+    ::-webkit-scrollbar-corner {
+        background: var(--clr-secondary-400);
+    }
 }
-::-webkit-scrollbar-thumb {
-    border-radius: 100vh;
-    background: var(--clr-secondary-400);
-}
-::-webkit-scrollbar-corner {
-    background: var(--clr-secondary-400);
-}
-/* Firefox --Early module, not as many options  */
-html {
-    scrollbar-color: var(--clr-primary-400) var(--clr-secondary-400);
-    scrollbar-width: thin;
-}
+
 /*********************************************************************
                                 BODY
 ********************************************************************/
