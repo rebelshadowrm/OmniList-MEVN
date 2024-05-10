@@ -16,14 +16,14 @@ router.get('/', authenticateToken, async (req, res) => {
         .populate('comments.comment.user'))
 })
 
-router.get('/:id', authenticateToken, async (req, res) => {
+router.get('/:id', async (req, res) => {
     res.send(await DiscussionModel.findById(req.params.id)
         .populate('user')
         .populate('comments.comment.user'))
 })
 
 // Get discussion by anime
-router.get('/anime/:id', authenticateToken, async (req, res) => {
+router.get('/anime/:id', async (req, res) => {
     res.send(await DiscussionModel
         .where('subjectId')
         .equals(req?.params?.id)

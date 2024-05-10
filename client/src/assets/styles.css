@@ -95,10 +95,10 @@ p {
     --clr-white-600: 0 0% 75%;
     --clr-white-800: 0 0% 65%;
 
-    --clr-primary-h: 15deg;
-    --clr-secondary-h: calc(var(--clr-primary-h) + 180deg);
-    --clr-accent-h: calc(var(--clr-secondary-h) + 270deg);
-    --clr-primary-s: 80%;
+    --clr-primary-h: 185deg;
+    --clr-secondary-h: calc(var(--clr-primary-h) + 90deg);
+    --clr-accent-h: calc(var(--clr-secondary-h) + 180deg);
+    --clr-primary-s: 66%;
     --clr-secondary-s: var(--clr-primary-s);
     --clr-accent-s: var(--clr-primary-s);
     --clr-200: 75%;

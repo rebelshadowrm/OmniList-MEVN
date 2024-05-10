@@ -15,14 +15,14 @@ router.get('/', authenticateToken, async (req, res) => {
         .populate('comments.comment.user'))
 })
 
-router.get('/:id', authenticateToken, async (req, res) => {
+router.get('/:id', async (req, res) => {
     res.send(await ReviewModel.findById(req.params.id)
         .populate('user')
         .populate('comments.comment.user'))
 })
 
 // Get reviews by anime
-router.get('/anime/:id', authenticateToken, async (req, res) => {
+router.get('/anime/:id', async (req, res) => {
     res.send(await ReviewModel
         .where('subjectId')
         .equals(req?.params?.id)

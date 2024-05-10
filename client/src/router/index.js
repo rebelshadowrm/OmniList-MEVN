@@ -122,12 +122,9 @@ router.beforeEach(async (to, from, next) => {
         if(!isAuthenticated) {
             if(to.name === 'Home') return true
             if(to.name === 'About') return true
-            if(to.name === 'Profile') return true
             if(to.name === 'AnimeBrowse') return true
             if(to.name === 'Anime') return true
-            if(to.name === 'Discussions') return true
             if(to.name === 'Discussion') return true
-            if(to.name === 'Reviews') return true
             if(to.name === 'Review') return true
             if(to.name === 'LoginRegister') return true
         }
