@@ -11,32 +11,32 @@ const userPreferencesSchema = new mongoose.Schema({
     themes: {
         type: UserTheme,
         ref: 'UserThemeModel',
-        default: () => UserTheme
+        default: () => ({})
     },
     profileLayout: {
         type: ProfileLayout,
         ref: 'ProfileLayoutModel',
-        default: () => {}
+        default: () => ({})
     },
     dashboardLayout: {
         type: DashboardLayout,
         ref: 'DashboardLayoutModel',
-        default: () => {}
+        default: () => ({})
     },
     newsPreferences: {
         type: NewsPreferences,
         ref: 'NewsPreferencesModel',
-        default: () => {}
+        default: () => ({})
     },
     listPreferences: {
         type: ListPreferences,
         ref: 'ListPreferencesModel',
-        default: () => {}
+        default: () => ({})
     },
     calendarPreferences: {
         type: CalendarPreferences,
         ref: 'CalendarPreferencesModel',
-        default: () => {}
+        default: () => ({})
     }
 
 })

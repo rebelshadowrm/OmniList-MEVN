@@ -34,6 +34,8 @@ export default {
           this.post = {
             subject: thread?.subject ?? '',
             subjectId: thread?.subjectId ?? '',
+            mediaType: thread?.mediaType ?? 'ANIME',
+            source: thread?.source ?? 'ANILIST',
             id: thread?._id ?? '',
             title: thread?.title ?? '',
             author: thread?.user?.userName ?? '',

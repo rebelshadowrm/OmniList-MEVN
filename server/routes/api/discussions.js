@@ -2,11 +2,38 @@ const express = require('express')
 const mongodb = require('mongodb')
 const dotenv = require("dotenv")
 dotenv.config()
-require('../../database')
 const DiscussionModel = require('../../models/discussion')
 const authenticateToken = require("../../security/authenticateToken");
 
 const router = express.Router()
+
+function normalizeMediaType(mediaType) {
+    return `${mediaType ?? 'ANIME'}`.toUpperCase()
+}
+
+function normalizeSource(source) {
+    return `${source ?? 'ANILIST'}`.toUpperCase()
+}
+
+function mediaThreadQuery(mediaType, subjectId) {
+    const normalizedType = normalizeMediaType(mediaType)
+    const numericSubjectId = Number(subjectId)
+
+    if (normalizedType === 'ANIME') {
+        return {
+            subjectId: numericSubjectId,
+            $or: [
+                {mediaType: normalizedType},
+                {mediaType: {$exists: false}},
+            ],
+        }
+    }
+
+    return {
+        subjectId: numericSubjectId,
+        mediaType: normalizedType,
+    }
+}
 
 
 // Get Discussions
@@ -16,17 +43,18 @@ router.get('/', authenticateToken, async (req, res) => {
         .populate('comments.comment.user'))
 })
 
-router.get('/:id', async (req, res) => {
-    res.send(await DiscussionModel.findById(req.params.id)
+// Legacy anime route; prefer /media/:mediaType/:id.
+router.get('/anime/:id', async (req, res) => {
+    res.send(await DiscussionModel
+        .find(mediaThreadQuery('ANIME', req?.params?.id))
         .populate('user')
         .populate('comments.comment.user'))
 })
 
-// Get discussion by anime
-router.get('/anime/:id', async (req, res) => {
+// Get discussion by media type
+router.get('/media/:mediaType/:id', async (req, res) => {
     res.send(await DiscussionModel
-        .where('subjectId')
-        .equals(req?.params?.id)
+        .find(mediaThreadQuery(req?.params?.mediaType, req?.params?.id))
         .populate('user')
         .populate('comments.comment.user'))
 })
@@ -40,6 +68,12 @@ router.get('/user/:id', authenticateToken, async (req, res) => {
         .populate('comments.comment.user'))
 })
 
+router.get('/:id', async (req, res) => {
+    res.send(await DiscussionModel.findById(req.params.id)
+        .populate('user')
+        .populate('comments.comment.user'))
+})
+
 // Add Discussion
 router.post('/', authenticateToken, async (req, res) => {
     let discussion = await DiscussionModel.create({
@@ -47,6 +81,9 @@ router.post('/', authenticateToken, async (req, res) => {
         title: req.body.title,
         subject: req.body.subject,
         subjectId: req.body.subjectId,
+        mediaType: normalizeMediaType(req.body.mediaType),
+        source: normalizeSource(req.body.source),
+        sourceId: req.body.sourceId ?? `${req.body.subjectId}`,
         body: req.body.body,
         comments: req.body.comments
     })

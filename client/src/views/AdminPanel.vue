@@ -56,7 +56,7 @@ header {
 }
 .route-link.active {
   font-weight: 600;
-  border-bottom: 1px solid var(--clr-text);
+  border-bottom: 1px solid var(--clr-accent-400);
 }
 
 .main {

@@ -4,17 +4,17 @@ const userThemeSchema = new mongoose.Schema({
     listTheme: {
         type: {},
         required: false,
-        default: () => {}
+        default: () => ({})
     },
     dashboardTheme: {
         type: {},
         required: false,
-        default: () => {}
+        default: () => ({})
     },
     profileTheme: {
         type: {},
         required: false,
-        default: () => {}
+        default: () => ({})
     }
 })
 

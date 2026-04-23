@@ -3,23 +3,23 @@
     <h2>Loading...</h2>
   </div>
   <div v-else class="loaded">
-    <div v-if="watching?.length > 0" class="watching">
-      <h3>Watching</h3>
-      <ListComponent :animeList="watching"/>
+    <div v-if="active?.length > 0" class="watching">
+      <h3>In Progress</h3>
+      <ListComponent :media-list="active"/>
     </div>
     <div v-if="completed?.length > 0" class="completed">
       <h3>Completed</h3>
-      <ListComponent :animeList="completed"/>
+      <ListComponent :media-list="completed"/>
     </div>
     <div v-if="onHold?.length > 0" class="on-hold">
       <h3>On Hold</h3>
-      <ListComponent :animeList="onHold"/>
+      <ListComponent :media-list="onHold"/>
     </div>
     <div v-if="dropped?.length > 0" class="dropped">
       <h3>Dropped</h3>
-      <ListComponent :animeList="dropped"/>
+      <ListComponent :media-list="dropped"/>
     </div>
-    <div v-if="dropped?.length === 0 && onHold?.length === 0 && completed?.length === 0 && watching?.length === 0"
+    <div v-if="dropped?.length === 0 && onHold?.length === 0 && completed?.length === 0 && active?.length === 0"
          class="no-content">
       <h2>Empty, no list items set.</h2>
     </div>
@@ -28,17 +28,17 @@
 
 <script>
 import ListComponent from "../ListComponent.vue";
-import AnimeService from "../../services/AnimeService";
+import MediaListService from "../../services/MediaListService";
 import UserService from "../../services/UserService";
 
 export default {
-  name: "ProfileAnimeList",
+  name: "ProfileMediaList",
   components: {
     ListComponent
   },
   data() {
     return {
-      watching: [],
+      active: [],
       completed: [],
       onHold: [],
       dropped: [],
@@ -52,8 +52,8 @@ export default {
       const user = res.data
       if (user?._id) {
         this.loading = true
-        const list = await AnimeService.getUserAnimeList(user?._id)
-        this.watching = list.filter(({status}) => status === 'watching')
+        const list = await MediaListService.getUserMediaList(user?._id, null)
+        this.active = list.filter(({status}) => ['watching', 'reading', 'playing'].includes(status))
         this.completed = list.filter(({status}) => status === 'completed')
         this.onHold = list.filter(({status}) => status === 'on-hold')
         this.dropped = list.filter(({status}) => status === 'dropped')

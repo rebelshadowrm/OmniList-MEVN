@@ -5,7 +5,7 @@ const userProfileLayoutSchema = new mongoose.Schema({
     profile: {
         type: UserProfile,
         required: false,
-        default: () => {}
+        default: () => ({})
     },
     layout: {
         type: [],

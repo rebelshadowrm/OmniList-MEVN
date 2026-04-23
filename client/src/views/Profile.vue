@@ -11,7 +11,7 @@
     </header>
     <div class="content">
       <ProfileOverview v-if="section === 'overview'"/>
-      <ProfileAnimeList v-if="section === 'animelist'"/>
+      <ProfileMediaList v-if="section === 'mediaList'"/>
       <ProfileFavorites v-if="section === 'favorites'"/>
       <ProfileSocials v-if="section === 'socials'"/>
       <ProfileReviews v-if="section === 'reviews'"/>
@@ -25,12 +25,13 @@ import UserService from "../services/UserService"
 import ProfileHeader from "../components/profile/ProfileHeader.vue"
 import ProfileNav from "../components/profile/ProfileNav.vue"
 import ProfileOverview from "../components/profile/ProfileOverview.vue";
-import ProfileAnimeList from "../components/profile/ProfileAnimeList.vue";
+import ProfileMediaList from "../components/profile/ProfileMediaList.vue";
 import ProfileFavorites from "../components/profile/ProfileFavorites.vue";
 import ProfileDiscussions from "../components/profile/ProfileDiscussions.vue";
 import ProfileSocials from "../components/profile/ProfileSocials.vue";
 import ProfileReviews from "../components/profile/ProfileReviews.vue";
 import useTheme from "../composables/theme";
+import {imageOrFallback} from "../utils/fallbackImages";
 
 export default {
   name: "Profile",
@@ -39,7 +40,7 @@ export default {
     ProfileReviews,
     ProfileSocials,
     ProfileFavorites,
-    ProfileAnimeList,
+    ProfileMediaList,
     ProfileOverview,
     ProfileHeader,
     ProfileNav,
@@ -50,7 +51,7 @@ export default {
   data() {
     return {
       user: {},
-      animeList: [],
+      mediaList: [],
       email: '',
       name: '',
       first: '',
@@ -61,94 +62,40 @@ export default {
       section: '',
     }
   },
-  async beforeCreate() {
-        const username = this?.$route?.params?.username
-        if (username) {
-          const {data} = await UserService.getUserByUsername(username)
-          await this.updateProfile(data)
-        }
-    if (this.username) {
-      const {data} = await UserService.getUserByUsername(this.username)
-      await this.updateProfile(data)
-    }
+  async created() {
+    await this.loadProfile(this.$route.params.username ?? this.username)
   },
-  async beforeUpdate() {
-    this.$watch(
-        async () => this.$route.params,
-        async (toParams) => {
-          const {username} = await toParams
-          if (username) {
-            const {data} = await UserService.getUserByUsername(username)
-            await this.updateProfile(data)
-          }
-        })
-    if (this.username) {
-      const {data} = await UserService.getUserByUsername(this.username)
-      await this.updateProfile(data)
-    }
+  async beforeRouteUpdate(to, from, next) {
+    await this.loadProfile(to.params.username ?? this.username)
+    next()
   },
   methods: {
     activeSection(section) {
       this.section = section
+    },
+    async loadProfile(username) {
+      if (!username) return
+
+      const res = await UserService.getUserByUsername(username)
+      await this.updateProfile(res?.data)
     },
     async updateProfile(user) {
       this.email = user?.email
       this.name = user?.userName === '' ? user?.email : user?.userName ?? 'Not Found'
       this.first = user?.firstName
       this.last = user?.lastName
-      //TODO: add better methods for image fallbacks
-      this.img = user?.img ?? `https://picsum.photos/seed/${this.name}/260/280`
+      this.img = imageOrFallback(user?.img, 'avatar', this.name)
       this.imgAlt = user?.imgAlt ?? 'profile image'
-      this.bgImg = user?.bgImg ?? `https://picsum.photos/seed/${this.email}/2000/400`
-      const {
-        getLocalColors, HexToHSL,
-        setSecondaryColor, setPrimaryColor,
-        setAccentColor
-      } = useTheme()
-      const localColors = getLocalColors()
+      this.bgImg = imageOrFallback(user?.bgImg, 'banner', this.name)
+      const {applyTheme} = useTheme()
       const colors = user?.userPreferences?.themes?.profileTheme
-      const primaryHSL = HexToHSL(colors?.primaryColor ?? localColors?.primaryColor ?? '#e85e30')
-      setPrimaryColor(primaryHSL)
-      if (colors?.secondaryColor) {
-        const secondaryHSL = HexToHSL(colors.secondaryColor)
-        setSecondaryColor(secondaryHSL)
-      } else if (localColors?.secondaryColor) {
-        const secondaryHSL = HexToHSL(localColors.secondaryColor)
-        setSecondaryColor(secondaryHSL)
-      }
-      if (colors?.accentColor) {
-        const accentHSL = HexToHSL(colors.accentColor)
-        setAccentColor(accentHSL)
-      } else if (localColors?.accentColor) {
-        const accentHSL = HexToHSL(localColors.accentColor)
-        setAccentColor(accentHSL)
-      }
+      applyTheme(colors)
     },
   },
   beforeRouteLeave(to, from, next) {
-    document.documentElement.style.removeProperty('--clr-primary-h')
-    document.documentElement.style.removeProperty('--clr-primary-s')
-    document.documentElement.style.removeProperty('--clr-secondary-h')
-    document.documentElement.style.removeProperty('--clr-secondary-s')
-    document.documentElement.style.removeProperty('--clr-accent-h')
-    document.documentElement.style.removeProperty('--clr-accent-s')
-    const {
-      getLocalColors, HexToHSL, setPrimaryColor,
-      setSecondaryColor, setAccentColor
-    } = useTheme()
+    const {getLocalColors, applyTheme} = useTheme()
     const colors = getLocalColors()
-    if(colors?.primaryColor) {
-      const primaryHSL = HexToHSL(colors?.primaryColor)
-      setPrimaryColor(primaryHSL)
-    }
-    if (colors?.secondaryColor) {
-      const secondaryHSL = HexToHSL(colors?.secondaryColor)
-      setSecondaryColor(secondaryHSL)
-    }
-    if (colors?.accentColor) {
-      const accentHSL = HexToHSL(colors?.accentColor)
-      setAccentColor(accentHSL)
-    }
+    applyTheme(colors)
     next()
   }
 }

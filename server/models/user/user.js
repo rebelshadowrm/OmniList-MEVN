@@ -11,6 +11,15 @@ const userSchema = new mongoose.Schema({
         unique: true,
         lowercase: true,
     },
+    userNameChangeCount: {
+        type: Number,
+        required: true,
+        default: () => 0,
+    },
+    userNameChangedAt: {
+        type: Date,
+        required: false,
+    },
     password: {
         type: String,
         required: true,
@@ -21,6 +30,22 @@ const userSchema = new mongoose.Schema({
     },
     lastName: {
         type: String,
+        required: false,
+    },
+    img: {
+        type: String,
+        required: false,
+    },
+    imgAlt: {
+        type: String,
+        required: false,
+    },
+    bgImg: {
+        type: String,
+        required: false,
+    },
+    dateOfBirth: {
+        type: Date,
         required: false,
     },
     email: {
@@ -50,14 +75,14 @@ const userSchema = new mongoose.Schema({
         type: UserPreferences,
         required: true,
         ref: 'UserPreferencesModel',
-        default: () => UserPreferences
+        default: () => ({})
     }
     ,
     userProfile: {
         type: UserProfile,
         required: true,
         ref: 'UserProfileModel',
-        default: () => UserProfile
+        default: () => ({})
     }
 }, {
     collection: 'users'

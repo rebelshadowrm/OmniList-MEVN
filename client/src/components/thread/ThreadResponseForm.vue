@@ -4,7 +4,9 @@
         @submit.prevent="onSubmit"
   >
     <div class="user">
-        <img :src="user?.user?.img ?? `https://picsum.photos/seed/${user?.user?.userName}/50`" alt="">
+        <img :src="imageSrc(user?.user?.img, 'avatar', user?.user?.userName)"
+             :alt="user?.user?.userName"
+             @error="setFallbackImage($event, 'avatar', user?.user?.userName)">
     </div>
     <div class="input">
       <textarea
@@ -34,6 +36,7 @@
 
 import useUser from "../../composables/user";
 import ThreadService from "../../services/ThreadService";
+import {imageOrFallback, useFallbackImage} from "../../utils/fallbackImages";
 
 export default {
   name: "ThreadCreateResponse",
@@ -55,6 +58,12 @@ export default {
     this.user = getUser()
   },
   methods: {
+    imageSrc(src, type, label) {
+      return imageOrFallback(src, type, label)
+    },
+    setFallbackImage(event, type, label) {
+      useFallbackImage(event, type, label)
+    },
     async onSubmit(e) {
       const {comment} = Object.fromEntries(new FormData(e.target))
       if(comment.length > 0) {
@@ -159,7 +168,7 @@ hr {
   cursor: pointer;
 }
 .disabled {
-  background-color: hsl(0deg 0% 25%);
-  color: hsl(0deg 0% 65%);
+  background-color: var(--clr-disabled-bg);
+  color: var(--clr-disabled-text);
 }
 </style>

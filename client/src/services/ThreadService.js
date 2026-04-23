@@ -50,17 +50,16 @@ class ThreadService {
         })
     }
 
-    // get Threads by Anime ID
-    static async getDiscussionsByAnime(id) {
-        return this.getThreadByAnime('discussions', id)
+    static async getDiscussionsByMedia(mediaType, id) {
+        return this.getThreadByMedia('discussions', mediaType, id)
     }
-    static async getReviewsByAnime(id) {
-        return this.getThreadByAnime('reviews', id)
+    static async getReviewsByMedia(mediaType, id) {
+        return this.getThreadByMedia('reviews', mediaType, id)
     }
-    static async getThreadByAnime(type, id) {
+    static async getThreadByMedia(type, mediaType, id) {
         return new Promise(async (resolve, reject) => {
             try {
-                const res = await axios.get(`${url}${type}/anime/${id}`)
+                const res = await axios.get(`${url}${type}/media/${mediaType}/${id}`)
                 const data = res.data
                 resolve(
                     data.map(threads => ({

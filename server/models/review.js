@@ -19,6 +19,22 @@ const reviewSchema = new mongoose.Schema({
         type: Number,
         required: true,
     },
+    mediaType: {
+        type: String,
+        required: true,
+        uppercase: true,
+        default: () => 'ANIME',
+    },
+    source: {
+        type: String,
+        required: true,
+        uppercase: true,
+        default: () => 'ANILIST',
+    },
+    sourceId: {
+        type: String,
+        required: false,
+    },
     body: {
         type: String,
         required: true,

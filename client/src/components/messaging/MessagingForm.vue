@@ -38,7 +38,7 @@ export default {
   width: 100%;
   resize: none;
   line-height: 1;
-  background-color: hsl(0deg 0% 15%);
+  background-color: var(--clr-bg);
   color: var(--clr-text);
   padding: .5rem .5rem 0 .5rem;
   border: none;
@@ -50,7 +50,7 @@ hr {
 }
 input[type=submit] {
   border: none;
-  border-radius: 3px;
+  border-radius: var(--radius-xs);
   max-width: fit-content;
   padding: .25rem .75rem;
   font-size: var(--txt-med);

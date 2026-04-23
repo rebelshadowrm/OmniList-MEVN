@@ -8,11 +8,13 @@
         {{ post?.title }}
       </span>
     </h1>
-    <router-link :to="`/anime/${post?.subjectId}`">
+    <router-link :to="subjectPath">
       <p class="subject">{{ post?.subject }}</p>
     </router-link>
     <router-link class="author" :to="`/profile/${post?.author}`">
-      <img :src="post?.authorImg ?? `https://picsum.photos/seed/${post?.author}/50`" alt="">
+      <img :src="imageSrc(post?.authorImg, 'avatar', post?.author)"
+           :alt="post?.author"
+           @error="setFallbackImage($event, 'avatar', post?.author)">
       <p>{{ post?.author }}</p>
     </router-link>
     <span :data-id="post?.id"
@@ -47,6 +49,8 @@
 <script>
 import ThreadService from "../../services/ThreadService";
 import useUser from "../../composables/user";
+import {mediaConfig} from "../../config/mediaTypes.js";
+import {imageOrFallback, useFallbackImage} from "../../utils/fallbackImages";
 
 export default {
   name: "ThreadPost",
@@ -67,7 +71,20 @@ export default {
     const {getUser} = useUser()
     this.loggedInUser = getUser()
   },
+  computed: {
+    subjectPath() {
+      const config = mediaConfig(this.post?.mediaType)
+
+      return `/${config.path}/${this.post?.subjectId}`
+    },
+  },
   methods: {
+    imageSrc(src, type, label) {
+      return imageOrFallback(src, type, label)
+    },
+    setFallbackImage(event, type, label) {
+      useFallbackImage(event, type, label)
+    },
     async reportPost(e) {
       this.menuToggle = false;
       const body = e.target.parentNode.parentNode.parentNode.querySelector(".body")
@@ -227,7 +244,7 @@ export default {
   position: relative;
   padding: 1em 2em;
   background-color: var(--clr-bg);
-  border-bottom: 1px solid hsl(0deg 0% 100% / .5);
+  border-bottom: 1px solid var(--clr-border);
   line-height: 1.25;
 }
 a {
@@ -281,7 +298,7 @@ a {
 .title {
   font-weight: 700;
   font-size: var(--txt-med);
-  border-bottom: 1px solid hsl(0deg 0% 100% / .5);
+  border-bottom: 1px solid var(--clr-border);
   width: 90%;
   padding-bottom: .2rem;
   margin-bottom: .3rem;
@@ -335,7 +352,7 @@ i {
   z-index: 1;
   padding: .25rem;
   border-width: 1px;
-  border-radius: 3px;
+  border-radius: var(--radius-xs);
   border-style: solid;
   border-color: var(--clr-border);
   background-color: var(--clr-bg);

@@ -2,12 +2,21 @@ const mongoose = require('mongoose')
 
 const userProfileSchema = new mongoose.Schema({
     favorites: {
+        mediaFavorites: [
+            {
+                media: {
+                    type: Object,
+                    required: false,
+                    default: () => ({})
+                }
+            }
+        ],
         animeFavorites: [
             {
                 anime: {
                     type: Object,
                     required: false,
-                    default: () => {}
+                    default: () => ({})
                 }
             }
         ],
@@ -16,7 +25,7 @@ const userProfileSchema = new mongoose.Schema({
                 character: {
                     type: Object,
                     required: false,
-                    default: () => {}
+                    default: () => ({})
                 }
             }
         ],
@@ -25,7 +34,7 @@ const userProfileSchema = new mongoose.Schema({
                 staff: {
                     type: Object,
                     required: false,
-                    default: () => {}
+                    default: () => ({})
                 }
             }
         ],

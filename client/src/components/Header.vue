@@ -3,7 +3,7 @@
   <nav id="nav">
     <router-link class="logo-link" to="/">
       <img class="logo" src="../assets/logo.png" alt="omni list logo"/>
-      <span>OmniList</span>
+      <span>mni</span><span class="list l">L</span><span class="list">ist</span>
     </router-link>
 
     <div class="nav-items">
@@ -11,13 +11,20 @@
       <router-link v-if="user?.user?.role === 'ADMIN' || user?.user?.role === 'MOD'" to="/admin">Admin</router-link>
       <router-link to="/about">About</router-link>
       <router-link to="/anime">Anime</router-link>
+      <router-link to="/manga">Manga</router-link>
+      <router-link to="/movies">Movies</router-link>
+      <router-link to="/tv">TV</router-link>
       <router-link v-if="isLoggedIn" to="/discussions">Discussions</router-link>
       <router-link v-if="isLoggedIn" to="/reviews">Reviews</router-link>
     </div>
     <router-link class="login-link" v-if="!isLoggedIn" to="/login">Login / Register</router-link>
     <div v-if="isLoggedIn" @click.prevent="toggle" class="dropdown">
       <div class="dropdown-title">
-        <img class="user" v-if="isLoggedIn" :src="user?.user?.img ?? `https://picsum.photos/seed/${user?.user?.userName}/50`"  alt=""/>
+        <img class="user"
+             v-if="isLoggedIn"
+             :src="imageSrc(user?.user?.img, 'avatar', user?.user?.userName)"
+             :alt="user?.user?.userName"
+             @error="setFallbackImage($event, 'avatar', user?.user?.userName)"/>
         <p class="username" v-if="isLoggedIn">{{user?.user?.userName ?? ''}}</p>
       </div>
       <div v-if="dropdown" class="dropdown-items-nav">
@@ -36,6 +43,7 @@ import TokenService from "../services/TokenService";
 import router from "../router";
 import setLogin from "../composables/user";
 import useTheme from "../composables/theme"
+import {imageOrFallback, useFallbackImage} from "../utils/fallbackImages";
 export default {
   name: "Header",
   data() {
@@ -44,6 +52,12 @@ export default {
     }
   },
   methods: {
+    imageSrc(src, type, label) {
+      return imageOrFallback(src, type, label)
+    },
+    setFallbackImage(event, type, label) {
+      useFallbackImage(event, type, label)
+    },
     toggle(e) {
       this.dropdown = !this.dropdown
     },
@@ -91,12 +105,21 @@ nav {
   grid-auto-flow: column;
   grid-template-columns: max-content 1fr max-content;
   grid-template-areas:'logo nav user';
-  padding: .75rem;
+  padding: .25rem .75rem .75rem .75rem;
   gap: 1.25em;
   overflow-x: auto;
   overflow-y: clip;
   width: 100%;
   background-color: var(--clr-secondary-800-5);
+}
+@media (width <= 820px) {
+  nav {
+    padding: .15rem;
+    grid-template-columns: 1fr max-content;
+    grid-template-areas: 'logo user'
+                          'nav nav';
+  }
+
 }
 .nav-items {
   grid-area: nav;
@@ -117,15 +140,16 @@ nav {
   text-transform: uppercase;
 }
 .nav-items a.active {
+  color: var(--clr-accent-400);
   font-weight: 600;
 }
 .nav-items a::after {
   content: '';
   position: absolute;
   inset: auto 0 0 0;
-  background: var(--clr-text);
+  background: var(--clr-accent-400);
   height: 2px;
-  border-radius: 5px;
+  border-radius: var(--radius-sm);
   visibility: hidden;
   transform: scaleX(0);
   transition: transform ease .5s;
@@ -140,36 +164,45 @@ nav {
   place-items: end;
 }
 .logo-link span {
-  font-size: var(--txt-med);
+  font-size: var(--txt-lrg);
   align-self: end;
-  text-transform: initial;
-  color: hsl(204deg 80% 55%);
+  color: var(--clr-primary-400);
   font-weight: 700;
   letter-spacing: 1px;
-  margin-left: -.3rem;
+  margin-left: -.45rem;
 }
 .logo {
   grid-area: logo;
   aspect-ratio: 1;
-  height: 50px;
+  height: 60px;
+  margin: -.15rem -.15rem -.57rem -.2rem;
 }
 .user {
   grid-area: user;
   aspect-ratio: 1;
   height: 36px;
-  border: 1px inset hsl(var(--clr-white-200) / .5);
-  border-radius: 10px;
+  border: 1px inset var(--clr-border);
+  border-radius: var(--radius);
 }
 .username {
   place-self: end;
   font-weight: 500;
 }
 .login-link {
+  grid-area: user;
   text-decoration: none;
   color: var(--clr-text);
   font-weight: 600;
   font-size: var(--txt-small);
   align-self: center;
   letter-spacing: 1px;
+  padding: 0 .15rem;
+}
+span.list {
+  color: var(--clr-accent-400);
+}
+span.l {
+  margin: 0 -.5rem -1.4rem .15rem;
+  font-size: var(--txt-xlrg);
 }
 </style>

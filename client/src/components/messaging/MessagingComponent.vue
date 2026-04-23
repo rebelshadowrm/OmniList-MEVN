@@ -79,7 +79,7 @@ aside {
 .create-button {
   align-self: end;
   border: none;
-  border-radius: 3px;
+  border-radius: var(--radius-xs);
   padding: .25rem .75rem;
   font-size: var(--txt-med);
   font-weight: 600;

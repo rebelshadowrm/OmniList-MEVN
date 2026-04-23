@@ -1,11 +1,16 @@
 const mongoose = require('mongoose')
-const AnimeList = require('../../animeList').schema
+const MediaList = require('../../mediaList').schema
 
 const userListPreferencesSchema = new mongoose.Schema({
-    animeList: {
-        type: AnimeList,
+    mediaList: {
+        type: MediaList,
         required: false,
-        default: () => {}
+        default: undefined
+    },
+    animeList: {
+        type: MediaList,
+        required: false,
+        default: undefined
     },
     style: {
         type: [],

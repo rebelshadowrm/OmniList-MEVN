@@ -5,7 +5,7 @@ const userCalendarPreferencesSchema = new mongoose.Schema({
     calendar: {
         type: Calendar,
         required: true,
-        default: () => {}
+        default: () => ({})
     },
     tracking: {
         type: [],

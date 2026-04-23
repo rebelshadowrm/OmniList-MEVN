@@ -1,8 +1,13 @@
 <template>
 <h2>Staff</h2>
   <div class="staff-cards">
-    <div class="staff-card" v-for="staff in staffSlice">
-      <img class="image" :src="staff?.node?.image?.medium" alt="">
+    <div class="staff-card"
+         v-for="staff in staffSlice"
+         :key="staff?.node?.id ?? staff?.node?.name?.userPreferred">
+      <img class="image"
+           :src="imageSrc(staff?.node?.image?.medium, 'avatar', staff?.node?.name?.userPreferred)"
+           :alt="staff?.node?.name?.userPreferred"
+           @error="setFallbackImage($event, 'avatar', staff?.node?.name?.userPreferred)">
       <h3 class="title">{{staff?.node?.name?.userPreferred}}</h3>
       <p class="role">{{staff?.role}}</p>
     </div>
@@ -10,6 +15,8 @@
 </template>
 
 <script>
+import {imageOrFallback, useFallbackImage} from "../../utils/fallbackImages";
+
 export default {
   name: "MediaStaff",
   props: {
@@ -33,6 +40,14 @@ export default {
   updated() {
     if (this && this?.section === 'staff') this.limit = null
     if (this && this?.section === 'overview') this.limit = 6
+  },
+  methods: {
+    imageSrc(src, type, label) {
+      return imageOrFallback(src, type, label)
+    },
+    setFallbackImage(event, type, label) {
+      useFallbackImage(event, type, label)
+    },
   }
 }
 </script>
@@ -55,7 +70,7 @@ export default {
   gap: 1rem;
   padding: 1rem;
   background-color: var(--clr-secondary-800-5);
-  border-radius: 10px;
+  border-radius: var(--radius);
   min-width: 28ch;
 }
 .staff-card .image {

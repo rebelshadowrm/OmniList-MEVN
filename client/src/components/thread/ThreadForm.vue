@@ -15,7 +15,7 @@
            class="output-item"
            v-for="elem in data"
            :key="elem.id"
-        >{{elem.title.userPreferred}}</p>
+        >{{elem.title?.userPreferred ?? elem.title?.english ?? elem.title?.romaji}}</p>
       </div>
     </div>
     <div class="input">
@@ -36,10 +36,21 @@
 <script>
 import ThreadService from "../../services/ThreadService";
 import useUser from "../../composables/user"
+import {mediaConfig} from "../../config/mediaTypes.js";
 export default {
   name: "ThreadForm",
   props: {
     type: String,
+    initialSubject: String,
+    initialSubjectId: [Number, String],
+    initialMediaType: {
+      type: String,
+      default: 'ANIME',
+    },
+    initialSource: {
+      type: String,
+      default: 'ANILIST',
+    },
   },
   emits: ['update-data', 'toggle-form'],
   data() {
@@ -54,7 +65,8 @@ export default {
     }
   },
   created() {
-
+    this.subject = this.initialSubject ?? ''
+    this.subjectId = this.initialSubjectId ?? null
   },
   methods: {
     async onSubmit(e) {
@@ -71,6 +83,9 @@ export default {
           title,
           subject,
           subjectId,
+          mediaType: this.initialMediaType,
+          source: this.initialSource,
+          sourceId: `${subjectId}`,
           body,
           comments: []
         }
@@ -99,15 +114,21 @@ export default {
       }
     },
     async findSubject(subject) {
+      if (this.initialSource === 'TMDB') {
+        await this.findTmdbSubject(subject)
+        return
+      }
+
       try {
         const url = 'https://graphql.anilist.co'
         const search = subject
         const page = 1
-        const variables = { search, page }
+        const type = this.initialMediaType
+        const variables = { search, page, type }
         const query = `
-              query($search: String, $page: Int) {
+              query($search: String, $page: Int, $type: MediaType) {
                 Page(page: $page, perPage: 10) {
-                  media(type: ANIME, search: $search) {
+                  media(type: $type, search: $search) {
                     id
                     title {
                       userPreferred
@@ -132,6 +153,23 @@ export default {
           const {data} = await res.json()
           this.data = data.Page.media
         }
+      } catch(err) {
+        console.log(err.message)
+      }
+    },
+    async findTmdbSubject(subject) {
+      try {
+        const params = new URLSearchParams()
+        params.set('search', subject)
+
+        const res = await fetch(`/api/tmdb/${mediaConfig(this.initialMediaType).path}/search?${params.toString()}`)
+        const data = await res.json()
+
+        if (!res.ok) {
+          throw new Error(data.message ?? res.statusText)
+        }
+
+        this.data = data
       } catch(err) {
         console.log(err.message)
       }
@@ -170,7 +208,7 @@ input[type=text]{
   line-height: 1.25;
   width: 100%;
   resize: none;
-  background-color: hsl(0deg 0% 15%);
+  background-color: var(--clr-bg);
   color: var(--clr-text);
   padding: .5em;
 }
@@ -189,7 +227,7 @@ input[type=text]{
 .output-item:hover {
   background-color: var(--clr-secondary-200-1);
   cursor: pointer;
-  border-radius: 3px;
+  border-radius: var(--radius-xs);
 }
 label {
   margin-bottom: .175rem;
@@ -197,7 +235,7 @@ label {
 input[type=submit],
 button {
   border: none;
-  border-radius: 3px;
+  border-radius: var(--radius-xs);
   max-width: fit-content;
   padding: .25rem .75rem;
   font-size: var(--txt-med);

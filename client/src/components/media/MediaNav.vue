@@ -41,7 +41,7 @@ button {
   border: unset;
   background-color: transparent;
   cursor: pointer;
-  color: var(--clr-primary-400);
+  color: var(--clr-text);
   padding-block: .75rem;
 }
 button:hover {

@@ -86,7 +86,9 @@ export default {
         email
       }
       const res = await UserService.registerUser(data)
-      if(res.status === 201) {
+      if(!res) {
+        this.errorMsg = "Could not reach the server. Try again later."
+      } else if(res.status === 201) {
         this.email = ''
         this.password = ''
         this.repeatPassword = ''
@@ -97,8 +99,10 @@ export default {
         this.$emit('toggle-form', true)
       } else if(res.status === 422) {
         this.errorMsg = "Email already in use"
+      } else if(res.status === 409) {
+        this.errorMsg = "Username already in use"
       } else {
-        this.errorMsg = "Something went wrong, try again later"
+        this.errorMsg = res.data?.message ?? res.data ?? "Something went wrong, try again later"
       }
     },
     hasAccount() {
@@ -111,7 +115,7 @@ export default {
 <style scoped>
 form {
   background: var(--clr-secondary-800-5);
-  color: var(--clr-primary-400);
+  color: var(--clr-text);
   max-width: calc(100% - 6rem);
   width: 100%;
   margin: 0 auto;
@@ -194,7 +198,7 @@ input[type=password] {
   flex-direction: column;
   gap: .5em;
   padding: 1rem 1.25rem;
-  border-radius: 5px;
+  border-radius: var(--radius-sm);
   background: var(--clr-secondary-600-3);
   color: var(--clr-text);
 }

@@ -45,7 +45,7 @@ class UserService {
         try {
             return await axios.post(`${url}register`, data)
         } catch(err) {
-            return err.response
+            return err.response ?? null
         }
     }
 
@@ -70,9 +70,9 @@ class UserService {
     // update user
     static async updateUser(id, data) {
         try {
-            return await axios.put(`${url}user/${id}`, JSON.stringify(data))
+            return await axios.put(`${url}user/${id}`, data)
         } catch (err) {
-            return err
+            return err.response ?? null
         }
     }
 }

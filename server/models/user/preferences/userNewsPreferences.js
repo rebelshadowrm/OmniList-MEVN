@@ -5,7 +5,7 @@ const userNewsPreferencesSchema = new mongoose.Schema({
     news: {
         type: News,
         required: false,
-        default: () => {}
+        default: () => ({})
     },
     preferences: {
         type: [],

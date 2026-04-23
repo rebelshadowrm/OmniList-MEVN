@@ -5,6 +5,10 @@
               @update-data="updateData"
               class="form"
               type="reviews"
+              :initial-subject="initialSubject"
+              :initial-subject-id="initialSubjectId"
+              :initial-media-type="initialMediaType"
+              :initial-source="initialSource"
               v-if="toggle"/>
   <ThreadCollection type="review" :threads="threads"/>
 </div>
@@ -29,13 +33,31 @@ export default {
   },
   async created() {
     window.scrollTo(0,0);
+    this.toggle = this.queryValue(this.$route.query.add) === 'true'
     await this.getData()
     this.timer = setInterval(this.getData, 20000)
+  },
+  computed: {
+    initialSubject() {
+      return this.queryValue(this.$route.query.subject) ?? ''
+    },
+    initialSubjectId() {
+      return this.queryValue(this.$route.query.subjectId) ?? null
+    },
+    initialMediaType() {
+      return this.queryValue(this.$route.query.mediaType) ?? 'ANIME'
+    },
+    initialSource() {
+      return this.queryValue(this.$route.query.source) ?? 'ANILIST'
+    },
   },
   beforeUnmount() {
     this.cancelAutoUpdate()
   },
   methods: {
+    queryValue(value) {
+      return Array.isArray(value) ? value[0] : value
+    },
     async getData() {
       try {
         const res = await ThreadService.getReviews()
@@ -75,7 +97,7 @@ button {
   display: block;
   margin-inline: auto;
   border: none;
-  border-radius: 3px;
+  border-radius: var(--radius-xs);
   padding: .25rem .75rem;
   font-size: var(--txt-med);
   font-weight: 600;

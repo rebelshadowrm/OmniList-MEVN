@@ -78,7 +78,7 @@ export default {
 .active::after {
   display: inline-block;
   content: 'HERE';
-  color: limegreen;
+  color: var(--clr-accent-400);
   position: absolute;
   top: 0;
   left: 50%;
@@ -95,7 +95,7 @@ export default {
 .test {
   margin-inline: auto;
   width: max-content;
-  border: 1px solid hsl(0deg 0% 30%);
+  border: 1px solid var(--clr-border);
 }
 thead {
   display: none;
@@ -114,10 +114,10 @@ tr td {
   vertical-align: middle;
 }
 td {
-  border: 1px inset hsl(0deg 0% 30%);
+  border: 1px inset var(--clr-border);
 }
 tr td:hover {
-  background: hsl(0deg 0% 80% / .15);
+  background: var(--clr-secondary-200-1);
   cursor: pointer;
 }
 
@@ -130,7 +130,7 @@ tr td:hover {
 button {
   color: var(--clr-btn);
   background: var(--clr-btn-bg);
-  border: var(--clr-border);
+  border: 1px solid var(--clr-border);
 }
 
 
@@ -142,7 +142,7 @@ button {
 }
 h1 {
   font-size: var(--txt-xlrg-fluid);
-  border-bottom: 1px solid hsl(var(--clr-white-200));
+  border-bottom: 1px solid var(--clr-border);
 }
 dl {
   display: flex;

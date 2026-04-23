@@ -124,7 +124,7 @@ export default {
   padding: 0 .25rem;
   position: absolute;
   aspect-ratio: 1;
-  border-radius: 5px;
+  border-radius: var(--radius-sm);
   inset: -2rem 0 auto auto;
   color: var(--clr-btn);
   background-color: var(--clr-btn-bg);

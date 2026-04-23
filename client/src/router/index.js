@@ -3,8 +3,8 @@ import useUser from "../composables/user"
 import Home from "../views/Home.vue"
 import About from "../views/About.vue"
 import Profile from "../views/Profile.vue";
-import Anime from "../views/Anime.vue"
-import AnimeBrowse from "../views/AnimeBrowse.vue"
+import Media from "../views/Media.vue"
+import MediaBrowse from "../views/MediaBrowse.vue"
 import Discussions from "../views/Discussions.vue"
 import Discussion from "../views/Discussion.vue"
 import Reviews from "../views/Reviews.vue"
@@ -34,13 +34,62 @@ const routes = [
     {
         path: '/anime',
         name: 'AnimeBrowse',
-        component: AnimeBrowse,
+        component: MediaBrowse,
+        props: {mediaType: 'ANIME'},
+    },
+    {
+        path: '/manga',
+        name: 'MangaBrowse',
+        component: MediaBrowse,
+        props: {mediaType: 'MANGA'},
+    },
+    {
+        path: '/movies',
+        name: 'MovieBrowse',
+        component: MediaBrowse,
+        props: {mediaType: 'MOVIE'},
+    },
+    {
+        path: '/tv',
+        name: 'TvBrowse',
+        component: MediaBrowse,
+        props: {mediaType: 'TV'},
     },
     {
         path: '/anime/:id',
         name: 'Anime',
-        component: Anime,
-        props: true,
+        component: Media,
+        props: route => ({
+            ...route.params,
+            mediaType: 'ANIME',
+        }),
+    },
+    {
+        path: '/manga/:id',
+        name: 'Manga',
+        component: Media,
+        props: route => ({
+            ...route.params,
+            mediaType: 'MANGA',
+        }),
+    },
+    {
+        path: '/movies/:id',
+        name: 'Movie',
+        component: Media,
+        props: route => ({
+            ...route.params,
+            mediaType: 'MOVIE',
+        }),
+    },
+    {
+        path: '/tv/:id',
+        name: 'Tv',
+        component: Media,
+        props: route => ({
+            ...route.params,
+            mediaType: 'TV',
+        }),
     },
     {
         path: '/discussion/:id',
@@ -93,7 +142,8 @@ const router = createRouter({
 })
 
 router.beforeEach(async (to, from, next) => {
-    const {getIsLoggedIn, getUser} = useUser()
+    const {getIsLoggedIn, getUser, initializeUser} = useUser()
+    await initializeUser()
     const isAuthenticated = getIsLoggedIn().value
     const {user} = getUser().value
     const authUser = async (to) => {
@@ -104,7 +154,13 @@ router.beforeEach(async (to, from, next) => {
             if(to.name === 'About') return true
             if(to.name === 'Profile') return true
             if(to.name === 'AnimeBrowse') return true
+            if(to.name === 'MangaBrowse') return true
+            if(to.name === 'MovieBrowse') return true
+            if(to.name === 'TvBrowse') return true
             if(to.name === 'Anime') return true
+            if(to.name === 'Manga') return true
+            if(to.name === 'Movie') return true
+            if(to.name === 'Tv') return true
             if(to.name === 'Discussions') return true
             if(to.name === 'Discussion') return true
             if(to.name === 'Reviews') return true
@@ -123,7 +179,13 @@ router.beforeEach(async (to, from, next) => {
             if(to.name === 'Home') return true
             if(to.name === 'About') return true
             if(to.name === 'AnimeBrowse') return true
+            if(to.name === 'MangaBrowse') return true
+            if(to.name === 'MovieBrowse') return true
+            if(to.name === 'TvBrowse') return true
             if(to.name === 'Anime') return true
+            if(to.name === 'Manga') return true
+            if(to.name === 'Movie') return true
+            if(to.name === 'Tv') return true
             if(to.name === 'Discussion') return true
             if(to.name === 'Review') return true
             if(to.name === 'LoginRegister') return true

@@ -72,20 +72,10 @@ export default {
       this.$emit('toggle-form', false)
     },
     themeSetup(user) {
-      const { setTheme, HexToHSL, setPrimaryColor,
-              setSecondaryColor, setAccentColor} = useTheme()
+      const {setTheme, applyTheme} = useTheme()
       const colors = user?.userPreferences?.themes?.profileTheme
       setTheme(colors)
-      const primaryHSL = HexToHSL(colors?.primaryColor ?? '#e85e30')
-      setPrimaryColor(primaryHSL)
-      if(colors?.secondaryColor) {
-        const secondaryHSL = HexToHSL(colors.secondaryColor)
-        setSecondaryColor(secondaryHSL)
-      }
-      if(colors?.accentColor) {
-        const accentHSL = HexToHSL(colors.accentColor)
-        setAccentColor(accentHSL)
-      }
+      applyTheme(colors)
     }
   }
 }
@@ -103,7 +93,7 @@ form {
   display: flex;
   flex-direction: column;
   border: 1px solid var(--clr-border);
-  border-radius: 10px;
+  border-radius: var(--radius);
   gap: .5rem;
 }
 h1 {

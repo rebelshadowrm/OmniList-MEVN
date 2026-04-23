@@ -3,7 +3,6 @@ const jwt = require('jsonwebtoken')
 const router = express.Router()
 const dotenv = require('dotenv')
 dotenv.config()
-require('../../database')
 const TokenModel = require('../../models/tokens')
 const {generateAccessToken} = require('../../security/authenticateUser')
 

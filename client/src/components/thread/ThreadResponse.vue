@@ -3,8 +3,9 @@
     <span v-if="error" class="error">{{error}}</span>
     <p class="username">
       <router-link :to="`/profile/${response?.comment?.user?.userName}`">
-        <img :src="response?.comment?.user?.img ?? `https://picsum.photos/seed/${response?.comment?.user?.userName}/50`"
-             alt="">
+        <img :src="imageSrc(response?.comment?.user?.img, 'avatar', response?.comment?.user?.userName)"
+             :alt="response?.comment?.user?.userName"
+             @error="setFallbackImage($event, 'avatar', response?.comment?.user?.userName)">
       </router-link>
       <router-link :to="`/profile/${response?.comment?.user?.userName}`">{{ response?.comment?.user?.userName }}
       </router-link>
@@ -40,6 +41,7 @@
 <script>
 import useUser from "../../composables/user"
 import ThreadService from "../../services/ThreadService";
+import {imageOrFallback, useFallbackImage} from "../../utils/fallbackImages";
 
 export default {
   name: "ThreadResponse",
@@ -61,6 +63,12 @@ export default {
     this.loggedInUser = getUser()
   },
   methods: {
+    imageSrc(src, type, label) {
+      return imageOrFallback(src, type, label)
+    },
+    setFallbackImage(event, type, label) {
+      useFallbackImage(event, type, label)
+    },
     async reportComment(e) {
       this.menuToggle = false;
       const comment = e.target.parentNode.parentNode.querySelector(".comment")
@@ -267,7 +275,7 @@ i {
   z-index: 1;
   padding: .25rem;
   border-width: 1px;
-  border-radius: 3px;
+  border-radius: var(--radius-xs);
   border-style: solid;
   border-color: var(--clr-border);
   background-color: var(--clr-bg);

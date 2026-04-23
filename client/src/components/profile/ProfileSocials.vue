@@ -209,7 +209,7 @@ input[type=text],
 select,
 option {
   border: 1px solid var(--clr-border);
-  border-radius: 5px;
+  border-radius: var(--radius-sm);
   background-color: var(--clr-bg);
   color: var(--clr-text);
   padding: .25rem .5rem;
@@ -218,7 +218,7 @@ option {
 button,
 input[type=submit] {
   border: none;
-  border-radius: 5px;
+  border-radius: var(--radius-sm);
   outline: none;
   font-size: var(--txt-med);
   padding: .1rem .65rem;

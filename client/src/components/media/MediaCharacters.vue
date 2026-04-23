@@ -1,8 +1,13 @@
 <template>
 <h2>characters</h2>
   <div class="character-cards">
-    <div class="character-card" v-for="character in characterSlice">
-      <img class="image" :src="character?.node?.image?.medium" alt="">
+    <div class="character-card"
+         v-for="character in characterSlice"
+         :key="character?.node?.id ?? character?.node?.name?.userPreferred">
+      <img class="image"
+           :src="imageSrc(character?.node?.image?.medium, 'avatar', character?.node?.name?.userPreferred)"
+           :alt="character?.node?.name?.userPreferred"
+           @error="setFallbackImage($event, 'avatar', character?.node?.name?.userPreferred)">
       <h3 class="title">{{character?.node?.name?.userPreferred}}</h3>
       <p class="role">{{character?.role}}</p>
     </div>
@@ -10,6 +15,8 @@
 </template>
 
 <script>
+import {imageOrFallback, useFallbackImage} from "../../utils/fallbackImages";
+
 export default {
   name: "MediaCharacters",
   props: {
@@ -33,6 +40,14 @@ export default {
   updated() {
     if (this && this?.section === 'characters') this.limit = null
     if (this && this?.section === 'overview') this.limit = 6
+  },
+  methods: {
+    imageSrc(src, type, label) {
+      return imageOrFallback(src, type, label)
+    },
+    setFallbackImage(event, type, label) {
+      useFallbackImage(event, type, label)
+    },
   }
 }
 </script>
@@ -55,7 +70,7 @@ export default {
   gap: 1rem;
   padding: 1rem;
   background-color: var(--clr-secondary-800-5);
-  border-radius: 10px;
+  border-radius: var(--radius);
   min-width: 25ch;
 }
 .character-card .image {

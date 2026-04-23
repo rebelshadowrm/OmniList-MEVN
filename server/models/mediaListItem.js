@@ -2,15 +2,35 @@ const mongoose = require('mongoose')
 const timestamp = require("./plugins/timestamp");
 
 
-const animeListItemSchema = new mongoose.Schema({
+const mediaListItemSchema = new mongoose.Schema({
     user: {
         type: mongoose.SchemaTypes.ObjectId,
         required: true,
         ref: 'UserModel'
     },
+    mediaId: {
+        type: Number,
+        required: false,
+    },
+    mediaType: {
+        type: String,
+        required: true,
+        uppercase: true,
+        default: () => 'ANIME',
+    },
+    source: {
+        type: String,
+        required: true,
+        uppercase: true,
+        default: () => 'ANILIST',
+    },
+    sourceId: {
+        type: String,
+        required: false,
+    },
     animeId: {
         type: Number,
-        required: true,
+        required: false,
     },
     title: {
         type: String,
@@ -32,6 +52,17 @@ const animeListItemSchema = new mongoose.Schema({
       required: true,
       default: () => -1
     },
+    progressTotal: {
+      type: Number,
+      required: true,
+      default: () => -1
+    },
+    progressUnit: {
+        type: String,
+        required: true,
+        lowercase: true,
+        default: () => 'episodes'
+    },
     rating: {
       type: Number,
       required: true,
@@ -39,8 +70,8 @@ const animeListItemSchema = new mongoose.Schema({
     },
     image: {
       type: String,
-      required: true,
-      default: () => 'https://via.placeholder.com/50'
+      required: false,
+      default: () => ''
     },
     format: {
         type: String,
@@ -52,6 +83,6 @@ const animeListItemSchema = new mongoose.Schema({
 }, {
     collection: 'listItems'
 })
-animeListItemSchema.plugin(timestamp)
+mediaListItemSchema.plugin(timestamp)
 
-module.exports = mongoose.model('AnimeListItemModel', animeListItemSchema)
+module.exports = mongoose.model('MediaListItemModel', mediaListItemSchema)

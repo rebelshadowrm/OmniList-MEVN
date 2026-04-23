@@ -1,6 +1,7 @@
 const express = require('express')
 const bodyParser = require('body-parser')
 const cors = require('cors')
+const database = require('./database')
 const dotenv = require("dotenv")
 dotenv.config()
 
@@ -21,10 +22,13 @@ const refresh = require('./routes/api/refresh')
 const logout = require('./routes/api/logout')
 const reviews = require('./routes/api/reviews')
 const discussions = require('./routes/api/discussions')
-const anime = require('./routes/api/anime')
+const mediaList = require('./routes/api/mediaList')
+const tmdb = require('./routes/api/tmdb')
 
 app.use('/api/news', news)
-app.use('/api/anime', anime)
+app.use('/api/media-list', mediaList)
+app.use('/api/anime', mediaList)
+app.use('/api/tmdb', tmdb)
 app.use('/api/discussions', discussions)
 app.use('/api/reviews', reviews)
 app.use('/api/login', login)
@@ -46,4 +50,26 @@ if (process.env.NODE_ENV !== 'dev') {
 
 const port = process.env.PORT || 5000
 
-app.listen(port, () => console.log(`Server started on port ${port}`))
+async function start() {
+    try {
+        await database.connect()
+
+        const server = app.listen(port, () => console.log(`Server started on port ${port}`))
+
+        async function shutdown(signal) {
+            console.log(`${signal} received. Closing server...`)
+            server.close(async () => {
+                await database.disconnect()
+                process.exit(0)
+            })
+        }
+
+        process.once('SIGINT', shutdown)
+        process.once('SIGTERM', shutdown)
+    } catch (err) {
+        console.error('Server startup failed:', err.message)
+        process.exit(1)
+    }
+}
+
+start()

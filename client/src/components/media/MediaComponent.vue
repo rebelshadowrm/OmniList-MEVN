@@ -1,22 +1,29 @@
 <template>
   <div class="media-grid">
-    <img v-if="data?.bannerImage" class="hero-img" :src="data?.bannerImage" alt="">
+    <img class="hero-img"
+         :src="imageSrc(data?.bannerImage, 'banner', mediaTitle)"
+         :alt="mediaTitle"
+         @error="setFallbackImage($event, 'banner', mediaTitle)">
     <div class="text">
       <h1 class="title">{{ data?.title?.english ?? data?.title?.romaji }}</h1>
       <div v-html="data?.description" class="description"></div>
     </div>
     <div class="card">
-      <img class="card-img" :src="data?.coverImage?.large" alt="">
+      <img class="card-img"
+           :src="imageSrc(data?.coverImage?.large, 'poster', mediaTitle)"
+           :alt="mediaTitle"
+           @error="setFallbackImage($event, 'poster', mediaTitle)">
       <div class="btn-container">
+        <template v-if="isLoggedIn">
         <div v-if="added" class="added">
           <select @change="updateStatus"
-                  :data-id="listItem?.animeId"
+                  :data-id="listMediaId"
                   :data-delete="listItem?._id"
                   class="status"
                   name="status"
                   id="status"
                   :value="listItem?.status">
-            <option value="watching">Watching</option>
+            <option :value="activeStatusValue">{{ activeStatusLabel }}</option>
             <option value="on-hold">On-Hold</option>
             <option value="completed">Completed</option>
             <option value="dropped">Dropped</option>
@@ -27,19 +34,24 @@
           <div class="progress-container">
             <span @keydown.enter.prevent="blur"
                   @blur="updateProgress"
-                  :data-id="listItem?.animeId"
+                  :data-id="listMediaId"
                   class="progress"
                   role="textbox"
                   contenteditable="true"
             >{{ listItem?.progress < 1 ? 0 : listItem?.progress }}</span>&nbsp;/&nbsp;
-            <span class="totalEps">{{ listItem?.totalEpisodes < 1 ? '—' : listItem?.totalEpisodes }}</span>
+            <span class="totalEps">{{ progressTotalLabel }}</span>
           </div>
         </div>
         <div v-else class="toAdd">
           <button @click.prevent="addToList">Add to List</button>
         </div>
+        </template>
+        <div v-else class="account-action">
+          <router-link to="/login">Log in or create an account to add this to your list.</router-link>
+        </div>
       </div>
-      <div @click="favoriteAnime"
+      <div v-if="isLoggedIn"
+           @click="toggleFavorite"
            :class="favorite ? 'favorite favorited' : 'favorite'">
         <i class="fas fa-heart"></i>
       </div>
@@ -55,9 +67,21 @@
         <MediaStaff v-if="section === 'overview' || section === 'staff'"
                     :section="section" :staff="data?.staff?.edges"/>
         <MediaReviews v-if="section === 'overview' || section === 'reviews'"
-                      :section="section" :reviews="reviews"/>
+                      :section="section"
+                      :reviews="reviews"
+                      :subject="mediaTitle"
+                      :subject-id="data?.id"
+                      :media-type="media.type"
+                      :source="media.source"
+                      :is-authenticated="isLoggedIn"/>
         <MediaDiscussions v-if="section === 'overview' || section === 'discussions'"
-                          :section="section" :discussions="discussions"/>
+                          :section="section"
+                          :discussions="discussions"
+                          :subject="mediaTitle"
+                          :subject-id="data?.id"
+                          :media-type="media.type"
+                          :source="media.source"
+                          :is-authenticated="isLoggedIn"/>
       </div>
     </div>
   </div>
@@ -71,7 +95,9 @@ import MediaReviews from "./MediaReviews.vue";
 import MediaStaff from "./MediaStaff.vue"
 import MediaDiscussions from "./MediaDiscussions.vue";
 import useUser from "../../composables/user"
-import AnimeService from "../../services/AnimeService";
+import MediaListService from "../../services/MediaListService";
+import {mediaConfig} from "../../config/mediaTypes.js";
+import {imageOrFallback, useFallbackImage} from "../../utils/fallbackImages";
 
 
 export default {
@@ -103,16 +129,50 @@ export default {
       section: '',
     }
   },
+  computed: {
+    media() {
+      return mediaConfig(this.data?.mediaType)
+    },
+    listMediaId() {
+      return this.listItem?.mediaId ?? this.listItem?.animeId
+    },
+    progressTotal() {
+      return this.listItem?.progressTotal ?? this.listItem?.totalEpisodes
+    },
+    progressTotalLabel() {
+      return this.progressTotal < 1 ? '—' : this.progressTotal
+    },
+    activeStatusValue() {
+      return this.media.activeStatus
+    },
+    activeStatusLabel() {
+      return this.media.activeStatusLabel
+    },
+    isLoggedIn() {
+      const {getIsLoggedIn} = useUser()
+
+      return getIsLoggedIn().value
+    },
+    mediaTitle() {
+      return this?.data?.title?.english ?? this?.data?.title?.romaji ?? this?.data?.title?.native
+    },
+  },
   mounted() {
     window.scrollTo(0, 0);
   },
   methods: {
+    imageSrc(src, type, label) {
+      return imageOrFallback(src, type, label)
+    },
+    setFallbackImage(event, type, label) {
+      useFallbackImage(event, type, label)
+    },
     blur(e) {
       e.target.blur()
     },
     async updateProgress(e) {
       let progressInt = parseInt(e.target.textContent)
-      const animeId = e.target.dataset.id
+      const mediaId = e.target.dataset.id
       if (!progressInt || progressInt < 0) {
         e.target.textContent = 0
       }
@@ -125,7 +185,7 @@ export default {
           const {user} = getUser().value
           if(user?._id) {
             const data = { status: 'completed' }
-            const res = await AnimeService.updateAnimeListItem(user?._id, animeId, data)
+            const res = await MediaListService.updateMediaListItem(user?._id, this.media.type, mediaId, data)
             if(res.status === 200) {
               const statusElem = document.querySelector('.status')
               statusElem.value = 'completed'
@@ -136,24 +196,24 @@ export default {
         }
       }
       if (progressInt) {
-        await this.updateListProgress(animeId, progressInt)
+        await this.updateListProgress(mediaId, progressInt)
         e.target.textContent = progressInt.toString()
       }
     },
-    async updateListProgress(animeId, progress) {
+    async updateListProgress(mediaId, progress) {
       const {getUser} = useUser()
       const {user} = getUser().value
       if (user?._id) {
         try {
           const data = {progress}
-          await AnimeService.updateAnimeListItem(user?._id, animeId, data)
+          await MediaListService.updateMediaListItem(user?._id, this.media.type, mediaId, data)
         } catch (err) {
           console.log(err.message)
         }
       }
     },
     async updateStatus(e) {
-      const animeId = e.target.dataset.id
+      const mediaId = e.target.dataset.id
       const status = e.target.value
       const {getUser} = useUser()
       const {user} = getUser().value
@@ -162,7 +222,7 @@ export default {
           try {
             const listId = e?.target?.dataset?.delete
             if (listId) {
-              await AnimeService.deleteAnimeListItem(listId)
+              await MediaListService.deleteMediaListItem(listId)
               this.$emit('set-added', false)
             }
           } catch (err) {
@@ -179,7 +239,7 @@ export default {
                   status,
                   progress: parseInt(totalEps)
                 }
-                await AnimeService.updateAnimeListItem(user?._id, animeId, data)
+                await MediaListService.updateMediaListItem(user?._id, this.media.type, mediaId, data)
               }
             } catch (err) {
               console.log(err.message)
@@ -187,7 +247,7 @@ export default {
           } else {
             try {
               const data = { status }
-              await AnimeService.updateAnimeListItem(user?._id, animeId, data)
+              await MediaListService.updateMediaListItem(user?._id, this.media.type, mediaId, data)
             } catch (err) {
               console.log(err.message)
             }
@@ -199,23 +259,38 @@ export default {
     activeSection(section) {
       this.section = section
     },
-    async favoriteAnime() {
+    async toggleFavorite() {
+      if (!this.isLoggedIn) {
+        return
+      }
+
       this.$emit('update-favorite', !this.favorite)
     },
     async addToList() {
       const {getUser} = useUser()
       const {user} = getUser().value
+      if (!user?._id) {
+        return
+      }
+
+      const progressTotal = this?.data?.progressTotal ?? 0
       const data = {
         user: user._id,
-        animeId: this?.data?.id,
+        mediaId: this?.data?.id,
+        mediaType: this.media.type,
+        source: this.media.source,
+        sourceId: `${this?.data?.id}`,
+        animeId: this.media.type === 'ANIME' ? this?.data?.id : undefined,
         title: this?.data?.title?.english ?? this?.data?.title?.romaji ?? this?.data?.title?.native,
-        status: 'watching',
+        status: this.media.activeStatus,
         progress: 0,
-        totalEpisodes: this?.data?.episodes ?? 0,
+        totalEpisodes: progressTotal,
+        progressTotal,
+        progressUnit: this.media.progressUnit,
         rating: 0,
-        image: this?.data?.coverImage?.large ?? 'https://via.placeholder.com/50',
+        image: this?.data?.coverImage?.large ?? '',
         format: this?.data?.format,
-        genre: this?.data?.genres
+        genres: this?.data?.genres
 
       }
       this.$emit('add-to-list', data)
@@ -274,7 +349,7 @@ export default {
   max-width: 215px;
   min-width: 215px;
   grid-area: img;
-  border-radius: 5px;
+  border-radius: var(--radius-sm);
   filter: drop-shadow(0 0 .75rem hsl(var(--clr-black-800) / .3));
 }
 
@@ -285,20 +360,33 @@ export default {
 
 .toAdd {
   display: flex;
-  border-radius: 5px;
+  border-radius: var(--radius-sm);
   width: max-content;
+}
+.account-action {
+  max-width: 14rem;
+  padding: .5rem;
+  border: 1px solid var(--clr-border);
+  border-radius: var(--radius-sm);
+  background-color: var(--clr-secondary-800-5);
+  font-size: var(--txt-small);
+}
+.account-action a {
+  color: var(--clr-primary-400);
+  text-decoration: none;
+  font-weight: 600;
 }
 
 i {
-  color: hsl(0deg 0% 95%);
+  color: hsl(var(--clr-white-200));
 }
 
 .favorite {
   grid-area: fav;
-  background-color: hsl(337, 100%, 40%);
+  background-color: var(--clr-favorite);
   width: max-content;
   padding: .25rem .5rem;
-  border-radius: 5px;
+  border-radius: var(--radius-sm);
   align-self: baseline;
   justify-self: end;
   cursor: pointer;
@@ -310,7 +398,7 @@ i {
 }
 
 .favorited i {
-  color: hsl(337, 100%, 40%);
+  color: var(--clr-favorite);
   transform: scale(1.75);
 }
 
@@ -322,8 +410,8 @@ button {
   font-size: var(--txt-small);
   font-weight: 500;
   letter-spacing: 1px;
-  border-color: hsl(0deg 0% 100% / .3);
-  border-radius: 5px;
+  border-color: var(--clr-border);
+  border-radius: var(--radius-sm);
   cursor: pointer;
 }
 
@@ -384,7 +472,7 @@ option {
   flex-direction: column;
   width: 215px;
   background-color: var(--clr-secondary-800-5);
-  border-radius: 3px;
+  border-radius: var(--radius-xs);
   padding-bottom: 1rem;
 }
 
