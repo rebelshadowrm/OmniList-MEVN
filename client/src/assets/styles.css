@@ -368,7 +368,7 @@
 
     .dropdown-items-nav {
         position: fixed;
-        inset: auto .9rem -9rem auto;
+        inset: 4rem .9rem -9rem auto;
         display: flex;
         flex-direction: column;
         gap: .25rem;
@@ -378,6 +378,7 @@
         border-radius: 0 0 3px 3px;
         background-color: var(--surface-raised);
         contain: layout paint;
+        height: fit-content;
     }
 
     :where(.dropdown-items-nav, .dropdown-items) a {
