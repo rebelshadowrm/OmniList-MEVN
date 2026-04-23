@@ -226,7 +226,8 @@ export default {
       await initializeUser()
       this.userState = getUser()
 
-      let user = this.user ?? this.userState?.value?.user
+      const userState = this.userState?.value ?? this.userState
+      let user = this.user ?? userState?.user
       if (user?._id) return user
 
       const {_id} = decodeJWT(TokenService.getAccessToken())?.user ?? {}
@@ -241,7 +242,8 @@ export default {
     },
     loadColors() {
       const {getLocalColors, HexToOKLCH} = useTheme()
-      const user = this.user ?? this.userState?.value?.user
+      const userState = this.userState?.value ?? this.userState
+      const user = this.user ?? userState?.user
       const userColors = user?.userPreferences?.themes?.profileTheme
       const localColors = getLocalColors()
       this.paletteMode = userColors?.paletteMode ?? localColors?.paletteMode ?? DEFAULTS.paletteMode

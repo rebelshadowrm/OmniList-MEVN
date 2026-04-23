@@ -1,51 +1,43 @@
 <template>
   <div class="browse-options">
     <div class="search">
-      <input v-model="search" type="text" name="search" id="search" placeholder="search" />
+      <input v-model="search"
+             type="text"
+             name="search"
+             id="search"
+             placeholder="search"
+             @keydown.enter.prevent="applyFilters"
+             @blur="applyFilters" />
     </div>
-    <div class="genres">
-      <VueMultiselect
-          v-if="supportsGenreFilters()"
-          v-model="genre"
+    <div v-if="supportsGenreFilters()" class="genres">
+      <GenreFilterSelect
           :options="genres"
-          :multiple="true"
-          :searchable="true"
-          :close-on-select="true"
-          :allow-empty="true"
-          placeholder="Filter by genre"
+          :included="activeGenres() ?? []"
+          :excluded="activeExcludedGenres() ?? []"
+          @genre-clicked="cycleGenre"
+          @genre-isolated="isolateGenre"
+          @clear="clearGenreFilters"
       />
     </div>
-    <div v-if="supportsYearFilter()" class="year">
-      <input v-model="filterYear" type="number" :placeholder="media.yearFilterLabel" min="1900" max="2100" />
-    </div>
-    <div class="sort-by">
-      <VueMultiselect
-          v-model="sortBy"
-          :options="sortTypes"
-          :multiple="false"
-          :searchable="false"
-          :close-on-select="true"
-          :allow-empty="false"
-          label="name"
-          track-by="name"
-          :custom-label="customLabel"
-          :show-labels="false"
-      />
-    </div>
-    <button @click="update">update</button>
-    <div v-if="hasActiveGenreFilters()" class="active-filters">
-      <button v-for="genre in activeGenres() ?? []"
-              :key="`include-${genre}`"
-              :class="['filter-chip', genreClass(genre), 'included']"
-              type="button"
-              @click="handleGenreClick(genre)"
-              @dblclick="handleGenreDoubleClick(genre)">{{genre}}</button>
-      <button v-for="genre in activeExcludedGenres() ?? []"
-              :key="`exclude-${genre}`"
-              :class="['filter-chip', genreClass(genre), 'excluded']"
-              type="button"
-              @click="handleGenreClick(genre)"
-              @dblclick="handleGenreDoubleClick(genre)">{{genre}}</button>
+    <div class="filter-tools">
+      <div v-if="supportsYearFilter()" class="year">
+        <YearFilterSelect
+            v-model="filterYear"
+            :label="media.yearFilterLabel"
+            :placeholder="media.yearFilterLabel"
+            :min="1900"
+            :max="2100"
+            @commit="applyFilters"
+        />
+      </div>
+      <div class="sort-by">
+        <label for="sort-by">Sort</label>
+        <select id="sort-by" v-model="selectedSortValue" @change="applyFilters">
+          <option v-for="sort in sortTypes" :key="sort.value" :value="sort.value">
+            {{ sort.name }}
+          </option>
+        </select>
+      </div>
     </div>
     <span class="refresh-indicator" :class="{active: isRefreshing}" aria-hidden="true"></span>
   </div>
@@ -79,13 +71,15 @@
 
 <script>
 import BrowseItem from "../components/BrowseItem.vue"
-import VueMultiselect from 'vue-multiselect'
+import GenreFilterSelect from "../components/GenreFilterSelect.vue"
+import YearFilterSelect from "../components/YearFilterSelect.vue"
 import {mediaConfig} from "../config/mediaTypes.js"
 export default {
   name: "MediaBrowse",
   components: {
     BrowseItem,
-    VueMultiselect
+    GenreFilterSelect,
+    YearFilterSelect,
   },
   props: {
     mediaType: {
@@ -107,7 +101,6 @@ export default {
       isRefreshing: false,
       refreshId: 0,
       fetchRequestId: 0,
-      genreClickTimer: null,
       skipNextRouteFetch: false,
       resultCache: new Map(),
     }
@@ -124,6 +117,14 @@ export default {
     },
     sortTypes() {
       return this.media.sortOptions ?? []
+    },
+    selectedSortValue: {
+      get() {
+        return this.activeSort()
+      },
+      set(value) {
+        this.sortBy = this.sortTypes.find(type => type.value === value) ?? this.sortTypes[0]
+      },
     },
   },
   watch: {
@@ -203,9 +204,6 @@ export default {
       const year = Number(this.queryValue(value))
 
       return Number.isInteger(year) && year >= 1900 && year <= 2100 ? year : null
-    },
-    genreClass(genre) {
-      return `genre-${genre.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')}`
     },
     normalizedQuery(query = this.$route.query) {
       const search = (this.queryValue(query.search) ?? this.queryValue(query.q))?.trim() || null
@@ -575,12 +573,11 @@ export default {
         }
       }
     },
-    customLabel({ name }) {
-      return `${name}`
-    },
-    async update() {
-      await this.syncRoute()
-      await this.fetchData({useCache: false})
+    async applyFilters() {
+      const routeChanged = await this.syncRoute()
+      if (routeChanged) {
+        await this.fetchData({quiet: true})
+      }
     },
     async applyGenreFilters() {
       const key = this.cacheKey()
@@ -620,31 +617,19 @@ export default {
 
       await this.applyGenreFilters()
     },
-    handleGenreClick(genre) {
-      clearTimeout(this.genreClickTimer)
-
-      this.genreClickTimer = setTimeout(() => {
-        this.cycleGenre(genre)
-        this.genreClickTimer = null
-      }, 220)
-    },
-    handleGenreDoubleClick(genre) {
-      clearTimeout(this.genreClickTimer)
-      this.genreClickTimer = null
-      this.isolateGenre(genre)
-    },
     async isolateGenre(genre) {
       this.genre = [genre]
       this.excludedGenre = undefined
       await this.applyGenreFilters()
-    }
-  },
-  beforeUnmount() {
-    clearTimeout(this.genreClickTimer)
+    },
+    async clearGenreFilters() {
+      this.genre = undefined
+      this.excludedGenre = undefined
+      await this.applyGenreFilters()
+    },
   },
 }
 </script>
-<style src="vue-multiselect/dist/vue-multiselect.css"></style>
 <style scoped>
 h1 {
   text-align: center;
@@ -674,11 +659,14 @@ h1 {
 .browse-options {
   padding: 2rem;
   width: 100%;
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas:
+      "search"
+      "genres"
+      "tools";
   gap: 1rem;
-  align-items: baseline;
-  justify-content: space-around;
+  align-items: end;
   max-width: 100vw;
   position: relative;
 }
@@ -714,106 +702,35 @@ h1 {
     transform: translateX(250%);
   }
 }
-.active-filters {
-  display: flex;
-  flex-basis: 100%;
-  flex-wrap: wrap;
-  gap: .4rem;
-  justify-content: center;
-}
-.filter-chip {
-  --genre-h: var(--clr-secondary-h);
-  display: inline-flex;
-  align-items: center;
-  gap: .25rem;
-  border: 1px solid hsl(var(--genre-h) var(--filter-neutral-s) var(--filter-neutral-border-l) / var(--opacity-7));
-  border-radius: 50vw;
-  padding: .15rem .45rem;
-  cursor: pointer;
-  white-space: nowrap;
-}
-.filter-chip.included {
-  border-color: hsl(var(--genre-h) var(--filter-include-s) var(--filter-include-border-l));
-  background-color: hsl(var(--genre-h) var(--filter-include-s) var(--filter-include-bg-l) / var(--opacity-7));
-  color: hsl(var(--filter-include-text));
-  font-weight: 600;
-}
-.filter-chip.excluded {
-  border-color: hsl(var(--genre-h) var(--filter-exclude-s) var(--filter-exclude-border-l) / var(--opacity-7));
-  border-style: dashed;
-  background-color: hsl(var(--genre-h) var(--filter-exclude-s) var(--filter-exclude-bg-l) / var(--opacity-5));
-  color: hsl(var(--genre-h) var(--filter-exclude-s) var(--filter-exclude-text-l));
-  font-weight: 600;
-}
-.filter-chip.included::before {
-  content: '+';
-}
-.filter-chip.excluded::before {
-  content: '-';
-}
-.genre-action {
-  --genre-h: var(--genre-action-h);
-}
-.genre-adventure {
-  --genre-h: var(--genre-adventure-h);
-}
-.genre-comedy {
-  --genre-h: var(--genre-comedy-h);
-}
-.genre-drama {
-  --genre-h: var(--genre-drama-h);
-}
-.genre-ecchi {
-  --genre-h: var(--genre-ecchi-h);
-}
-.genre-fantasy {
-  --genre-h: var(--genre-fantasy-h);
-}
-.genre-horror {
-  --genre-h: var(--genre-horror-h);
-}
-.genre-mahou-shoujo {
-  --genre-h: var(--genre-mahou-shoujo-h);
-}
-.genre-mecha {
-  --genre-h: var(--genre-mecha-h);
-}
-.genre-music {
-  --genre-h: var(--genre-music-h);
-}
-.genre-mystery {
-  --genre-h: var(--genre-mystery-h);
-}
-.genre-psychological {
-  --genre-h: var(--genre-psychological-h);
-}
-.genre-romance {
-  --genre-h: var(--genre-romance-h);
-}
-.genre-sci-fi {
-  --genre-h: var(--genre-sci-fi-h);
-}
-.genre-slice-of-life {
-  --genre-h: var(--genre-slice-of-life-h);
-}
-.genre-sports {
-  --genre-h: var(--genre-sports-h);
-}
-.genre-supernatural {
-  --genre-h: var(--genre-supernatural-h);
-}
-.genre-thriller {
-  --genre-h: var(--genre-thriller-h);
-}
+
 .genres {
-  width: 17rem;
+  grid-area: genres;
+  min-width: 0;
+}
+.year {
+  width: 100%;
+  max-width: 100%;
 }
 .search {
+  grid-area: search;
   max-width: 100%;
+}
+.filter-tools {
+  grid-area: tools;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1rem;
+  align-items: end;
+}
+
+.sort-by {
+  display: grid;
+  gap: .25rem;
 }
 
 .search input,
-.year input {
+.sort-by select {
+  width: 100%;
   color: var(--clr-text);
   background-color: var(--clr-bg);
   padding: .2rem .5rem;
@@ -823,15 +740,33 @@ h1 {
   font-size: 1.75rem;
   max-width: 100%;
 }
-.year input {
+
+.sort-by select {
   width: 12rem;
   font-size: var(--txt-med);
   padding-block: .45rem;
 }
+
+.sort-by label {
+  color: var(--clr-primary-200);
+  font-size: var(--txt-small);
+  font-weight: 700;
+}
+
+.sort-by select {
+  appearance: none;
+  border: 1px solid var(--clr-border);
+  border-radius: var(--radius-sm);
+  background:
+      linear-gradient(45deg, transparent 50%, var(--clr-text) 50%) calc(100% - .85rem) 50% / .35rem .35rem no-repeat,
+      linear-gradient(135deg, var(--clr-text) 50%, transparent 50%) calc(100% - .6rem) 50% / .35rem .35rem no-repeat,
+      var(--clr-bg);
+  padding-inline-end: 1.75rem;
+}
+
 .search input:focus-visible,
-.year input:focus-visible {
+.sort-by select:focus-visible {
   box-shadow: 0 10px 0 -5px var(--clr-border);
-  border: none;
 }
 
 button {
@@ -844,6 +779,49 @@ button {
   background-color: var(--clr-btn-bg);
   color: var(--clr-btn);
   cursor: pointer;
+}
+
+@media (min-width: 48rem) {
+  .browse-options {
+    grid-template-columns: minmax(0, 1fr) max-content;
+    grid-template-areas:
+        "search search"
+        "genres tools";
+  }
+
+  .filter-tools {
+    grid-template-columns: 18rem 12rem;
+    align-self: start;
+  }
+
+  .year {
+    width: 100%;
+  }
+
+  .sort-by select {
+    width: 100%;
+  }
+}
+
+@media (min-width: 68rem) {
+  .browse-options {
+    grid-template-columns: minmax(12rem, .8fr) minmax(18rem, 1.4fr) max-content;
+    grid-template-areas: "search genres tools";
+  }
+
+  .filter-tools {
+    align-self: end;
+  }
+}
+
+@media (max-width: 47.99rem) {
+  .browse-options {
+    padding: 1rem;
+  }
+
+  .sort-by select {
+    width: 100%;
+  }
 }
 
 </style>

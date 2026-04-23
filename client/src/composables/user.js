@@ -73,6 +73,7 @@ const methods = {
 
         initializeUserPromise = (async () => {
             if (!token) {
+                methods.setupLocalTheme()
                 setters.setIsInitialized(true)
                 return null
             }
@@ -106,6 +107,14 @@ const methods = {
     setupUserTheme: (user) => {
         const {setTheme, applyTheme} = useTheme()
         const colors = user?.userPreferences?.themes?.profileTheme
+        setTheme(colors)
+        applyTheme(colors)
+    },
+    setupLocalTheme: () => {
+        const {getLocalColors, setTheme, applyTheme} = useTheme()
+        const colors = getLocalColors()
+        if (!colors) return
+
         setTheme(colors)
         applyTheme(colors)
     },

@@ -61,6 +61,7 @@ router.put('/:id', authenticateToken, async (req, res) => {
         const user = await UserModel.findById(req?.params?.id)
         if(user) {
             let profileTheme
+            let dashboardHome
             if(req?.user?.user?._id === req?.params?.id) {
                 if(req?.body?.userName) {
                     const nextUserName = normalizeUsername(req?.body?.userName)
@@ -105,6 +106,11 @@ router.put('/:id', authenticateToken, async (req, res) => {
                 profileTheme = req?.body?.userPreferences?.themes?.profileTheme
                 if (profileTheme !== undefined) {
                     user.set('userPreferences.themes.profileTheme', profileTheme)
+                    user.markModified('userPreferences')
+                }
+                dashboardHome = req?.body?.userPreferences?.dashboardLayout?.home
+                if (dashboardHome !== undefined) {
+                    user.set('userPreferences.dashboardLayout.home', dashboardHome)
                     user.markModified('userPreferences')
                 }
                 user.userProfile.bio = req?.body?.bio ?? user.userProfile.bio
@@ -168,6 +174,12 @@ router.put('/:id', authenticateToken, async (req, res) => {
                 await UserModel.updateOne(
                     {_id: user._id},
                     {$set: {'userPreferences.themes.profileTheme': profileTheme}}
+                )
+            }
+            if (dashboardHome !== undefined) {
+                await UserModel.updateOne(
+                    {_id: user._id},
+                    {$set: {'userPreferences.dashboardLayout.home': dashboardHome}}
                 )
             }
 

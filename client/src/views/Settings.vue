@@ -121,21 +121,36 @@
           class="settings-section theme-section"
           :user="currentUser"
           @saved="syncUser"/>
+
+      <HomePreferencePanel
+          id="home-preferences"
+          class="settings-section home-section"
+          :value="homePreferences"
+          :message="homePreferenceMessage"
+          @save="saveHomePreferences"/>
     </div>
   </section>
 </template>
 
 <script>
 import ColorPicker from "../components/ColorPicker.vue"
+import HomePreferencePanel from "../components/home/HomePreferencePanel.vue"
 import UserService from "../services/UserService"
 import TokenService from "../services/TokenService";
 import useUser from "../composables/user"
 import {imageOrFallback} from "../utils/fallbackImages";
+import {
+  defaultHomePreferences,
+  homePreferencesFromUser,
+  readLocalHomePreferences,
+  saveLocalHomePreferences,
+} from "../config/homePreferences";
 
 export default {
   name: "Settings",
   components: {
     ColorPicker,
+    HomePreferencePanel,
   },
   data() {
     return {
@@ -151,13 +166,17 @@ export default {
         dateOfBirth: '',
         bio: '',
       },
+      homePreferences: defaultHomePreferences(),
+      homePreferenceMessage: '',
       isReady: false,
       message: '',
     }
   },
   computed: {
     currentUser() {
-      return this.userState?.value?.user
+      const userState = this.userState?.value ?? this.userState
+
+      return userState?.user
     },
     avatarPreview() {
       return imageOrFallback(this.form.img, 'avatar', this.form.userName)
@@ -171,7 +190,9 @@ export default {
   async created() {
     const user = await this.resolveUser()
     this.loadForm(user)
+    this.loadHomePreferences(user)
     this.isReady = true
+    this.focusHomePreferences()
   },
   methods: {
     async resolveUser() {
@@ -211,6 +232,21 @@ export default {
         bio: user?.userProfile?.bio ?? '',
       }
     },
+    loadHomePreferences(user) {
+      this.homePreferences = homePreferencesFromUser(user)
+          ?? readLocalHomePreferences()
+          ?? defaultHomePreferences()
+    },
+    focusHomePreferences() {
+      if (this.$route.query.section !== 'home') return
+
+      this.$nextTick(() => {
+        document.getElementById('home-preferences')?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start',
+        })
+      })
+    },
     validateUsername() {
       const username = this.form.userName?.trim()?.toLowerCase()
       if (!username || username.length < 3 || username.length > 30) {
@@ -231,20 +267,21 @@ export default {
       if (res?.status === 200) {
         this.syncUser(res.data)
         this.message = successMessage
-        return
+        return true
       }
 
       if (res?.status === 409) {
         this.message = 'Username already in use.'
-        return
+        return false
       }
 
       if (res?.status === 429) {
         this.message = res.data
-        return
+        return false
       }
 
       this.message = res?.data ?? 'Settings could not be saved.'
+      return false
     },
     async saveAccount() {
       const username = this.validateUsername()
@@ -265,10 +302,26 @@ export default {
         bio: this.form.bio,
       }, 'Profile saved.')
     },
+    async saveHomePreferences(preferences) {
+      const savedPreferences = saveLocalHomePreferences(preferences)
+      this.homePreferences = savedPreferences
+      this.homePreferenceMessage = 'Saving home preferences...'
+
+      const saved = await this.updateUser({
+        userPreferences: {
+          dashboardLayout: {
+            home: savedPreferences,
+          },
+        },
+      }, 'Home preferences saved.')
+
+      this.homePreferenceMessage = saved ? 'Home preferences saved.' : 'Home preferences saved locally only.'
+    },
     syncUser(user) {
       const {setUser} = useUser()
       setUser(user)
       this.loadForm(user)
+      this.loadHomePreferences(user)
     },
   },
 }
@@ -322,6 +375,10 @@ export default {
 .theme-section {
   grid-column: 2;
   grid-row: 1 / span 2;
+}
+
+.home-section {
+  grid-column: 1 / -1;
 }
 
 .section-heading {

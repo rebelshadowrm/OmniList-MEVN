@@ -275,9 +275,10 @@
     #app {
         display: grid;
         min-height: 100%;
-        grid-template-rows: max-content 1fr max-content;
+        grid-template-rows: max-content max-content 1fr max-content;
         grid-template-areas:
             'header'
+            'banner'
             'main'
             'footer';
     }
@@ -291,6 +292,10 @@
         display: flex;
         flex-direction: column;
         width: 100%;
+    }
+
+    .app-banner {
+        grid-area: banner;
     }
 
     footer {
@@ -456,41 +461,4 @@
         border-left: 1px solid var(--border);
     }
 
-}
-
-/*********************************************************************
-                            MULTI SELECT OVERRIDES
-********************************************************************/
-.multiselect * {
-    border: none;
-    color: var(--clr-text);
-}
-
-.multiselect *::placeholder {
-    color: var(--clr-text);
-}
-
-.multiselect__single,
-.multiselect__tags,
-.multiselect__tags input,
-.multiselect__option:not(.multiselect__option--highlight) {
-    background: var(--surface-page);
-}
-
-.multiselect__single {
-    padding: 0;
-    cursor: pointer;
-}
-
-.multiselect__option--highlight {
-    background: var(--surface-raised);
-}
-
-.multiselect__option--highlight::after {
-    background: transparent;
-}
-
-.multiselect__tag {
-    background: var(--clr-secondary-400-5);
-    font-weight: 500;
 }
