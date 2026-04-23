@@ -9,7 +9,7 @@
   "scripts": {
     "start": "node server/index.js",
     "dev": "nodemon server/index.js",
-    "heroku-postbuild": "cd client && npm install --include=dev && npm run build"
+    "heroku-postbuild": "npm --prefix client install --include=dev && npm --prefix client run build && rm -rf client/node_modules"
   },
   "keywords": [],
   "author": "",
