@@ -57,11 +57,11 @@ export const HOME_STYLE_PRESETS = [
 
 export const THEME_PRESETS = [
   {
-    name: 'Regal',
+    name: 'Default',
     colors: {
       mode: 'basic',
       paletteMode: 'original',
-      primaryColor: '#30ccf0',
+      primaryColor: '#e85e30',
       secondaryColor: '',
       accentColor: '',
     },

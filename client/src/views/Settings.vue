@@ -6,116 +6,17 @@
     </header>
 
     <div v-if="isReady" class="settings-grid">
-      <section class="settings-section identity-section">
-        <div class="section-heading">
-          <h2>Account</h2>
-          <button class="save-btn" @click="saveAccount">
-            <i class="fas fa-save"></i>
-            Save
-          </button>
-        </div>
+      <SettingsAccountPanel
+          v-model="form"
+          class="settings-section identity-section"
+          @save="saveAccount"/>
 
-        <form class="settings-form" @submit.prevent="saveAccount">
-          <div class="field">
-            <label for="userName">Username</label>
-            <input
-                id="userName"
-                v-model.trim="form.userName"
-                autocomplete="username"
-                type="text">
-          </div>
-
-          <div class="field">
-            <label for="email">Email</label>
-            <input
-                id="email"
-                v-model="form.email"
-                type="email"
-                disabled>
-          </div>
-
-        </form>
-      </section>
-
-      <section class="settings-section profile-section">
-        <div class="section-heading">
-          <h2>Profile</h2>
-          <button class="save-btn" @click="saveProfile">
-            <i class="fas fa-save"></i>
-            Save
-          </button>
-        </div>
-
-        <form class="settings-form" @submit.prevent="saveProfile">
-          <div class="image-row">
-            <img
-                class="avatar-preview"
-                :src="avatarPreview"
-                :alt="form.imgAlt || form.userName">
-            <div class="banner-preview" :style="bannerPreviewStyle">
-              <span>{{ form.userName }}</span>
-            </div>
-          </div>
-
-          <div class="field">
-            <label for="firstName">First name</label>
-            <input
-                id="firstName"
-                v-model.trim="form.firstName"
-                autocomplete="given-name"
-                type="text">
-          </div>
-
-          <div class="field">
-            <label for="lastName">Last name</label>
-            <input
-                id="lastName"
-                v-model.trim="form.lastName"
-                autocomplete="family-name"
-                type="text">
-          </div>
-
-          <div class="field">
-            <label for="dateOfBirth">Date of birth</label>
-            <input
-                id="dateOfBirth"
-                v-model="form.dateOfBirth"
-                type="date">
-          </div>
-
-          <div class="field">
-            <label for="img">Avatar URL</label>
-            <input
-                id="img"
-                v-model.trim="form.img"
-                type="url">
-          </div>
-
-          <div class="field">
-            <label for="bgImg">Banner URL</label>
-            <input
-                id="bgImg"
-                v-model.trim="form.bgImg"
-                type="url">
-          </div>
-
-          <div class="field">
-            <label for="imgAlt">Avatar alt text</label>
-            <input
-                id="imgAlt"
-                v-model.trim="form.imgAlt"
-                type="text">
-          </div>
-
-          <div class="field full-field">
-            <label for="bio">Bio</label>
-            <textarea
-                id="bio"
-                v-model.trim="form.bio"
-                rows="5"></textarea>
-          </div>
-        </form>
-      </section>
+      <SettingsProfilePanel
+          v-model="form"
+          class="settings-section profile-section"
+          :avatar-preview="avatarPreview"
+          :banner-preview-style="bannerPreviewStyle"
+          @save="saveProfile"/>
 
       <ColorPicker
           class="settings-section theme-section"
@@ -133,8 +34,10 @@
 </template>
 
 <script>
-import ColorPicker from "../components/ColorPicker.vue"
+import ColorPicker from "../components/theme/ColorPicker.vue"
 import HomePreferencePanel from "../components/home/HomePreferencePanel.vue"
+import SettingsAccountPanel from "../components/settings/SettingsAccountPanel.vue"
+import SettingsProfilePanel from "../components/settings/SettingsProfilePanel.vue"
 import UserService from "../services/UserService"
 import TokenService from "../services/TokenService";
 import useUser from "../composables/user"
@@ -151,6 +54,8 @@ export default {
   components: {
     ColorPicker,
     HomePreferencePanel,
+    SettingsAccountPanel,
+    SettingsProfilePanel,
   },
   data() {
     return {
@@ -381,105 +286,6 @@ export default {
   grid-column: 1 / -1;
 }
 
-.section-heading {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  margin-bottom: 1rem;
-}
-
-h2 {
-  color: var(--clr-primary-200);
-}
-
-.settings-form {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1rem;
-}
-
-.field {
-  display: grid;
-  gap: .35rem;
-}
-
-.full-field,
-.image-row {
-  grid-column: 1 / -1;
-}
-
-label {
-  font-size: var(--txt-small);
-  font-weight: 700;
-}
-
-input,
-textarea {
-  width: 100%;
-  border: 1px solid var(--clr-border);
-  border-radius: var(--radius-sm);
-  padding: .45rem .6rem;
-  background: var(--clr-bg);
-  color: var(--clr-text);
-}
-
-input:disabled {
-  opacity: .68;
-  cursor: not-allowed;
-}
-
-textarea {
-  resize: vertical;
-  min-height: 7rem;
-}
-
-.save-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: .45rem;
-  border: 1px solid var(--clr-border);
-  border-radius: var(--radius-sm);
-  padding: .35rem .75rem;
-  color: var(--clr-btn);
-  background: var(--clr-btn-bg);
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.image-row {
-  display: grid;
-  grid-template-columns: 6rem 1fr;
-  gap: 1rem;
-  align-items: stretch;
-}
-
-.avatar-preview {
-  aspect-ratio: 1;
-  width: 6rem;
-  object-fit: cover;
-  border: 1px solid var(--clr-border);
-  border-radius: var(--radius-sm);
-}
-
-.banner-preview {
-  min-height: 6rem;
-  display: grid;
-  place-items: center;
-  border: 1px solid var(--clr-border);
-  border-radius: var(--radius-sm);
-  overflow: hidden;
-  background-color: var(--clr-bg);
-  background-image: var(--preview-bg);
-  background-position: center 40%;
-  background-repeat: no-repeat;
-  background-size: cover;
-  color: hsl(var(--clr-white-200));
-  font-weight: 800;
-  text-shadow: 0 2px 2px hsl(var(--clr-black) / .7);
-}
-
 @media (max-width: 58rem) {
   .settings-grid {
     grid-template-columns: 1fr;
@@ -489,17 +295,6 @@ textarea {
   .theme-section {
     grid-column: auto;
     grid-row: auto;
-  }
-}
-
-@media (max-width: 42rem) {
-  .settings-form,
-  .image-row {
-    grid-template-columns: 1fr;
-  }
-
-  .avatar-preview {
-    width: 5rem;
   }
 }
 </style>

@@ -135,10 +135,10 @@
 </template>
 
 <script>
-import useTheme from "../composables/theme.js"
-import useUser from "../composables/user.js"
-import UserService from "../services/UserService";
-import TokenService from "../services/TokenService";
+import useTheme from "../../composables/theme.js"
+import useUser from "../../composables/user.js"
+import UserService from "../../services/UserService";
+import TokenService from "../../services/TokenService";
 
 const DEFAULTS = {
   mode: 'basic',

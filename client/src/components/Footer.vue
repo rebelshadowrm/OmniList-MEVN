@@ -12,7 +12,7 @@
 
 <script>
 import useUser from "../composables/user"
-import ThemePresetToggle from "./ThemePresetToggle.vue"
+import ThemePresetToggle from "./theme/ThemePresetToggle.vue"
 
 export default {
   name: 'Footer',

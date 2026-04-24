@@ -17,8 +17,8 @@
 </template>
 
 <script>
-import useTheme from "../composables/theme"
-import {THEME_PRESETS} from "../config/homePreferences"
+import useTheme from "../../composables/theme"
+import {THEME_PRESETS} from "../../config/homePreferences"
 
 export default {
   name: "ThemePresetToggle",

@@ -33,18 +33,24 @@ export default {
       type: Number,
       default: 3,
     },
+    areas: {
+      type: String,
+      default: '',
+    },
   },
   computed: {
     gridStyle() {
       return {
         '--dashboard-columns': this.columns,
         '--dashboard-rows': this.rows,
+        gridTemplateAreas: this.areas,
       }
     },
   },
   methods: {
     moduleStyle(module) {
       return {
+        gridArea: module.area,
         '--module-col': module.col,
         '--module-row': module.row,
         '--module-col-span': module.colSpan,
@@ -53,7 +59,8 @@ export default {
     },
     componentFor(module) {
       return {
-        community: HomeCommunityModule,
+        'community-discussions': HomeCommunityModule,
+        'community-reviews': HomeCommunityModule,
         media: HomeMediaSection,
         news: News,
       }[module.type]
@@ -79,6 +86,8 @@ export default {
       }
 
       return {
+        title: module.title,
+        threadType: module.threadType,
         cols: module.colSpan,
         rows: module.rowSpan,
       }
@@ -104,6 +113,7 @@ export default {
 }
 
 .dashboard-module {
+  grid-area: auto;
   grid-column: var(--module-col) / span var(--module-col-span);
   grid-row: var(--module-row) / span var(--module-row-span);
   min-width: 0;
