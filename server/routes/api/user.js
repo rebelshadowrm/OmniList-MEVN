@@ -4,6 +4,7 @@ const dotenv = require("dotenv")
 dotenv.config()
 const UserModel = require('../../models/user/user')
 const authenticateToken = require('../../security/authenticateToken')
+const {normalizeFavoriteMedia, sameFavoriteMedia} = require('../../utils/catalogEntities')
 
 const router = express.Router()
 
@@ -115,8 +116,7 @@ router.put('/:id', authenticateToken, async (req, res) => {
                 }
                 user.userProfile.bio = req?.body?.bio ?? user.userProfile.bio
                 if(req?.body?.addFavorite) {
-                    const add = req?.body?.addFavorite
-                    const mediaType = add?.mediaType ?? 'ANIME'
+                    const add = normalizeFavoriteMedia(req?.body?.addFavorite)
                     user.userProfile.favorites.mediaFavorites = user.userProfile.favorites.mediaFavorites ?? []
                     user.userProfile.favorites.animeFavorites = user.userProfile.favorites.animeFavorites ?? []
                     const mediaFavorites = user?.userProfile?.favorites?.mediaFavorites ?? []
@@ -124,26 +124,27 @@ router.put('/:id', authenticateToken, async (req, res) => {
                     const filter = [
                         ...mediaFavorites.map(({media}) => media),
                         ...legacyFavorites.map(({anime}) => anime),
-                    ].filter(media => media?.id === add?.id && (media?.mediaType ?? 'ANIME') === mediaType)
+                    ].filter(media => sameFavoriteMedia(media, add))
                     if(filter.length === 0) {
                         user.userProfile.favorites.mediaFavorites.push({
                             media: add
                         })
+                        user.markModified('userProfile')
                     }
                 }
                 if (req?.body?.removeFavorite) {
-                    const remove = req?.body?.removeFavorite
-                    const mediaType = remove?.mediaType ?? 'ANIME'
+                    const remove = normalizeFavoriteMedia(req?.body?.removeFavorite)
                     user.userProfile.favorites.mediaFavorites = user.userProfile.favorites.mediaFavorites ?? []
                     user.userProfile.favorites.animeFavorites = user.userProfile.favorites.animeFavorites ?? []
                     user.userProfile.favorites.mediaFavorites
                         =
                         user.userProfile.favorites.mediaFavorites
-                        .filter(({media}) => media?.id !== remove?.id || (media?.mediaType ?? 'ANIME') !== mediaType)
+                        .filter(({media}) => !sameFavoriteMedia(media, remove))
                     user.userProfile.favorites.animeFavorites
                         =
                         user.userProfile.favorites.animeFavorites
-                        .filter(({anime}) => anime?.id !== remove?.id || (anime?.mediaType ?? 'ANIME') !== mediaType)
+                        .filter(({anime}) => !sameFavoriteMedia(anime, remove))
+                    user.markModified('userProfile')
                 }
                 if (req?.body?.socialName) {
                     user.userProfile.socials.push({

@@ -1,6 +1,6 @@
 <template>
   <div class="response">
-    <span v-if="error" class="error">{{error}}</span>
+    <span v-if="error" class="error">{{ error }}</span>
     <p class="username">
       <router-link :to="`/profile/${response?.comment?.user?.userName}`">
         <img :src="imageSrc(response?.comment?.user?.img, 'avatar', response?.comment?.user?.userName)"
@@ -10,9 +10,12 @@
       <router-link :to="`/profile/${response?.comment?.user?.userName}`">{{ response?.comment?.user?.userName }}
       </router-link>
     </p>
-    <span :data-id="response?._id" role="textbox" contenteditable="false"
-          class="comment">{{ response?.comment?.comment }}</span>
-    <div class="inputs">
+    <p v-if="!isEditing" class="comment">{{ response?.comment?.comment }}</p>
+    <textarea v-else
+              v-model="draftComment"
+              class="comment comment-input"
+              rows="5"></textarea>
+    <div v-if="isEditing" class="inputs">
       <hr/>
       <div class="buttons">
         <button @click="cancel" class="cancel">cancel</button>
@@ -54,13 +57,30 @@ export default {
     return {
       menuToggle: false,
       loggedInUser: {},
+      isEditing: false,
       revertComment: '',
+      draftComment: '',
       error: ''
     }
   },
   created() {
     const {getUser} = useUser()
     this.loggedInUser = getUser()
+  },
+  watch: {
+    response: {
+      handler(response) {
+        const comment = response?.comment?.comment ?? ''
+        this.revertComment = comment
+        this.draftComment = comment
+      },
+      immediate: true,
+    },
+  },
+  computed: {
+    commentId() {
+      return this.response?._id
+    },
   },
   methods: {
     imageSrc(src, type, label) {
@@ -69,131 +89,112 @@ export default {
     setFallbackImage(event, type, label) {
       useFallbackImage(event, type, label)
     },
-    async reportComment(e) {
-      this.menuToggle = false;
-      const comment = e.target.parentNode.parentNode.querySelector(".comment")
-      const commentId = comment.dataset.id
-      if (this.type === 'discussion') {
-        const data = {
+    async reportComment() {
+      this.menuToggle = false
+      const data = this.type === 'discussion'
+        ? {
           discussionId: this.id,
-          commentId,
+          commentId: this.commentId,
           flagged: true
         }
-        console.log(data)
-        const res = await ThreadService.updateDiscussionComment(data)
-        if (res.status === 200) {
-          comment.contentEditable = false
-        }
-      }
-      if (this.type === 'review') {
-        const data = {
+        : {
           reviewId: this.id,
-          commentId,
+          commentId: this.commentId,
           flagged: true
         }
-        const res = await ThreadService.updateReviewComment(data)
-        if (res.status === 200) {
-          comment.contentEditable = false
-        }
+
+      const res = this.type === 'discussion'
+        ? await ThreadService.updateDiscussionComment(data)
+        : await ThreadService.updateReviewComment(data)
+
+      if (res?.status === 200) {
+        this.isEditing = false
       }
     },
-    async suspendComment(e) {
-      this.menuToggle = false;
-      const comment = e.target.parentNode.parentNode.querySelector(".comment")
-      const commentId = comment.dataset.id
-      if (this.type === 'discussion') {
-        const data = {
+    async suspendComment() {
+      this.menuToggle = false
+      const data = this.type === 'discussion'
+        ? {
           discussionId: this.id,
-          commentId,
+          commentId: this.commentId,
           suspended: true
         }
-        const res = await ThreadService.updateDiscussionComment(data)
-        if (res.status === 200) {
-          comment.contentEditable = false
-          await this.$emit('update-replies', data)
-        }
-      }
-      if (this.type === 'review') {
-        const data = {
+        : {
           reviewId: this.id,
-          commentId,
+          commentId: this.commentId,
           suspended: true
         }
-        const res = await ThreadService.updateReviewComment(data)
-        if (res.status === 200) {
-          comment.contentEditable = false
-          await this.$emit('update-replies', data)
-        }
+
+      const res = this.type === 'discussion'
+        ? await ThreadService.updateDiscussionComment(data)
+        : await ThreadService.updateReviewComment(data)
+
+      if (res?.status === 200) {
+        this.isEditing = false
+        await this.$emit('update-replies', data)
       }
     },
-    editComment(e) {
-      this.menuToggle = false;
-      const comment = e.target.parentNode.parentNode.querySelector(".comment")
-      this.revertComment = comment.textContent
-      comment.contentEditable = true
-    },
-    async saveComment(e) {
-      const comment = e.target.parentNode.parentNode.parentNode.querySelector(".comment")
-      const commentId = comment.dataset.id
+    editComment() {
+      this.menuToggle = false
       this.error = ''
-      if(comment?.textContent?.trim()?.length < 1) {
-        return this.error = 'Invalid! Comment cannot be empty.'
-      }
-      if (this.type === 'discussion') {
-        const data = {
-          discussionId: this.id,
-          commentId,
-          comment: comment.textContent
-        }
-        const res = await ThreadService.updateDiscussionComment(data)
-        if (res.status === 200) {
-          comment.contentEditable = false
-        }
-      }
-      if (this.type === 'review') {
-        const data = {
-          reviewId: this.id,
-          commentId,
-          comment: comment.textContent
-        }
-        const res = await ThreadService.updateReviewComment(data)
-        if (res.status === 200) {
-          comment.contentEditable = false
-        }
-      }
+      this.draftComment = this.response?.comment?.comment ?? ''
+      this.isEditing = true
     },
-    async deleteComment(e) {
-      this.menuToggle = false;
-      const comment = e.target.parentNode.parentNode.querySelector(".comment")
-      const commentId = comment.dataset.id
-      if (this.type === 'discussion') {
-        const data = {
-          discussionId: this.id,
-          commentId
-        }
-        const res = await ThreadService.deleteDiscussionComment(data)
-        if (res.status === 204) {
-          comment.contentEditable = false
-          await this.$emit('update-replies', data)
-        }
-      }
-      if (this.type === 'review') {
-        const data = {
-          reviewId: this.id,
-          commentId
-        }
-        const res = await ThreadService.deleteReviewComment(data)
-        if (res.status === 204) {
-          comment.contentEditable = false
-          await this.$emit('update-replies', data)
-        }
-      }
-    },
-    cancel(e) {
-      const comment = e.target.parentNode.parentNode.parentNode.querySelector(".comment")
+    async saveComment() {
+      const comment = this.draftComment?.trim()
       this.error = ''
-      comment.textContent = this.revertComment
-      comment.contentEditable = false
+      if (comment?.length < 1) {
+        this.error = 'Invalid! Comment cannot be empty.'
+        return
+      }
+
+      const data = this.type === 'discussion'
+        ? {
+          discussionId: this.id,
+          commentId: this.commentId,
+          comment
+        }
+        : {
+          reviewId: this.id,
+          commentId: this.commentId,
+          comment
+        }
+
+      const res = this.type === 'discussion'
+        ? await ThreadService.updateDiscussionComment(data)
+        : await ThreadService.updateReviewComment(data)
+
+      if (res?.status === 200) {
+        this.response.comment.comment = comment
+        this.revertComment = comment
+        this.isEditing = false
+      }
+    },
+    async deleteComment() {
+      this.menuToggle = false
+      const data = this.type === 'discussion'
+        ? {
+          discussionId: this.id,
+          commentId: this.commentId
+        }
+        : {
+          reviewId: this.id,
+          commentId: this.commentId
+        }
+
+      const res = this.type === 'discussion'
+        ? await ThreadService.deleteDiscussionComment(data)
+        : await ThreadService.deleteReviewComment(data)
+
+      if (res?.status === 204) {
+        this.isEditing = false
+        await this.$emit('update-replies', data)
+      }
+    },
+    cancel() {
+      this.error = ''
+      this.draftComment = this.revertComment
+      this.isEditing = false
     },
   }
 }
@@ -216,14 +217,13 @@ export default {
   background-color: transparent;
   border: none;
   outline: none;
+  white-space: pre-wrap;
 }
 
-.comment[contenteditable = false] {
-  cursor: default;
-}
-
-.comment[contenteditable = false] + .inputs {
-  display: none;
+.comment-input {
+  resize: vertical;
+  border: 1px solid var(--clr-border);
+  padding: .4rem .55rem;
 }
 
 .buttons {

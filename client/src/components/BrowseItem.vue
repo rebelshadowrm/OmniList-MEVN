@@ -3,6 +3,36 @@
   <router-link class="title-link" :to="detailPath" :title="title">
     <h2>{{title}}</h2>
   </router-link>
+  <button v-if="isLoggedIn"
+          type="button"
+          class="library-toggle"
+          :class="statusClass"
+          :aria-label="libraryToggleLabel"
+          @click="toggleLibraryControls">
+    {{ libraryToggleText }}
+  </button>
+  <div v-if="isLoggedIn && libraryControlsOpen" class="library-controls">
+    <select v-model="draftStatus" class="library-status" :disabled="isAdding">
+      <option :value="activeStatus">{{ activeStatusLabel }}</option>
+      <option value="completed">Completed</option>
+      <option value="on-hold">On-Hold</option>
+      <option value="dropped">Dropped</option>
+      <option v-if="hasListItem" value="remove">Remove</option>
+    </select>
+    <label class="library-progress">
+      <span>{{ progressLabel }}</span>
+      <input v-model.number="draftProgress"
+             :disabled="isAdding || draftStatus === 'remove'"
+             min="0"
+             inputmode="numeric"
+             type="number">
+      <span v-if="controlProgressTotalLabel !== '-'">/{{ controlProgressTotalLabel }}</span>
+    </label>
+    <button type="button"
+            class="library-confirm"
+            :disabled="isAdding"
+            @click="confirmLibraryChange">OK</button>
+  </div>
   <router-link class="img-link" :to="detailPath">
     <img :src="imageSrc(img, 'poster', title)"
          :alt="title"
@@ -35,9 +65,9 @@ import {imageOrFallback, useFallbackImage} from "../utils/fallbackImages";
 
 export default {
   name: "BrowseItem",
-  emits: ['genre-clicked', 'genre-isolated'],
+  emits: ['genre-clicked', 'genre-isolated', 'quick-add', 'list-entry-change', 'remove-from-list'],
   props: {
-    id: Number,
+    id: [Number, String],
     title: String,
     description: String,
     img: String,
@@ -61,10 +91,28 @@ export default {
       type: Array,
       default: () => [],
     },
+    isLoggedIn: Boolean,
+    isAdding: Boolean,
+    listItem: {
+      type: Object,
+      default: null,
+    },
+    activeStatus: {
+      type: String,
+      default: 'watching',
+    },
+    activeStatusLabel: {
+      type: String,
+      default: 'Watching',
+    },
+    progressTotal: [Number, String],
   },
   data() {
     return {
       genreClickTimer: null,
+      libraryControlsOpen: false,
+      draftStatus: this.listItem?.status ?? this.activeStatus,
+      draftProgress: this.listItem?.progress ?? 0,
     }
   },
   computed: {
@@ -82,6 +130,39 @@ export default {
       }
 
       return Number.isFinite(value) && value > 0 ? value : 'N/A'
+    },
+    controlProgressTotalLabel() {
+      const value = this.progressTotal ?? this.episodes
+
+      return Number.isFinite(Number(value)) && Number(value) > 0 ? Number(value) : '-'
+    },
+    hasListItem() {
+      return !!this.listItem?._id
+    },
+    libraryToggleText() {
+      if (!this.hasListItem) {
+        return '+'
+      }
+
+      const statusIconMap = {
+        completed: 'C',
+        'on-hold': 'H',
+        dropped: 'D',
+        watching: '▶',
+        reading: '▶',
+        playing: '▶',
+      }
+
+      return statusIconMap[this.currentStatus] ?? '•'
+    },
+    libraryToggleLabel() {
+      return this.hasListItem ? 'Edit list entry' : 'Add to list'
+    },
+    currentStatus() {
+      return this.listItem?.status ?? this.draftStatus ?? this.activeStatus
+    },
+    statusClass() {
+      return this.hasListItem ? `status-${this.currentStatus}` : ''
     },
     scoreClass() {
       if (!Number.isFinite(this.score)) {
@@ -105,6 +186,15 @@ export default {
       }
 
       return 'score-bad'
+    },
+  },
+  watch: {
+    listItem: {
+      immediate: true,
+      handler(value) {
+        this.draftStatus = value?.status ?? this.activeStatus
+        this.draftProgress = value?.progress ?? 0
+      },
     },
   },
   methods: {
@@ -141,6 +231,31 @@ export default {
       this.genreClickTimer = null
       this.$emit('genre-isolated', genre)
     },
+    toggleLibraryControls() {
+      this.libraryControlsOpen = !this.libraryControlsOpen
+    },
+    confirmLibraryChange() {
+      if (this.draftStatus === 'remove') {
+        this.$emit('remove-from-list')
+        this.libraryControlsOpen = false
+        return
+      }
+
+      if (!this.hasListItem) {
+        this.$emit('quick-add', {
+          status: this.draftStatus,
+          progress: this.draftProgress,
+        })
+        this.libraryControlsOpen = false
+        return
+      }
+
+      this.$emit('list-entry-change', {
+        status: this.draftStatus,
+        progress: this.draftProgress,
+      })
+      this.libraryControlsOpen = false
+    },
   },
   beforeUnmount() {
     clearTimeout(this.genreClickTimer)
@@ -157,11 +272,12 @@ export default {
   border-color: var(--clr-border);
   display: grid;
   grid-template-areas:
-      'title title'
-      'img info'
-      'img .';
-  grid-template-columns: 3fr 5fr;
-  grid-template-rows: max-content 3fr 1fr;
+      'title title action'
+      'controls controls controls'
+      'img info info'
+      'img . .';
+  grid-template-columns: 3fr 5fr max-content;
+  grid-template-rows: max-content max-content 3fr 1fr;
   max-height: min-content;
   gap: .5rem 1rem;
   padding: .15rem;
@@ -183,6 +299,81 @@ export default {
   min-width: 0;
   border-radius: var(--radius-sm) var(--radius-sm) 0 0;
   background-color: var(--clr-secondary-800-3);
+}
+.library-toggle {
+  grid-area: action;
+  justify-self: end;
+  align-self: stretch;
+  min-width: 2rem;
+  padding: .15rem .55rem;
+  border: 1px solid var(--clr-border);
+  border-radius: var(--radius-sm);
+  background-color: var(--clr-secondary-800-3);
+  color: var(--clr-text);
+  cursor: pointer;
+  font-weight: 700;
+  line-height: 1;
+}
+.library-toggle.status-watching,
+.library-toggle.status-reading,
+.library-toggle.status-playing {
+  background-color: var(--clr-list-active, hsl(140deg 55% 34%));
+}
+.library-toggle.status-completed {
+  background-color: var(--clr-list-completed, hsl(210deg 60% 38%));
+}
+.library-toggle.status-on-hold {
+  background-color: var(--clr-list-on-hold, hsl(45deg 80% 38%));
+}
+.library-toggle.status-dropped {
+  background-color: var(--clr-list-dropped, hsl(0deg 62% 38%));
+}
+.library-controls {
+  grid-area: controls;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) max-content max-content;
+  gap: .45rem;
+  align-items: center;
+  padding: .3rem .4rem;
+  border-radius: var(--radius-sm);
+  background-color: var(--clr-secondary-800-5);
+}
+.library-status,
+.library-progress input {
+  min-width: 0;
+  color: var(--clr-text);
+  background-color: var(--clr-bg);
+  border: 1px solid var(--clr-border);
+  border-radius: var(--radius-xs);
+  font-size: var(--txt-xsm);
+}
+.library-status {
+  padding: .2rem;
+}
+.library-progress {
+  display: flex;
+  align-items: center;
+  gap: .15rem;
+  white-space: nowrap;
+}
+.library-progress span:first-child {
+  max-width: 6ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.library-progress input {
+  width: 4rem;
+  padding: .15rem .3rem;
+}
+.library-confirm {
+  padding: .2rem .45rem;
+  border: 1px solid var(--clr-border);
+  border-radius: var(--radius-xs);
+  background-color: var(--clr-btn-bg);
+  color: var(--clr-btn);
+  cursor: pointer;
+  font-size: var(--txt-xsm);
+  font-weight: 700;
 }
 img {
   height: 100%;
@@ -239,8 +430,8 @@ h2 {
 
 
 .ribbon {
-  grid-column: 1 / span 2;
-  grid-row: 3/4;
+  grid-column: 1 / span 3;
+  grid-row: 4/5;
   background: var(--clr-ribbon-bg);
   display: flex;
   flex-direction: column;

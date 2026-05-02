@@ -12,6 +12,9 @@
       <input type="hidden" name="subjectId" :value="subjectId"/>
       <div v-if="searching" class="outputs">
         <p @click="select" :data-id="elem.id"
+           :data-provider="elem.entityRef?.provider"
+           :data-domain="elem.entityRef?.domain"
+           :data-key="elem.entityRef?.key"
            class="output-item"
            v-for="elem in data"
            :key="elem.id"
@@ -43,6 +46,10 @@ export default {
     type: String,
     initialSubject: String,
     initialSubjectId: [Number, String],
+    initialEntityRef: {
+      type: Object,
+      default: null,
+    },
     initialMediaType: {
       type: String,
       default: 'ANIME',
@@ -57,6 +64,7 @@ export default {
     return {
       searching: false,
       subjectId: null,
+      selectedEntityRef: null,
       subject: '',
       title: '',
       body: '',
@@ -66,7 +74,22 @@ export default {
   },
   created() {
     this.subject = this.initialSubject ?? ''
-    this.subjectId = this.initialSubjectId ?? null
+    this.selectedEntityRef = this.initialEntityRef
+        ? {
+            provider: this.initialEntityRef.provider ?? this.initialSource,
+            domain: this.initialEntityRef.domain ?? this.initialMediaType,
+            externalId: `${this.initialEntityRef.externalId}`,
+            key: this.initialEntityRef.key ?? `${this.initialEntityRef.provider ?? this.initialSource}:${this.initialEntityRef.domain ?? this.initialMediaType}:${this.initialEntityRef.externalId}`,
+          }
+        : this.initialSubjectId
+            ? {
+                provider: this.initialSource,
+                domain: this.initialMediaType,
+                externalId: `${this.initialSubjectId}`,
+                key: `${this.initialSource}:${this.initialMediaType}:${this.initialSubjectId}`,
+              }
+            : null
+    this.subjectId = this.selectedEntityRef?.externalId ?? this.initialSubjectId ?? null
   },
   methods: {
     async onSubmit(e) {
@@ -77,15 +100,22 @@ export default {
       if(title?.trim()?.length < 1 || body?.trim()?.length < 1 || subject?.trim()?.length < 1) {
         return this.error = 'Invalid entry! Make sure all the forms are filled'
       }
-      if(subjectId?.length > 0) {
+      if(subjectId?.length > 0 || this.selectedEntityRef?.key) {
+        const entityRef = this.selectedEntityRef ?? {
+          provider: this.initialSource,
+          domain: this.initialMediaType,
+          externalId: `${subjectId}`,
+          key: `${this.initialSource}:${this.initialMediaType}:${subjectId}`,
+        }
         const data = {
           user: user._id,
           title,
           subject,
-          subjectId,
-          mediaType: this.initialMediaType,
-          source: this.initialSource,
-          sourceId: `${subjectId}`,
+          subjectId: entityRef?.externalId,
+          mediaType: entityRef?.domain ?? this.initialMediaType,
+          source: entityRef?.provider ?? this.initialSource,
+          sourceId: `${entityRef?.externalId ?? subjectId}`,
+          entityRef,
           body,
           comments: []
         }
@@ -103,6 +133,7 @@ export default {
             this.body = ''
             this.subject = ''
             this.subjectId = null
+            this.selectedEntityRef = null
             this.$emit('toggle-form', false)
           }
         } catch(err) {
@@ -114,55 +145,11 @@ export default {
       }
     },
     async findSubject(subject) {
-      if (this.initialSource === 'TMDB') {
-        await this.findTmdbSubject(subject)
-        return
-      }
-
-      try {
-        const url = 'https://graphql.anilist.co'
-        const search = subject
-        const page = 1
-        const type = this.initialMediaType
-        const variables = { search, page, type }
-        const query = `
-              query($search: String, $page: Int, $type: MediaType) {
-                Page(page: $page, perPage: 10) {
-                  media(type: $type, search: $search) {
-                    id
-                    title {
-                      userPreferred
-                    }
-                  }
-                }
-              }
-              `
-        const options = {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-          },
-          body: JSON.stringify({
-            query,
-            variables
-          })
-        }
-        const res = await fetch(url, options)
-        if(res.ok) {
-          const {data} = await res.json()
-          this.data = data.Page.media
-        }
-      } catch(err) {
-        console.log(err.message)
-      }
-    },
-    async findTmdbSubject(subject) {
       try {
         const params = new URLSearchParams()
         params.set('search', subject)
-
-        const res = await fetch(`/api/tmdb/${mediaConfig(this.initialMediaType).path}/search?${params.toString()}`)
+        params.set('limit', '10')
+        const res = await fetch(`/api/catalog/${mediaConfig(this.initialMediaType).catalogPath}/search?${params.toString()}`)
         const data = await res.json()
 
         if (!res.ok) {
@@ -177,6 +164,12 @@ export default {
     async select(e) {
       this.subjectId = e.target.dataset.id
       this.subject = e.target.textContent
+      this.selectedEntityRef = {
+        provider: e.target.dataset.provider,
+        domain: e.target.dataset.domain,
+        externalId: e.target.dataset.id,
+        key: e.target.dataset.key,
+      }
       this.searching = false
     },
     async find(e) {

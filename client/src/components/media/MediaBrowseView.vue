@@ -37,13 +37,22 @@
                   :score="item.averageScore"
                   :title="item.title?.english ?? item.title?.romaji"
                   :progress-value="mediaProgressValue(item)"
+                  :progress-total="item.progressTotal ?? item?.[media.totalField]"
                   :progress-label="media.progressLabel"
                   :media-path="media.path"
                   :genres="item.genres"
+                  :is-logged-in="isLoggedIn()"
+                  :is-adding="isAdding(item)"
+                  :list-item="listItemFor(item)"
+                  :active-status="media.activeStatus"
+                  :active-status-label="media.activeStatusLabel"
                   :selected-genres="activeGenres() ?? []"
                   :excluded-genres="activeExcludedGenres() ?? []"
                   @genre-clicked="cycleGenre"
                   @genre-isolated="isolateGenre"
+                  @quick-add="quickAddToList(item, $event)"
+                  @list-entry-change="updateListEntry(item, $event)"
+                  @remove-from-list="removeFromList(item)"
       />
     </div>
   </section>
@@ -52,7 +61,12 @@
 <script>
 import BrowseItem from "../BrowseItem.vue"
 import MediaBrowseControls from "./MediaBrowseControls.vue"
-import {mediaConfig} from "../../config/mediaTypes.js"
+import CatalogService from "../../services/CatalogService"
+import MediaListService from "../../services/MediaListService"
+import useUser from "../../composables/user"
+import {useLibraryStore} from "../../stores/libraryStore"
+import {mediaConfig, mediaSortOptions} from "../../config/mediaTypes.js"
+import {buildLibraryEntryPayload, libraryEntryKey, mediaExternalId} from "../../utils/libraryPayload"
 
 export default {
   name: "MediaBrowseView",
@@ -82,10 +96,12 @@ export default {
       fetchRequestId: 0,
       skipNextRouteFetch: false,
       resultCache: new Map(),
+      addingKeys: {},
     }
   },
   async created() {
     this.loading = true
+    await this.loadLibraryItems()
     await this.loadGenreOptions()
     this.hydrateFiltersFromRoute()
     await this.fetchData()
@@ -95,7 +111,7 @@ export default {
       return mediaConfig(this.mediaType)
     },
     sortTypes() {
-      return this.media.sortOptions ?? []
+      return this.sortTypesForSearch()
     },
     selectedSortValue: {
       get() {
@@ -111,6 +127,7 @@ export default {
       this.data = []
       this.errorMessage = ''
       this.loading = true
+      await this.loadLibraryItems()
       await this.loadGenreOptions()
       this.hydrateFiltersFromRoute()
       await this.fetchData({useCache: false})
@@ -126,8 +143,72 @@ export default {
     },
   },
   methods: {
+    libraryStore() {
+      return useLibraryStore()
+    },
+    currentUser() {
+      const {getUser} = useUser()
+
+      return getUser().value?.user
+    },
+    isLoggedIn() {
+      const {getIsLoggedIn} = useUser()
+
+      return getIsLoggedIn().value
+    },
+    itemKey(item) {
+      return libraryEntryKey(item, this.media.type)
+    },
+    listItemFor(item) {
+      const store = this.libraryStore()
+      const key = this.itemKey(item)
+
+      return key ? store.itemsByKey[key] ?? null : null
+    },
+    isAdding(item) {
+      const key = this.itemKey(item)
+
+      return key ? !!this.addingKeys[key] : false
+    },
+    setAdding(item, value) {
+      const key = this.itemKey(item)
+      if (!key) {
+        return
+      }
+
+      this.addingKeys = {
+        ...this.addingKeys,
+        [key]: value,
+      }
+    },
+    setLibraryItem(item) {
+      const key = libraryEntryKey(item, item?.mediaType ?? this.media.type)
+      if (key) {
+        this.libraryStore().setItem(key, item)
+      }
+    },
+    async loadLibraryItems() {
+      if (!this.isLoggedIn()) {
+        return
+      }
+
+      const user = this.currentUser()
+      if (!user?._id) {
+        return
+      }
+
+      try {
+        const list = await MediaListService.getUserMediaList(user._id, this.media.type)
+        list.forEach(item => this.setLibraryItem(item))
+      } catch (err) {
+        console.log(err.message)
+      }
+    },
     updateSortValue(value) {
       this.selectedSortValue = value
+    },
+    sortTypesForSearch(search = this.activeSearch()) {
+      return mediaSortOptions(this.mediaType, {search})
     },
     defaultSortValue() {
       return this.media.defaultSort ?? this.sortTypes[0]?.value
@@ -139,23 +220,12 @@ export default {
       return !!this.media.yearFilterLabel
     },
     async loadGenreOptions() {
-      if (this.media.source !== 'TMDB') {
-        this.genres = [...(this.media.genreOptions ?? [])]
-        return
-      }
-
       try {
-        const res = await fetch(`/api/tmdb/${this.media.path}/genres`)
-        const data = await res.json()
-
-        if (!res.ok) {
-          throw new Error(data.message ?? res.statusText)
-        }
-
+        const data = await CatalogService.genres(this.media.catalogPath)
         this.genres = data.map(genre => genre.name)
       } catch (err) {
         console.log(err.message)
-        this.genres = []
+        this.genres = [...(this.media.genreOptions ?? [])]
       }
     },
     queryValue(value) {
@@ -173,10 +243,11 @@ export default {
           .map(item => item.trim())
           .filter(item => this.genres.includes(item))
     },
-    querySort(value) {
+    querySort(value, search = this.activeSearch()) {
       const sort = this.queryValue(value)
+      const sortTypes = this.sortTypesForSearch(search)
 
-      return this.sortTypes.find(type => type.value === sort) ?? this.sortTypes[0]
+      return sortTypes.find(type => type.value === sort) ?? sortTypes.find(type => type.value === this.defaultSortValue()) ?? sortTypes[0]
     },
     queryYear(value) {
       if (!this.supportsYearFilter()) {
@@ -191,7 +262,7 @@ export default {
       const search = (this.queryValue(query.search) ?? this.queryValue(query.q))?.trim() || null
       const genres = this.queryGenres(query.genre)
       const excludedGenres = this.queryGenres(query.exclude)
-      const sort = this.querySort(query.sort).value
+      const sort = this.querySort(query.sort, search).value
       const year = this.queryYear(query.year)
 
       return {
@@ -209,7 +280,8 @@ export default {
       this.filterYear = query.year ?? undefined
       this.genre = query.genres ? [...query.genres] : undefined
       this.excludedGenre = query.excludedGenres ? [...query.excludedGenres] : undefined
-      this.sortBy = this.querySort(query.sort)
+      this.sortBy = this.querySort(query.sort, query.search)
+      this.normalizeSearchAwareSort()
     },
     queryFromFilters() {
       const query = {}
@@ -266,6 +338,20 @@ export default {
     },
     activeSearch() {
       return this.search?.trim()?.length > 0 ? this.search.trim() : null
+    },
+    normalizeSearchAwareSort() {
+      if (this.media.type !== 'BOOK') {
+        return
+      }
+
+      if (!this.activeSearch() && this.sortBy?.value === 'relevance') {
+        this.sortBy = this.sortTypes.find(type => type.value === this.defaultSortValue()) ?? this.sortTypes[0]
+        return
+      }
+
+      if (this.activeSearch() && !this.sortBy) {
+        this.sortBy = this.sortTypes[0]
+      }
     },
     activeYear() {
       return this.queryYear(this.filterYear)
@@ -384,113 +470,90 @@ export default {
     } = {}) {
       this.errorMessage = ''
 
-      if (this.media.source === 'TMDB') {
-        return this.requestTmdbMedia({search, genres, excludedGenres, sort, year})
-      }
-
       try {
-        const url = 'https://graphql.anilist.co'
-        const query = `
-            query ($type: MediaType, $search: String, $genre: [String], $genreNot: [String], $sort: [MediaSort]) {
-              Page {
-                media(type: $type, search: $search, genre_in: $genre, genre_not_in: $genreNot, sort: $sort) {
-                    id
-                    title {
-                      english
-                      romaji
-                    }
-                    coverImage {
-                      large
-                    }
-                    description
-                    genres
-                    episodes
-                    chapters
-                    volumes
-                    status
-                    nextAiringEpisode {
-                      episode
-                      airingAt
-                    }
-                    averageScore
-                }
-              }
-            }
-        `
-        const variables = {
-          type: this.media.type,
+        return await CatalogService.search(this.media.catalogPath, {
           search,
           genre: genres,
-          genreNot: excludedGenres,
-          sort: [sort],
-        }
-        const options = {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-          },
-          body: JSON.stringify({
-            query,
-            variables
-          })
-        }
-        const res = await fetch(url, options)
-        const json = await res.json()
-
-        if (!res.ok || json.errors?.length) {
-          throw new Error(json.errors?.map(error => error.message).join(', ') ?? res.statusText)
-        }
-
-        return json.data?.Page?.media ?? []
+          exclude: excludedGenres,
+          sort,
+          year,
+        })
       } catch(err) {
         console.log(err.message)
         this.errorMessage = err.message
         return []
       }
     },
-    async requestTmdbMedia({
-      search = this.activeSearch(),
-      genres = this.activeGenres(),
-      excludedGenres = this.activeExcludedGenres(),
-      sort = this.activeSort(),
-      year = this.activeYear(),
-    } = {}) {
+    async quickAddToList(item, values = {}) {
+      const user = this.currentUser()
+      if (!user?._id) {
+        return
+      }
+
+      this.setAdding(item, true)
       try {
-        const params = new URLSearchParams()
-
-        if (search) {
-          params.set('search', search)
+        const payload = {
+          ...buildLibraryEntryPayload({
+            userId: user._id,
+            mediaType: this.media.type,
+            catalogItem: item,
+          }),
+          status: values.status ?? this.media.activeStatus,
+          progress: values.progress ?? 0,
         }
-
-        if (genres?.length) {
-          params.set('genre', genres.join(','))
+        const res = await MediaListService.createMediaListItem(payload)
+        if (res?.status === 201 && res.data) {
+          this.setLibraryItem(res.data)
         }
-
-        if (excludedGenres?.length) {
-          params.set('exclude', excludedGenres.join(','))
-        }
-
-        if (sort) {
-          params.set('sort', sort)
-        }
-
-        if (year) {
-          params.set('year', year)
-        }
-
-        const res = await fetch(`/api/tmdb/${this.media.path}/search?${params.toString()}`)
-        const json = await res.json()
-
-        if (!res.ok) {
-          throw new Error(json.message ?? res.statusText)
-        }
-
-        return json
-      } catch(err) {
+      } catch (err) {
         console.log(err.message)
-        this.errorMessage = err.message
-        return []
+      } finally {
+        this.setAdding(item, false)
+      }
+    },
+    async updateListEntry(item, values = {}) {
+      const user = this.currentUser()
+      const listItem = this.listItemFor(item)
+      const externalId = mediaExternalId(listItem) || mediaExternalId(item)
+      if (!user?._id || !listItem || !externalId) {
+        return
+      }
+
+      let progress = Number.parseInt(values.progress, 10)
+      if (Number.isNaN(progress) || progress < 0) {
+        progress = 0
+      }
+
+      const data = {
+        status: values.status ?? listItem.status,
+        progress,
+      }
+
+      try {
+        const res = await MediaListService.updateMediaListItem(user._id, this.media.type, externalId, data)
+        if (res?.status === 200) {
+          this.setLibraryItem({...listItem, ...data})
+        }
+      } catch (err) {
+        console.log(err.message)
+      }
+    },
+    async removeFromList(item) {
+      const listItem = this.listItemFor(item)
+      if (!listItem?._id) {
+        return
+      }
+
+      try {
+        const res = await MediaListService.deleteMediaListItem(listItem._id)
+        if (res?.status === 204) {
+          const key = libraryEntryKey(listItem, this.media.type)
+          if (key) {
+            this.libraryStore().removeItem(key)
+          }
+        }
+      } catch (err) {
+        console.log(err.message)
       }
     },
     async fetchData({useCache = true, quiet = false} = {}) {
@@ -556,6 +619,7 @@ export default {
       }
     },
     async applyFilters() {
+      this.normalizeSearchAwareSort()
       const routeChanged = await this.syncRoute()
       if (routeChanged) {
         await this.fetchData({quiet: true})

@@ -56,7 +56,7 @@ export default {
       return `style-${this.activeStyle.value}`
     },
     heroTitle() {
-      return 'Track anime, manga, movies, and TV in one place.'
+      return 'Track anime, manga, movies, books, and TV in one place.'
     },
     heroCopy() {
       return 'Browse details without an account, or sign up to save lists, favorites, reviews, discussions, themes, and home preferences.'

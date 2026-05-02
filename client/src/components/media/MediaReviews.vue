@@ -24,6 +24,10 @@ export default {
     section: String,
     reviews: Array,
     subject: String,
+    entityRef: {
+      type: Object,
+      default: null,
+    },
     subjectId: [Number, String],
     mediaType: {
       type: String,
@@ -60,6 +64,10 @@ export default {
           subjectId: this.subjectId,
           mediaType: this.mediaType,
           source: this.source,
+          entityExternalId: this.entityRef?.externalId ?? this.subjectId ?? '',
+          entityDomain: this.entityRef?.domain ?? this.mediaType,
+          entityProvider: this.entityRef?.provider ?? this.source,
+          entityKey: this.entityRef?.key ?? '',
         },
       }
     }

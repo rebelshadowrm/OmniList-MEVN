@@ -132,10 +132,14 @@ export default {
     },
   },
   mounted() {
-    document.addEventListener('pointerdown', this.handleDocumentPointerDown)
+    if (typeof document !== 'undefined') {
+      document.addEventListener('pointerdown', this.handleDocumentPointerDown)
+    }
   },
   beforeUnmount() {
-    document.removeEventListener('pointerdown', this.handleDocumentPointerDown)
+    if (typeof document !== 'undefined') {
+      document.removeEventListener('pointerdown', this.handleDocumentPointerDown)
+    }
   },
   methods: {
     initialDecadeStart() {

@@ -1,0 +1,1 @@
+import{d as e,L as o,E as n,M as r,z as a,D as p}from"./CzpBGyB6.js";import{M as m}from"./D1pOg4Wk.js";import"./BPOVPgKS.js";import"./B0bc-qRj.js";import"./BkcPp-DC.js";import"./DQ3rB1td.js";import"./BOM_COPi.js";const B=e({__name:"index",setup(_){return(i,s)=>{const t=r;return a(),o(t,null,{default:n(()=>[p(m,{"media-type":"MANGA"})]),_:1})}}});export{B as default};

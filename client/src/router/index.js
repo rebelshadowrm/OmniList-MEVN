@@ -50,6 +50,12 @@ const routes = [
         props: {mediaType: 'MOVIE'},
     },
     {
+        path: '/books',
+        name: 'BookBrowse',
+        component: MediaBrowse,
+        props: {mediaType: 'BOOK'},
+    },
+    {
         path: '/tv',
         name: 'TvBrowse',
         component: MediaBrowse,
@@ -80,6 +86,15 @@ const routes = [
         props: route => ({
             ...route.params,
             mediaType: 'MOVIE',
+        }),
+    },
+    {
+        path: '/books/:id',
+        name: 'Book',
+        component: Media,
+        props: route => ({
+            ...route.params,
+            mediaType: 'BOOK',
         }),
     },
     {
@@ -142,8 +157,12 @@ const router = createRouter({
 })
 
 router.beforeEach(async (to, from, next) => {
-    const {getIsLoggedIn, getUser, initializeUser} = useUser()
-    await initializeUser()
+    const {getIsLoggedIn, getUser, initializeUser, setIsLoggedIn} = useUser()
+    try {
+        await initializeUser()
+    } catch (e) {
+        setIsLoggedIn(false)
+    }
     const isAuthenticated = getIsLoggedIn().value
     const {user} = getUser().value
     const authUser = async (to) => {
@@ -156,10 +175,12 @@ router.beforeEach(async (to, from, next) => {
             if(to.name === 'AnimeBrowse') return true
             if(to.name === 'MangaBrowse') return true
             if(to.name === 'MovieBrowse') return true
+            if(to.name === 'BookBrowse') return true
             if(to.name === 'TvBrowse') return true
             if(to.name === 'Anime') return true
             if(to.name === 'Manga') return true
             if(to.name === 'Movie') return true
+            if(to.name === 'Book') return true
             if(to.name === 'Tv') return true
             if(to.name === 'Discussions') return true
             if(to.name === 'Discussion') return true
@@ -181,10 +202,12 @@ router.beforeEach(async (to, from, next) => {
             if(to.name === 'AnimeBrowse') return true
             if(to.name === 'MangaBrowse') return true
             if(to.name === 'MovieBrowse') return true
+            if(to.name === 'BookBrowse') return true
             if(to.name === 'TvBrowse') return true
             if(to.name === 'Anime') return true
             if(to.name === 'Manga') return true
             if(to.name === 'Movie') return true
+            if(to.name === 'Book') return true
             if(to.name === 'Tv') return true
             if(to.name === 'Discussion') return true
             if(to.name === 'Review') return true

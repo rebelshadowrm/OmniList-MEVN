@@ -10,6 +10,7 @@
     </div>
     <div class="input">
       <textarea
+          ref="commentInput"
           v-model="comment"
           @click="this.buttons = true"
           rows="1"
@@ -102,11 +103,17 @@ export default {
     cancel() {
       this.buttons = false
       this.comment = ''
-      document.querySelector('.comment').style.height = "max-content"
+      const textarea = this.$refs.commentInput
+      if (textarea) {
+        textarea.style.height = ''
+      }
     },
     auto_height(e) {
-      e.target.style.height = "1px";
-      e.target.style.height = (e.target.scrollHeight)+"px";
+      const textarea = e?.target ?? this.$refs.commentInput
+      if (!textarea) return
+
+      textarea.style.height = "1px";
+      textarea.style.height = `${textarea.scrollHeight}px`;
     }
   }
 }

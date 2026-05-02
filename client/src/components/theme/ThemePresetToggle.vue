@@ -94,6 +94,10 @@ button[aria-pressed="true"] {
   font-weight: 800;
 }
 
+button[aria-pressed="true"] .swatches span {
+  box-shadow: 0 0 0 2px hsl(var(--clr-white) / .85);
+}
+
 .swatches {
   display: inline-grid;
   grid-auto-flow: column;

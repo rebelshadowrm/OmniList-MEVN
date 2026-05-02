@@ -136,20 +136,22 @@
 
 <script>
 import useTheme from "../../composables/theme.js"
-import useUser from "../../composables/user.js"
+import useUser from "../../composables/user"
 import UserService from "../../services/UserService";
-import TokenService from "../../services/TokenService";
 
 const DEFAULTS = {
   mode: 'basic',
   paletteMode: 'original',
-  primaryColor: '#e85e30',
+  primaryColor: '#009e90',
   secondaryColor: '',
   accentColor: ''
 }
 
 const BASIC_CHROMA = .13
 const THEME_LIGHTNESS = 62
+const DEFAULT_PRIMARY_HUE = 185
+const DEFAULT_SECONDARY_HUE = 275
+const DEFAULT_ACCENT_HUE = 95
 
 const COLOR_OPTIONS = [
   {key: 'primaryColor', label: 'Primary', css: 'primary'},
@@ -178,14 +180,14 @@ export default {
       mode: 'basic',
       paletteMode: 'original',
       activeColor: 'primaryColor',
-      basicHue: 14,
+      basicHue: DEFAULT_PRIMARY_HUE,
       colorOptions: COLOR_OPTIONS,
       paletteOptions: PALETTE_OPTIONS,
       colors: {...DEFAULTS},
       controls: {
-        primaryColor: {hue: 14, chroma: BASIC_CHROMA},
-        secondaryColor: {hue: 104, chroma: BASIC_CHROMA},
-        accentColor: {hue: 284, chroma: BASIC_CHROMA},
+        primaryColor: {hue: DEFAULT_PRIMARY_HUE, chroma: BASIC_CHROMA},
+        secondaryColor: {hue: DEFAULT_SECONDARY_HUE, chroma: BASIC_CHROMA},
+        accentColor: {hue: DEFAULT_ACCENT_HUE, chroma: BASIC_CHROMA},
       },
       userState: null,
       message: ''
@@ -222,7 +224,7 @@ export default {
   },
   methods: {
     async resolveUser() {
-      const {getUser, initializeUser, decodeJWT, setUser} = useUser()
+      const {getUser, initializeUser} = useUser()
       await initializeUser()
       this.userState = getUser()
 
@@ -230,15 +232,7 @@ export default {
       let user = this.user ?? userState?.user
       if (user?._id) return user
 
-      const {_id} = decodeJWT(TokenService.getAccessToken())?.user ?? {}
-      if (!_id) return null
-
-      const res = await UserService.getUser(_id)
-      if (res?.status !== 200) return null
-
-      setUser(res.data)
-      this.userState = getUser()
-      return res.data
+      return null
     },
     loadColors() {
       const {getLocalColors, HexToOKLCH} = useTheme()
@@ -279,7 +273,7 @@ export default {
       this.message = ''
     },
     applyBasicColor() {
-      const {setTheme, setPrimaryColor, setAutoPalette, OKLCHToHex} = useTheme()
+      const {setTheme, setPrimaryColor, setAutoPalette, OKLCHToHex, unsetThemeColor} = useTheme()
       const color = {
         hue: this.basicHue,
         chroma: BASIC_CHROMA,
@@ -293,12 +287,8 @@ export default {
       }
       this.controls.primaryColor = color
 
-      document.documentElement.style.removeProperty('--clr-secondary-h')
-      document.documentElement.style.removeProperty('--clr-secondary-s')
-      document.documentElement.style.removeProperty('--clr-secondary-c')
-      document.documentElement.style.removeProperty('--clr-accent-h')
-      document.documentElement.style.removeProperty('--clr-accent-s')
-      document.documentElement.style.removeProperty('--clr-accent-c')
+      unsetThemeColor('secondaryColor')
+      unsetThemeColor('accentColor')
       setAutoPalette(this.paletteMode)
       setPrimaryColor(color)
       setTheme({
@@ -308,21 +298,12 @@ export default {
       })
     },
     applyColor(key) {
-      const {setTheme, setPrimaryColor, setSecondaryColor, setAccentColor} = useTheme()
+      const {setTheme, setPrimaryColor, setSecondaryColor, setAccentColor, unsetThemeColor} = useTheme()
       const value = this.colors[key]
       const color = this.controls[key]
 
       if (!value && key !== 'primaryColor') {
-        if (key === 'secondaryColor') {
-          document.documentElement.style.removeProperty('--clr-secondary-h')
-          document.documentElement.style.removeProperty('--clr-secondary-s')
-          document.documentElement.style.removeProperty('--clr-secondary-c')
-        }
-        if (key === 'accentColor') {
-          document.documentElement.style.removeProperty('--clr-accent-h')
-          document.documentElement.style.removeProperty('--clr-accent-s')
-          document.documentElement.style.removeProperty('--clr-accent-c')
-        }
+        unsetThemeColor(key)
         setTheme({
           mode: this.mode,
           paletteMode: this.paletteMode,

@@ -1,6 +1,29 @@
 const mongoose = require('mongoose')
 const timestamp = require("./plugins/timestamp");
 
+const entityRefSchema = new mongoose.Schema({
+    provider: {
+        type: String,
+        required: false,
+        uppercase: true,
+    },
+    domain: {
+        type: String,
+        required: false,
+        uppercase: true,
+    },
+    externalId: {
+        type: String,
+        required: false,
+    },
+    key: {
+        type: String,
+        required: false,
+        index: true,
+    },
+}, {
+    _id: false,
+})
 
 const mediaListItemSchema = new mongoose.Schema({
     user: {
@@ -28,9 +51,18 @@ const mediaListItemSchema = new mongoose.Schema({
         type: String,
         required: false,
     },
+    externalId: {
+        type: String,
+        required: false,
+    },
     animeId: {
         type: Number,
         required: false,
+    },
+    entityRef: {
+        type: entityRefSchema,
+        required: false,
+        default: undefined,
     },
     title: {
         type: String,

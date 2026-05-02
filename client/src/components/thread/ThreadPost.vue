@@ -1,12 +1,12 @@
 <template>
   <div class="post">
-    <span v-if="error" class="error">{{error}}</span>
+    <span v-if="error" class="error">{{ error }}</span>
     <h1>
-      <span role="textbox"
-            contenteditable="false"
-            class="title">
-        {{ post?.title }}
-      </span>
+      <span v-if="!isEditing" class="title">{{ post?.title }}</span>
+      <input v-else
+             v-model="draftTitle"
+             class="title title-input"
+             type="text">
     </h1>
     <router-link :to="subjectPath">
       <p class="subject">{{ post?.subject }}</p>
@@ -17,11 +17,12 @@
            @error="setFallbackImage($event, 'avatar', post?.author)">
       <p>{{ post?.author }}</p>
     </router-link>
-    <span :data-id="post?.id"
-        role="textbox"
-        contenteditable="false"
-        class="body">{{ post?.body }}</span>
-    <div class="inputs">
+    <p v-if="!isEditing" class="body">{{ post?.body }}</p>
+    <textarea v-else
+              v-model="draftBody"
+              class="body body-input"
+              rows="8"></textarea>
+    <div v-if="isEditing" class="inputs">
       <hr/>
       <div class="buttons">
         <button @click="cancel" class="cancel">cancel</button>
@@ -62,8 +63,11 @@ export default {
     return {
       loggedInUser: {},
       menuToggle: false,
+      isEditing: false,
       revertBody: '',
       revertTitle: '',
+      draftBody: '',
+      draftTitle: '',
       error: ''
     }
   },
@@ -71,11 +75,27 @@ export default {
     const {getUser} = useUser()
     this.loggedInUser = getUser()
   },
+  watch: {
+    post: {
+      handler(post) {
+        this.revertBody = post?.body ?? ''
+        this.revertTitle = post?.title ?? ''
+        this.draftBody = post?.body ?? ''
+        this.draftTitle = post?.title ?? ''
+      },
+      immediate: true,
+    },
+  },
   computed: {
+    postId() {
+      return this.post?._id ?? this.post?.id
+    },
     subjectPath() {
-      const config = mediaConfig(this.post?.mediaType)
+      const mediaType = this.post?.entityRef?.domain ?? this.post?.mediaType
+      const subjectId = this.post?.entityRef?.externalId ?? this.post?.sourceId ?? this.post?.subjectId
+      const config = mediaConfig(mediaType)
 
-      return `/${config.path}/${this.post?.subjectId}`
+      return subjectId ? `/${config.path}/${subjectId}` : '/'
     },
   },
   methods: {
@@ -85,155 +105,96 @@ export default {
     setFallbackImage(event, type, label) {
       useFallbackImage(event, type, label)
     },
-    async reportPost(e) {
-      this.menuToggle = false;
-      const body = e.target.parentNode.parentNode.parentNode.querySelector(".body")
-      const title = e.target.parentNode.parentNode.parentNode.querySelector(".title")
-      const id = body.dataset.id
-      if (this.type === 'discussion') {
-        try {
-          const data = {
-            flagged: true,
-          }
-          const res = await ThreadService.updateDiscussion(id, data)
-          if (res.status === 200) {
-            body.contentEditable = false
-            title.contentEditable = false
-          }
-        } catch(err) {
-          console.log(err.message)
+    async reportPost() {
+      this.menuToggle = false
+      const id = this.postId
+      const data = {flagged: true}
+
+      try {
+        const res = this.type === 'discussion'
+          ? await ThreadService.updateDiscussion(id, data)
+          : await ThreadService.updateReview(id, data)
+
+        if (res?.status === 200) {
+          this.isEditing = false
         }
-      }
-      if (this.type === 'review') {
-        try {
-          const data = {
-            flagged: true,
-          }
-          const res = await ThreadService.updateReview(id, data)
-          if (res.status === 200) {
-            body.contentEditable = false
-            title.contentEditable = false
-          }
-        } catch(err) {
-          console.log(err.message)
-        }
+      } catch (err) {
+        console.log(err.message)
       }
     },
-    async suspendPost(e) {
-      this.menuToggle = false;
-      const body = e.target.parentNode.parentNode.parentNode.querySelector(".body")
-      const title = e.target.parentNode.parentNode.parentNode.querySelector(".title")
-      const id = body.dataset.id
-      if (this.type === 'discussion') {
-        try {
-          const data = {
-            suspended: true
-          }
-          const res = await ThreadService.updateDiscussion(id, data)
-          if (res.status === 200) {
-            body.contentEditable = false
-            title.contentEditable = false
-          }
-        } catch(err) {
-          console.log(err.message)
+    async suspendPost() {
+      this.menuToggle = false
+      const id = this.postId
+      const data = {suspended: true}
+
+      try {
+        const res = this.type === 'discussion'
+          ? await ThreadService.updateDiscussion(id, data)
+          : await ThreadService.updateReview(id, data)
+
+        if (res?.status === 200) {
+          this.isEditing = false
         }
-      }
-      if (this.type === 'review') {
-        try {
-          const data = {
-            suspended: true
-          }
-          const res = await ThreadService.updateReview(id, data)
-          if (res.status === 200) {
-            body.contentEditable = false
-            title.contentEditable = false
-          }
-        } catch(err) {
-          console.log(err.message)
-        }
+      } catch (err) {
+        console.log(err.message)
       }
     },
-    editPost(e) {
-      this.menuToggle = false;
-      const body = e.target.parentNode.parentNode.querySelector(".body")
-      const title = e.target.parentNode.parentNode.querySelector(".title")
-      this.revertBody = body.textContent
-      this.revertTitle = title.textContent
-      body.contentEditable = true
-      title.contentEditable = true
-    },
-    async savePost(e) {
-      const body = e.target.parentNode.parentNode.parentNode.querySelector(".body")
-      const title = e.target.parentNode.parentNode.parentNode.querySelector(".title")
-      const id = body.dataset.id
+    editPost() {
+      this.menuToggle = false
       this.error = ''
-      if(title?.textContent?.trim()?.length < 1 || body?.textContent?.trim()?.length < 1) {
-        return this.error = 'Invalid! Title and Body cannot be empty.'
-      }
-      if (this.type === 'discussion') {
-        try {
-          const data = {
-            title: title.textContent,
-            body: body.textContent
-          }
-          const res = await ThreadService.updateDiscussion(id, data)
-          if (res.status === 200) {
-            body.contentEditable = false
-            title.contentEditable = false
-          }
-        } catch(err) {
-          console.log(err.message)
-        }
-      }
-      if (this.type === 'review') {
-        try {
-          const data = {
-            title: title.textContent,
-            body: body.textContent
-          }
-          const res = await ThreadService.updateReview(id, data)
-          if (res.status === 200) {
-            body.contentEditable = false
-            title.contentEditable = false
-          }
-        } catch(err) {
-          console.log(err.message)
-        }
-      }
+      this.draftBody = this.post?.body ?? ''
+      this.draftTitle = this.post?.title ?? ''
+      this.isEditing = true
     },
-    async deletePost(e) {
-      this.menuToggle = false;
-      const body = e.target.parentNode.parentNode.querySelector(".body")
-      const id = body.dataset.id
-      if (this.type === 'discussion') {
-        try {
-          const res = await ThreadService.deleteDiscussionById(id)
-          if(res.status === 204) {
-            await this.$router.push('/discussions')
-          }
-        } catch(err) {
-          console.log(err.message)
-        }
-      }
-      if (this.type === 'review') {
-        try {
-          const res = await ThreadService.deleteReviewById(id)
-          if (res.status === 204) {
-            await this.$router.push('/reviews')
-          }
-        } catch(err) {
-          console.log(err.message)
-        }
-      }
-    },
-    cancel(e) {
-      const body = e.target.parentNode.parentNode.parentNode.querySelector(".body")
-      const title = e.target.parentNode.parentNode.parentNode.querySelector(".title")
+    async savePost() {
+      const id = this.postId
+      const title = this.draftTitle?.trim()
+      const body = this.draftBody?.trim()
+
       this.error = ''
-      body.textContent = this.revertBody
-      title.textContent = this.revertTitle
-      body.contentEditable = false
-      title.contentEditable = false
+      if (title?.length < 1 || body?.length < 1) {
+        this.error = 'Invalid! Title and Body cannot be empty.'
+        return
+      }
+
+      try {
+        const data = {title, body}
+        const res = this.type === 'discussion'
+          ? await ThreadService.updateDiscussion(id, data)
+          : await ThreadService.updateReview(id, data)
+
+        if (res?.status === 200) {
+          this.post.title = title
+          this.post.body = body
+          this.revertTitle = title
+          this.revertBody = body
+          this.isEditing = false
+        }
+      } catch (err) {
+        console.log(err.message)
+      }
+    },
+    async deletePost() {
+      this.menuToggle = false
+      const id = this.postId
+
+      try {
+        const res = this.type === 'discussion'
+          ? await ThreadService.deleteDiscussionById(id)
+          : await ThreadService.deleteReviewById(id)
+
+        if (res?.status === 204) {
+          await this.$router.push(this.type === 'discussion' ? '/discussions' : '/reviews')
+        }
+      } catch (err) {
+        console.log(err.message)
+      }
+    },
+    cancel() {
+      this.error = ''
+      this.draftBody = this.revertBody
+      this.draftTitle = this.revertTitle
+      this.isEditing = false
     },
   }
 }
@@ -247,6 +208,7 @@ export default {
   border-bottom: 1px solid var(--clr-border);
   line-height: 1.25;
 }
+
 a {
   display: block;
   color: var(--clr-text);
@@ -257,39 +219,30 @@ a {
 .title,
 .body {
   display: inline-block;
+  width: 100%;
   color: var(--clr-text);
   background-color: transparent;
   outline: none;
   padding: 0 0 .3rem 0;
 }
 
-.title[contenteditable = false],
-.body[contenteditable = false] {
-  cursor: default;
-  border: none;
-}
-
-.body[contenteditable = false] + .inputs {
-  display: none;
-}
-
-.title[contenteditable = false] + .inputs {
-  display: none;
-}
 .author {
   padding: .25rem 0;
   display: flex;
   gap: .5rem;
 }
+
 .author p {
   font-weight: 300;
   font-size: var(--txt-small);
   place-self: end;
 }
+
 .author img {
   height: 25px;
   border-radius: var(--radius);
 }
+
 .subject {
   font-weight: 500;
   font-size: var(--txt-small);
@@ -303,16 +256,29 @@ a {
   padding-bottom: .2rem;
   margin-bottom: .3rem;
 }
+
 .body {
   font-size: var(--txt-small);
-  width: 100%;
   margin-top: 1rem;
+  white-space: pre-wrap;
+}
+
+.title-input,
+.body-input {
+  border: 1px solid var(--clr-border);
+  padding: .4rem .55rem;
+}
+
+.body-input {
+  min-height: 10rem;
+  resize: vertical;
 }
 
 .buttons {
   display: flex;
   place-content: end;
 }
+
 button {
   border: none;
   outline: none;
@@ -320,11 +286,13 @@ button {
   padding: .35rem .55rem;
   font-size: var(--txt-med);
 }
+
 .cancel {
   background-color: transparent;
   color: var(--clr-text);
   cursor: pointer;
 }
+
 .save {
   background: var(--clr-btn-bg);
   color: var(--clr-btn);
@@ -334,6 +302,7 @@ button {
 hr {
   margin-top: 0;
 }
+
 i {
   position: absolute;
   inset: 1rem 2rem auto auto;
@@ -342,9 +311,11 @@ i {
   opacity: 0;
   cursor: pointer;
 }
+
 .post:hover i {
   opacity: 1
 }
+
 .menu {
   position: absolute;
   inset: 3.5rem -1.75rem auto auto;
@@ -357,9 +328,11 @@ i {
   border-color: var(--clr-border);
   background-color: var(--clr-bg);
 }
+
 .menu-item {
   padding: 0 .5rem;
 }
+
 .menu-item:hover {
   background-color: var(--clr-secondary-200-1);
   cursor: pointer;

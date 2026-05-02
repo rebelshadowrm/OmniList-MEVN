@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt')
 const UserModel = require('../models/user/user')
 const TokenModel = require('../models/tokens')
+const {setRefreshCookie} = require('../utils/authCookies')
 dotenv.config()
 
 const authenticateUser = async function(req, res, next) {
@@ -22,8 +23,9 @@ const authenticateUser = async function(req, res, next) {
             }
             const accessToken = generateAccessToken(newUser)
             const refreshToken = await generateRefreshToken(newUser)
+            setRefreshCookie(res, refreshToken)
             //return tokens
-            res.json({ accessToken: accessToken, refreshToken: refreshToken })
+            res.json({ accessToken: accessToken, refreshToken: refreshToken, user: newUser })
             next()
         } else {
             res.status(400).send('bad password')

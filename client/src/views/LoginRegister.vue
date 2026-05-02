@@ -9,7 +9,6 @@
 import Login from '../components/Login.vue'
 import Register from '../components/Register.vue'
 import useUser from "../composables/user";
-import router from "../router";
 export default {
   name: "LoginRegister",
   components: {
@@ -18,16 +17,21 @@ export default {
   },
   data() {
     return {
-      isLoggedIn: false,
+      loggedInState: null,
       hasAccount: false,
     }
   },
   async created() {
     const {getIsLoggedIn} = useUser()
-    this.isLoggedIn = getIsLoggedIn()
+    this.loggedInState = getIsLoggedIn()
+  },
+  computed: {
+    isLoggedIn() {
+      return !!(this.loggedInState?.value ?? this.loggedInState)
+    }
   },
   async updated() {
-    if(this.isLoggedIn === true) await router.push('Home')
+    if(this.isLoggedIn === true) await this.$router.push({name: 'Home'})
   },
   methods: {
     toggleForm(e) {

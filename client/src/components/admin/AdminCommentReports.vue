@@ -1,12 +1,12 @@
 <template>
   <h2>Flagged posts</h2>
   <div class="comment-reports">
-    <VTable :data="reportedData"
+    <OmniTable :data="reportedData"
             sortIconPosition="before">
       <template #head>
         <tr>
-          <VTh class="table-username-head" sortKey="userName" defaultSort="desc">Username</VTh>
-          <VTh class="table-comment-head" sortKey="post">Comment</VTh>
+          <OmniTh class="table-username-head" sortKey="userName" defaultSort="desc">Username</OmniTh>
+          <OmniTh class="table-comment-head" sortKey="post">Comment</OmniTh>
         </tr>
       </template>
       <template #body="{ rows }">
@@ -19,14 +19,14 @@
           <td class="table-comment-row">{{ row?.comment }}</td>
         </tr>
       </template>
-    </VTable>
+    </OmniTable>
     <h2>Suspended Posts</h2>
-    <VTable :data="suspendedData"
+    <OmniTable :data="suspendedData"
             sortIconPosition="before">
       <template #head>
         <tr>
-          <VTh class="table-username-head" sortKey="userName" defaultSort="desc">Username</VTh>
-          <VTh class="table-comment-head" sortKey="post">Comment</VTh>
+          <OmniTh class="table-username-head" sortKey="userName" defaultSort="desc">Username</OmniTh>
+          <OmniTh class="table-comment-head" sortKey="post">Comment</OmniTh>
         </tr>
       </template>
       <template #body="{ rows }">
@@ -39,15 +39,21 @@
           <td class="table-comment-row">{{ row?.comment }}</td>
         </tr>
       </template>
-    </VTable>
+    </OmniTable>
   </div>
 </template>
 
 <script>
 import ThreadService from "../../services/ThreadService";
+import OmniTable from "../table/OmniTable.vue";
+import OmniTh from "../table/OmniTh.vue";
 
 export default {
   name: "AdminCommentReports",
+  components: {
+    OmniTable,
+    OmniTh,
+  },
   data() {
     return {
       reportedData: [],

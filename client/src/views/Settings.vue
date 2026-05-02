@@ -39,7 +39,6 @@ import HomePreferencePanel from "../components/home/HomePreferencePanel.vue"
 import SettingsAccountPanel from "../components/settings/SettingsAccountPanel.vue"
 import SettingsProfilePanel from "../components/settings/SettingsProfilePanel.vue"
 import UserService from "../services/UserService"
-import TokenService from "../services/TokenService";
 import useUser from "../composables/user"
 import {imageOrFallback} from "../utils/fallbackImages";
 import {
@@ -101,28 +100,15 @@ export default {
   },
   methods: {
     async resolveUser() {
-      const {getUser, initializeUser, decodeJWT, setUser} = useUser()
+      const {getUser, initializeUser} = useUser()
       await initializeUser()
       this.userState = getUser()
 
       let user = this.currentUser
       if (user?._id) return user
 
-      const {_id} = decodeJWT(TokenService.getAccessToken())?.user ?? {}
-      if (!_id) {
-        this.message = 'Please log in again to edit settings.'
-        return null
-      }
-
-      const res = await UserService.getUser(_id)
-      if (res?.status !== 200) {
-        this.message = 'Settings could not load your account.'
-        return null
-      }
-
-      setUser(res.data)
-      this.userState = getUser()
-      return res.data
+      this.message = 'Please log in again to edit settings.'
+      return null
     },
     loadForm(user) {
       this.form = {
@@ -146,6 +132,8 @@ export default {
       if (this.$route.query.section !== 'home') return
 
       this.$nextTick(() => {
+        if (typeof document === 'undefined') return
+
         document.getElementById('home-preferences')?.scrollIntoView({
           behavior: 'smooth',
           block: 'start',

@@ -31,11 +31,43 @@ const ANILIST_GENRES = [
   'Supernatural', 'Thriller'
 ]
 
+const BOOK_BROWSE_SORT_OPTIONS = [
+  { name: 'Trending', value: 'trending' },
+  { name: 'Rating', value: 'rating' },
+  { name: 'Want to Read', value: 'want_to_read' },
+  { name: 'Most Editions', value: 'editions' },
+  { name: 'Newest', value: 'new' },
+  { name: 'Oldest', value: 'old' },
+]
+
+const BOOK_SEARCH_SORT_OPTIONS = [
+  { name: 'Best Match', value: 'relevance' },
+]
+
+const BOOK_SUBJECTS = [
+  'Fantasy', 'Science Fiction',
+  'Romance', 'Mystery',
+  'Thriller', 'Horror',
+  'Historical Fiction', 'Classics',
+  'Biography', 'Memoir',
+  'Young Adult', 'Children',
+  'Comics', 'Graphic Novels',
+  'Poetry', 'Drama',
+  'Adventure', 'Philosophy',
+  'Psychology', 'History',
+  'Science', 'Technology',
+  'Business', 'Self Help',
+  'Religion', 'Travel',
+  'Cooking', 'Art',
+  'Music', 'Sports',
+]
+
 export const MEDIA_TYPES = {
   ANIME: {
     type: 'ANIME',
     source: 'ANILIST',
     path: 'anime',
+    catalogPath: 'anime',
     label: 'Anime',
     noun: 'anime',
     browseRoute: 'AnimeBrowse',
@@ -53,6 +85,7 @@ export const MEDIA_TYPES = {
     type: 'MANGA',
     source: 'ANILIST',
     path: 'manga',
+    catalogPath: 'manga',
     label: 'Manga',
     noun: 'manga',
     browseRoute: 'MangaBrowse',
@@ -70,6 +103,7 @@ export const MEDIA_TYPES = {
     type: 'MOVIE',
     source: 'TMDB',
     path: 'movies',
+    catalogPath: 'movies',
     label: 'Movies',
     noun: 'movie',
     browseRoute: 'MovieBrowse',
@@ -88,6 +122,7 @@ export const MEDIA_TYPES = {
     type: 'TV',
     source: 'TMDB',
     path: 'tv',
+    catalogPath: 'tv',
     label: 'TV',
     noun: 'TV show',
     browseRoute: 'TvBrowse',
@@ -102,6 +137,25 @@ export const MEDIA_TYPES = {
     sortOptions: TMDB_TV_SORT_OPTIONS,
     genreOptions: [],
   },
+  BOOK: {
+    type: 'BOOK',
+    source: 'OPENLIBRARY',
+    path: 'books',
+    catalogPath: 'books',
+    label: 'Books',
+    noun: 'book',
+    browseRoute: 'BookBrowse',
+    detailRoute: 'Book',
+    progressLabel: 'Progress',
+    progressUnit: 'books',
+    totalField: 'progressTotal',
+    activeStatus: 'reading',
+    activeStatusLabel: 'Reading',
+    defaultSort: 'trending',
+    sortOptions: BOOK_BROWSE_SORT_OPTIONS,
+    searchSortOptions: BOOK_SEARCH_SORT_OPTIONS,
+    genreOptions: BOOK_SUBJECTS,
+  },
 }
 
 export const ANILIST_MEDIA_TYPES = MEDIA_TYPES
@@ -115,6 +169,20 @@ export function normalizeMediaType(mediaType) {
 
 export function mediaConfig(mediaType) {
   return MEDIA_TYPES[normalizeMediaType(mediaType)]
+}
+
+export function mediaSortOptions(mediaType, {search} = {}) {
+  const config = mediaConfig(mediaType)
+  const options = config.sortOptions ?? []
+
+  if (config.type === 'BOOK' && `${search ?? ''}`.trim().length > 0) {
+    return [
+      ...(config.searchSortOptions ?? []),
+      ...options,
+    ]
+  }
+
+  return options
 }
 
 export function mediaTypes() {

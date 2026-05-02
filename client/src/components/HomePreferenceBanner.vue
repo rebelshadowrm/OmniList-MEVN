@@ -60,11 +60,21 @@ export default {
     this.syncDismissed()
   },
   methods: {
+    canUseLocalStorage() {
+      return typeof window !== 'undefined' && typeof window.localStorage !== 'undefined'
+    },
     syncDismissed() {
-      this.dismissed = localStorage.getItem(this.dismissKey) === 'true'
+      if (!this.canUseLocalStorage()) {
+        this.dismissed = false
+        return
+      }
+
+      this.dismissed = window.localStorage.getItem(this.dismissKey) === 'true'
     },
     dismiss() {
-      localStorage.setItem(this.dismissKey, 'true')
+      if (this.canUseLocalStorage()) {
+        window.localStorage.setItem(this.dismissKey, 'true')
+      }
       this.dismissed = true
     },
     openPreferences() {

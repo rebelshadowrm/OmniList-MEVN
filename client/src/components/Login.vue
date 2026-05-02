@@ -11,6 +11,7 @@
       <input id="password" v-model="password" type="password">
     </div>
     <input type="submit" value="login">
+    <button class="secondary" type="button" @click="forgotPassword">Forgot password</button>
     <div class="toggle">
       <p>Don't have an account?</p><button @click="hasAccount">Register</button>
     </div>
@@ -18,9 +19,9 @@
 </template>
 
 <script>
-import UserService from "../services/UserService.js"
-import TokenService from "../services/TokenService.js"
-import useUsers from "../composables/user.js"
+import UserService from "../services/UserService"
+import TokenService from "../services/TokenService"
+import useUsers from "../composables/user"
 import useTheme from "../composables/theme"
 
 export default {
@@ -35,7 +36,7 @@ export default {
   methods: {
     async login() {
       try {
-        const {setUser, decodeJWT} = useUsers()
+        const {setUser} = useUsers()
         if (this.email.trim() !== '' && this.password.trim() !== '') {
           const data = {
             "email": this.email,
@@ -43,14 +44,13 @@ export default {
           }
           const res = await UserService.loginUser(data)
           if (res.status === 200) {
-            const {accessToken, refreshToken} = res?.data
-            const user = decodeJWT(accessToken)?.user
-            if(user.status === 'SUSPENDED') {
+            const {accessToken, refreshToken, user: authUser} = res?.data
+            if(authUser?.status === 'SUSPENDED') {
               return this.errorMsg = "This account has been suspended"
             }
             TokenService.setAccessToken(accessToken)
             TokenService.setRefreshToken(refreshToken)
-            const response = await UserService.getUser(user?._id)
+            const response = await UserService.getUser(authUser?._id)
             if(response.status === 200) {
               const user = response.data
               setUser(user)
@@ -66,6 +66,21 @@ export default {
         }
       } catch(err) {
         console.log(err)
+      }
+    },
+    async forgotPassword() {
+      if (this.email.trim() === '') {
+        this.errorMsg = 'Enter your email first.'
+        return
+      }
+
+      const res = await UserService.forgotPassword({email: this.email.trim()})
+      if (res?.status === 202) {
+        this.errorMsg = res.data?.resetToken
+            ? `Reset token issued for development: ${res.data.resetToken}`
+            : 'If an account exists for that email, a reset token has been issued.'
+      } else {
+        this.errorMsg = res?.data?.message ?? 'Password reset request failed.'
       }
     },
     hasAccount() {
@@ -112,6 +127,7 @@ h1 {
   place-items: center;
 }
 input[type=submit],
+.secondary,
 .toggle button{
   cursor: pointer;
   font-weight: 600;
@@ -123,6 +139,11 @@ input[type=submit],
 }
 .toggle button {
   padding: .15em .5em;
+}
+.secondary {
+  margin-top: .35rem;
+  background: transparent;
+  color: var(--clr-primary-300);
 }
 input[type=submit] {
   margin-top: .35rem;

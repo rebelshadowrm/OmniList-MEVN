@@ -5,9 +5,10 @@ const dotenv = require('dotenv')
 dotenv.config()
 const TokenModel = require('../../models/tokens')
 const {generateAccessToken} = require('../../security/authenticateUser')
+const {readRefreshToken} = require('../../utils/authCookies')
 
 router.post('/', async (req, res) => {
-    const refreshToken = req.body.token
+    const refreshToken = readRefreshToken(req)
     if (refreshToken == null) return res.sendStatus(401)
     if (await TokenModel.exists({refreshToken}) == null) return res.sendStatus(403)
     jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, user) => {

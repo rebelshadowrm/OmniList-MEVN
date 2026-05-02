@@ -1,6 +1,16 @@
-import {reactive, readonly, computed} from 'vue'
+import {computed} from 'vue'
+import {pinia} from "../stores/pinia";
+import {useThemeStore} from "../stores/themeStore";
 
 const DEFAULT_THEME = {
+    mode: 'basic',
+    paletteMode: 'original',
+    primaryColor: '#009e90',
+    secondaryColor: '',
+    accentColor: ''
+}
+
+const LEGACY_DEFAULT_THEME = {
     mode: 'basic',
     paletteMode: 'original',
     primaryColor: '#e85e30',
@@ -25,24 +35,65 @@ const themeVariables = {
     accentColor: ['--clr-accent-h', '--clr-accent-s', '--clr-accent-c']
 }
 
-//if we'd want to save theme in global state
-const state = reactive({
-    colors: {...DEFAULT_THEME}
-})
+function canUseDocument() {
+    return typeof document !== 'undefined' && !!document.documentElement
+}
+
+function canUseStorage() {
+    return typeof window !== 'undefined' && typeof localStorage !== 'undefined'
+}
 
 function clearThemeVariables() {
+    if (!canUseDocument()) {
+        return
+    }
     Object.values(themeVariables)
         .flat()
         .forEach(variable => document.documentElement.style.removeProperty(variable))
 }
 
+function clearThemeColorVariables(key) {
+    if (!canUseDocument()) {
+        return
+    }
+
+    const variables = themeVariables[key] ?? []
+    variables.forEach(variable => document.documentElement.style.removeProperty(variable))
+}
+
 function normalizeTheme(colors = {}, fallback = {}) {
+    const nextColors = migrateLegacyDefaultTheme(colors)
+    const nextFallback = migrateLegacyDefaultTheme(fallback)
+
     return {
-        mode: colors?.mode ?? fallback?.mode ?? DEFAULT_THEME.mode,
-        paletteMode: colors?.paletteMode ?? fallback?.paletteMode ?? DEFAULT_THEME.paletteMode,
-        primaryColor: colors?.primaryColor ?? fallback?.primaryColor ?? DEFAULT_THEME.primaryColor,
-        secondaryColor: colors?.secondaryColor ?? fallback?.secondaryColor ?? DEFAULT_THEME.secondaryColor,
-        accentColor: colors?.accentColor ?? fallback?.accentColor ?? DEFAULT_THEME.accentColor
+        mode: nextColors?.mode ?? nextFallback?.mode ?? DEFAULT_THEME.mode,
+        paletteMode: nextColors?.paletteMode ?? nextFallback?.paletteMode ?? DEFAULT_THEME.paletteMode,
+        primaryColor: nextColors?.primaryColor ?? nextFallback?.primaryColor ?? DEFAULT_THEME.primaryColor,
+        secondaryColor: nextColors?.secondaryColor ?? nextFallback?.secondaryColor ?? DEFAULT_THEME.secondaryColor,
+        accentColor: nextColors?.accentColor ?? nextFallback?.accentColor ?? DEFAULT_THEME.accentColor
+    }
+}
+
+function normalizeThemeValue(value) {
+    return `${value ?? ''}`.trim().toLowerCase()
+}
+
+function isLegacyDefaultTheme(theme = {}) {
+    return normalizeThemeValue(theme?.mode) === LEGACY_DEFAULT_THEME.mode
+        && normalizeThemeValue(theme?.paletteMode) === LEGACY_DEFAULT_THEME.paletteMode
+        && normalizeThemeValue(theme?.primaryColor) === LEGACY_DEFAULT_THEME.primaryColor
+        && normalizeThemeValue(theme?.secondaryColor) === LEGACY_DEFAULT_THEME.secondaryColor
+        && normalizeThemeValue(theme?.accentColor) === LEGACY_DEFAULT_THEME.accentColor
+}
+
+function migrateLegacyDefaultTheme(theme = {}) {
+    if (!isLegacyDefaultTheme(theme)) {
+        return theme
+    }
+
+    return {
+        ...theme,
+        primaryColor: DEFAULT_THEME.primaryColor,
     }
 }
 
@@ -70,6 +121,9 @@ function normalizeSaturation(value, chroma) {
 }
 
 function setColorVariables(name, color) {
+    if (!canUseDocument()) {
+        return
+    }
     const hue = normalizeHue(color?.hue)
     const chroma = normalizeChroma(color?.chroma ?? color?.saturation / 520)
     const saturation = normalizeSaturation(color?.saturation, chroma)
@@ -80,6 +134,9 @@ function setColorVariables(name, color) {
 }
 
 function setPaletteVariables(mode) {
+    if (!canUseDocument()) {
+        return
+    }
     const palette = PALETTE_MODES[mode] ?? PALETTE_MODES[DEFAULT_THEME.paletteMode]
 
     document.documentElement.style.setProperty('--clr-secondary-offset', `${palette.secondary}deg`)
@@ -126,9 +183,13 @@ function componentToHex(value) {
 
 const getters = {
     getTheme: () => {
-        return computed( () => state.colors)
+        const store = useThemeStore(pinia)
+        return computed( () => store.colors)
     },
     getLocalColors: () => {
+        if (!canUseStorage()) {
+            return null
+        }
         try {
             return JSON.parse(localStorage.getItem("color"))
         } catch (e) {
@@ -139,9 +200,12 @@ const getters = {
 
 const setters = {
      setTheme: (clr) => {
+        const store = useThemeStore(pinia)
         const color = normalizeTheme(clr, getters.getLocalColors())
-        state.colors = color
-        localStorage.setItem('color', JSON.stringify(color))
+        store.setThemeState(color)
+        if (canUseStorage()) {
+            localStorage.setItem('color', JSON.stringify(color))
+        }
     },
     setPrimaryColor: (color) => setColorVariables('primary', color),
     setSecondaryColor: (color) => setColorVariables('secondary', color),
@@ -152,15 +216,22 @@ const setters = {
 
 const methods = {
         clearThemes: () => {
+            const store = useThemeStore(pinia)
             clearThemeVariables()
-            state.colors = {...DEFAULT_THEME}
-            localStorage.removeItem('color')
+            store.setThemeState({...DEFAULT_THEME})
+            if (canUseStorage()) {
+                localStorage.removeItem('color')
+            }
+        },
+        unsetThemeColor: (key) => {
+            clearThemeColorVariables(key)
         },
         applyTheme: (colors, fallback = {}) => {
+            const store = useThemeStore(pinia)
             const theme = normalizeTheme(colors, fallback)
             clearThemeVariables()
 
-            state.colors = theme
+            store.setThemeState(theme)
 
             setters.setAutoPalette(theme.paletteMode)
             setters.setPrimaryColor(methods.HexToOKLCH(theme.primaryColor))
@@ -224,8 +295,9 @@ const methods = {
 }
 
 export default () => {
+    const store = useThemeStore(pinia)
     return {
-        state: readonly(state),
+        state: store,
         ...getters,
         ...setters,
         ...methods,

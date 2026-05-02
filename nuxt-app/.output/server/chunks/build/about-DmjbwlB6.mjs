@@ -1,0 +1,75 @@
+import { defineComponent, resolveComponent, mergeProps, useSSRContext } from 'vue';
+import { ssrRenderComponent, ssrRenderAttrs, ssrRenderAttr } from 'vue/server-renderer';
+import { _ as _export_sfc } from './server.mjs';
+import '../_/nitro.mjs';
+import 'node:http';
+import 'node:https';
+import 'node:events';
+import 'node:buffer';
+import 'node:fs';
+import 'node:path';
+import 'node:crypto';
+import 'node:url';
+import '../routes/renderer.mjs';
+import 'vue-bundle-renderer/runtime';
+import 'unhead/server';
+import 'devalue';
+import 'unhead/utils';
+import 'pinia';
+import 'vue-router';
+import '@vue/shared';
+
+const _imports_0 = "" + __buildAssetsURL("mongodb.Dr4cIdm2.png");
+const _imports_1 = "" + __buildAssetsURL("mongoose.tEdeuEeO.png");
+const _imports_2 = "data:image/svg+xml,%3csvg%20xmlns='http://www.w3.org/2000/svg'%20xmlns:xlink='http://www.w3.org/1999/xlink'%20viewBox='0%200%2067%2040'%20fill='%23fff'%20fill-rule='evenodd'%20stroke='%23000'%20stroke-linecap='round'%20stroke-linejoin='round'%3e%3cuse%20xlink:href='%23A'%20x='1'%20y='1'/%3e%3csymbol%20id='A'%20overflow='visible'%3e%3cpath%20d='M64%2036.167c-2.328.592-3.768.026-5.06-1.914l-9.188-12.712-1.328-1.76-10.73%2014.514c-1.226%201.746-2.512%202.506-4.8%201.888l13.74-18.444-12.792-16.66c2.2-.428%203.72-.21%205.07%201.76l9.53%2012.87%209.6-12.8c1.23-1.746%202.552-2.41%204.76-1.766l-4.96%206.576-6.72%208.75c-.8%201-.69%201.684.046%202.65L64%2036.167zM.016%2017.431l1.124-5.528C4.2.963%2016.74-3.583%2025.388%203.177c5.054%203.976%206.31%209.6%206.06%2015.9H2.96c-.428%2011.34%207.734%2018.184%2018.14%2014.692%203.65-1.226%205.8-4.084%206.876-7.66.546-1.792%201.45-2.072%203.134-1.56-.86%204.472-2.8%208.208-6.9%2010.546-6.126%203.5-14.87%202.368-19.47-2.496C2%2029.777.868%2026.201.36%2022.377c-.08-.632-.24-1.234-.36-1.84q.016-1.552.016-3.104zm2.996-.76h25.744c-.168-8.2-5.274-14.024-12.252-14.074-7.66-.06-13.16%205.626-13.492%2014.074z'%20stroke='none'%20fill='%23000'%20fill-rule='nonzero'/%3e%3c/symbol%3e%3c/svg%3e";
+const _imports_3 = "data:image/svg+xml,%3csvg%20width='32px'%20height='32px'%20viewBox='0%200%2032%2032'%20xmlns='http://www.w3.org/2000/svg'%3e%3ctitle%3efile_type_vue%3c/title%3e%3cpath%20d='M24.4,3.925H30L16,28.075,2,3.925H12.71L16,9.525l3.22-5.6Z'%20style='fill:%2341b883'/%3e%3cpath%20d='M2,3.925l14,24.15L30,3.925H24.4L16,18.415,7.53,3.925Z'%20style='fill:%2341b883'/%3e%3cpath%20d='M7.53,3.925,16,18.485l8.4-14.56H19.22L16,9.525l-3.29-5.6Z'%20style='fill:%2335495e'/%3e%3c/svg%3e";
+const _imports_4 = "data:image/svg+xml,%3csvg%20width='410'%20height='404'%20viewBox='0%200%20410%20404'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20d='M399.641%2059.5246L215.643%20388.545C211.844%20395.338%20202.084%20395.378%20198.228%20388.618L10.5817%2059.5563C6.38087%2052.1896%2012.6802%2043.2665%2021.0281%2044.7586L205.223%2077.6824C206.398%2077.8924%20207.601%2077.8904%20208.776%2077.6763L389.119%2044.8058C397.439%2043.2894%20403.768%2052.1434%20399.641%2059.5246Z'%20fill='url(%23paint0_linear)'/%3e%3cpath%20d='M292.965%201.5744L156.801%2028.2552C154.563%2028.6937%20152.906%2030.5903%20152.771%2032.8664L144.395%20174.33C144.198%20177.662%20147.258%20180.248%20150.51%20179.498L188.42%20170.749C191.967%20169.931%20195.172%20173.055%20194.443%20176.622L183.18%20231.775C182.422%20235.487%20185.907%20238.661%20189.532%20237.56L212.947%20230.446C216.577%20229.344%20220.065%20232.527%20219.297%20236.242L201.398%20322.875C200.278%20328.294%20207.486%20331.249%20210.492%20326.603L212.5%20323.5L323.454%20102.072C325.312%2098.3645%20322.108%2094.137%20318.036%2094.9228L279.014%20102.454C275.347%20103.161%20272.227%2099.746%20273.262%2096.1583L298.731%207.86689C299.767%204.27314%20296.636%200.855181%20292.965%201.5744Z'%20fill='url(%23paint1_linear)'/%3e%3cdefs%3e%3clinearGradient%20id='paint0_linear'%20x1='6.00017'%20y1='32.9999'%20x2='235'%20y2='344'%20gradientUnits='userSpaceOnUse'%3e%3cstop%20stop-color='%2341D1FF'/%3e%3cstop%20offset='1'%20stop-color='%23BD34FE'/%3e%3c/linearGradient%3e%3clinearGradient%20id='paint1_linear'%20x1='194.651'%20y1='8.81818'%20x2='236.076'%20y2='292.989'%20gradientUnits='userSpaceOnUse'%3e%3cstop%20stop-color='%23FFEA83'/%3e%3cstop%20offset='0.0833333'%20stop-color='%23FFDD35'/%3e%3cstop%20offset='1'%20stop-color='%23FFA800'/%3e%3c/linearGradient%3e%3c/defs%3e%3c/svg%3e";
+const _imports_5 = "data:image/svg+xml,%3c?xml%20version='1.0'%20?%3e%3csvg%20id='Lager_1'%20style='enable-background:new%200%200%20128%20128;'%20version='1.1'%20viewBox='0%200%20128%20128'%20xml:space='preserve'%20xmlns='http://www.w3.org/2000/svg'%20xmlns:xlink='http://www.w3.org/1999/xlink'%3e%3cstyle%20type='text/css'%3e%20.st0{fill:%2346483E;}%20.st1{fill:%2381CF08;}%20%3c/style%3e%3cpath%20class='st0'%20d='M64,14c-27.6,0-50,22.4-50,50s22.4,50,50,50s50-22.4,50-50S91.6,14,64,14z'/%3e%3cg%3e%3cpath%20class='st1'%20d='M64,95.9c-0.9,0-1.7-0.2-2.5-0.7l-7.8-4.6c-1.2-0.7-0.6-0.9-0.2-1c1.6-0.6,1.9-0.7,3.5-1.6%20c0.2-0.1,0.4-0.1,0.6,0.1l6,3.6c0.2,0.1,0.5,0.1,0.7,0l23.4-13.5c0.2-0.1,0.4-0.4,0.4-0.6v-27c0-0.3-0.1-0.5-0.4-0.6L64.4,36.4%20c-0.2-0.1-0.5-0.1-0.7,0L40.3,49.8c-0.2,0.1-0.4,0.4-0.4,0.6v27c0,0.2,0.1,0.5,0.4,0.6l6.4,3.7c3.5,1.7,5.6-0.3,5.6-2.4V52.8%20c0-0.4,0.3-0.7,0.7-0.7h3c0.4,0,0.7,0.3,0.7,0.7v26.6c0,4.7-2.5,7.3-6.9,7.3c-1.4,0-2.4,0-5.4-1.5l-6.1-3.5%20c-1.5-0.9-2.5-2.5-2.5-4.3v-27c0-1.7,0.9-3.4,2.5-4.3l23.4-13.5c1.5-0.8,3.5-0.8,4.9,0l23.4,13.5c1.5,0.9,2.5,2.5,2.5,4.3v27%20c0,1.7-0.9,3.4-2.5,4.3L66.5,95.3C65.7,95.7,64.9,95.9,64,95.9z'/%3e%3cpath%20class='st1'%20d='M71.3,77.3c-10.2,0-12.4-4.7-12.4-8.6c0-0.4,0.3-0.7,0.7-0.7h3c0.3,0,0.6,0.2,0.7,0.6c0.4,3.1,1.8,4.6,8,4.6%20c4.9,0,7-1.1,7-3.7c0-1.5-0.6-2.6-8.3-3.4c-6.4-0.6-10.4-2-10.4-7.2c0-4.7,4-7.5,10.7-7.5c7.5,0,11.2,2.6,11.7,8.2%20c0,0.2-0.1,0.4-0.2,0.5c-0.1,0.1-0.3,0.2-0.5,0.2h-3c-0.3,0-0.6-0.2-0.7-0.5c-0.7-3.2-2.5-4.3-7.3-4.3c-5.4,0-6,1.9-6,3.3%20c0,1.7,0.7,2.2,8,3.2c7.2,0.9,10.6,2.3,10.6,7.3C82.9,74.4,78.7,77.3,71.3,77.3z'/%3e%3c/g%3e%3c/svg%3e";
+const _sfc_main$2 = {
+  name: "AboutStackOverview"
+};
+function _sfc_ssrRender$1(_ctx, _push, _parent, _attrs, $props, $setup, $data, $options) {
+  _push(`<div${ssrRenderAttrs(mergeProps({ class: "container" }, _attrs))} data-v-34809fa9><h1 data-v-34809fa9>About the project</h1><dl data-v-34809fa9><dt data-v-34809fa9><span class="mongo" data-v-34809fa9>M</span><span class="express" data-v-34809fa9>E</span><span class="vue" data-v-34809fa9>V</span><span class="node" data-v-34809fa9>N</span> Stack </dt><dd class="mongo" data-v-34809fa9><img alt="mongo"${ssrRenderAttr("src", _imports_0)} data-v-34809fa9>Mongo DB<span class="mongoose" data-v-34809fa9>+ Mongoose<img alt="mongoose"${ssrRenderAttr("src", _imports_1)} data-v-34809fa9></span></dd><dd class="express" data-v-34809fa9><img alt="express"${ssrRenderAttr("src", _imports_2)} data-v-34809fa9>Express.js</dd><dd class="vue" data-v-34809fa9><img alt="vue"${ssrRenderAttr("src", _imports_3)} data-v-34809fa9>Vue + Vite<img alt="vite"${ssrRenderAttr("src", _imports_4)} data-v-34809fa9></dd><dd class="node" data-v-34809fa9><img alt="node"${ssrRenderAttr("src", _imports_5)} data-v-34809fa9>Node</dd></dl></div>`);
+}
+const _sfc_setup$2 = _sfc_main$2.setup;
+_sfc_main$2.setup = (props, ctx) => {
+  const ssrContext = useSSRContext();
+  (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("../../client/src/components/about/AboutStackOverview.vue");
+  return _sfc_setup$2 ? _sfc_setup$2(props, ctx) : void 0;
+};
+const AboutStackOverview = /* @__PURE__ */ _export_sfc(_sfc_main$2, [["ssrRender", _sfc_ssrRender$1], ["__scopeId", "data-v-34809fa9"]]);
+const _sfc_main$1 = {
+  name: "About",
+  components: {
+    AboutStackOverview
+  }
+};
+function _sfc_ssrRender(_ctx, _push, _parent, _attrs, $props, $setup, $data, $options) {
+  const _component_AboutStackOverview = resolveComponent("AboutStackOverview");
+  _push(ssrRenderComponent(_component_AboutStackOverview, _attrs, null, _parent));
+}
+const _sfc_setup$1 = _sfc_main$1.setup;
+_sfc_main$1.setup = (props, ctx) => {
+  const ssrContext = useSSRContext();
+  (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("../../client/src/views/About.vue");
+  return _sfc_setup$1 ? _sfc_setup$1(props, ctx) : void 0;
+};
+const About = /* @__PURE__ */ _export_sfc(_sfc_main$1, [["ssrRender", _sfc_ssrRender]]);
+const _sfc_main = /* @__PURE__ */ defineComponent({
+  __name: "about",
+  __ssrInlineRender: true,
+  setup(__props) {
+    return (_ctx, _push, _parent, _attrs) => {
+      _push(ssrRenderComponent(About, _attrs, null, _parent));
+    };
+  }
+});
+const _sfc_setup = _sfc_main.setup;
+_sfc_main.setup = (props, ctx) => {
+  const ssrContext = useSSRContext();
+  (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("pages/about.vue");
+  return _sfc_setup ? _sfc_setup(props, ctx) : void 0;
+};
+
+export { _sfc_main as default };
+//# sourceMappingURL=about-DmjbwlB6.mjs.map

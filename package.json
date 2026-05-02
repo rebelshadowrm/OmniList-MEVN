@@ -9,6 +9,18 @@
   "scripts": {
     "start": "node server/index.js",
     "dev": "nodemon server/index.js",
+    "dev:server": "nodemon server/index.js",
+    "dev:client": "npm --prefix client run dev",
+    "dev:nuxt": "npm --prefix nuxt-app run dev",
+    "dev:nuxt:all": "concurrently \"npm run dev:server\" \"npm run dev:nuxt\"",
+    "test:server": "node --test server/tests/*.test.js",
+    "test:client": "npm --prefix client run test",
+    "verify:phase2": "npm --prefix client run verify:phase2",
+    "verify:phase4": "npm run test:server && npm --prefix client run verify:phase4",
+    "verify:phase5a": "npm run test:server && npm --prefix nuxt-app run verify:phase5a",
+    "verify:parity": "npm run test:server && npm --prefix client run typecheck && npm --prefix client run build && npm --prefix nuxt-app run typecheck && npm --prefix nuxt-app run build && node scripts/verifyNuxtParity.js",
+    "backfill:entity-ref": "node server/scripts/backfillEntityRefs.js",
+    "backfill:entity-ref:apply": "node server/scripts/backfillEntityRefs.js --apply",
     "heroku-postbuild": "npm --prefix client install --include=dev && npm --prefix client run build && rm -rf client/node_modules"
   },
   "keywords": [],
@@ -17,6 +29,7 @@
   "dependencies": {
     "bcrypt": "^5.0.1",
     "body-parser": "^1.19.2",
+    "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^16.0.0",
     "express": "^4.17.3",
@@ -27,6 +40,7 @@
     "xml2js": "^0.4.23"
   },
   "devDependencies": {
+    "concurrently": "^9.2.1",
     "nodemon": "^2.0.15"
   }
 }

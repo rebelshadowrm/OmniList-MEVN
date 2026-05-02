@@ -17,8 +17,6 @@
         <template v-if="isLoggedIn">
         <div v-if="added" class="added">
           <select @change="updateStatus"
-                  :data-id="listMediaId"
-                  :data-delete="listItem?._id"
                   class="status"
                   name="status"
                   id="status"
@@ -32,13 +30,13 @@
             </optgroup>
           </select>
           <div class="progress-container">
-            <span @keydown.enter.prevent="blur"
-                  @blur="updateProgress"
-                  :data-id="listMediaId"
-                  class="progress"
-                  role="textbox"
-                  contenteditable="true"
-            >{{ listItem?.progress < 1 ? 0 : listItem?.progress }}</span>&nbsp;/&nbsp;
+            <input @change="updateProgress"
+                   @keydown.enter.prevent="$event.target.blur()"
+                   class="progress"
+                   min="0"
+                   inputmode="numeric"
+                   type="number"
+                   :value="progressValue">&nbsp;/&nbsp;
             <span class="totalEps">{{ progressTotalLabel }}</span>
           </div>
         </div>
@@ -70,7 +68,8 @@
                       :section="section"
                       :reviews="reviews"
                       :subject="mediaTitle"
-                      :subject-id="data?.id"
+                      :entity-ref="data?.entityRef"
+                      :subject-id="subjectId"
                       :media-type="media.type"
                       :source="media.source"
                       :is-authenticated="isLoggedIn"/>
@@ -78,7 +77,8 @@
                           :section="section"
                           :discussions="discussions"
                           :subject="mediaTitle"
-                          :subject-id="data?.id"
+                          :entity-ref="data?.entityRef"
+                          :subject-id="subjectId"
                           :media-type="media.type"
                           :source="media.source"
                           :is-authenticated="isLoggedIn"/>
@@ -98,6 +98,7 @@ import useUser from "../../composables/user"
 import MediaListService from "../../services/MediaListService";
 import {mediaConfig} from "../../config/mediaTypes.js";
 import {imageOrFallback, useFallbackImage} from "../../utils/fallbackImages";
+import {buildLibraryEntryPayload} from "../../utils/libraryPayload";
 
 
 export default {
@@ -134,13 +135,23 @@ export default {
       return mediaConfig(this.data?.mediaType)
     },
     listMediaId() {
-      return this.listItem?.mediaId ?? this.listItem?.animeId
+      return this.listItem?.entityRef?.externalId ?? this.listItem?.externalId ?? this.listItem?.mediaId ?? this.listItem?.animeId
+    },
+    subjectId() {
+      return this.data?.entityRef?.externalId ?? this.data?.id
     },
     progressTotal() {
-      return this.listItem?.progressTotal ?? this.listItem?.totalEpisodes
+      const total = Number.parseInt(this.listItem?.progressTotal ?? this.listItem?.totalEpisodes ?? this.data?.progressTotal, 10)
+
+      return Number.isNaN(total) || total < 1 ? null : total
     },
     progressTotalLabel() {
-      return this.progressTotal < 1 ? '—' : this.progressTotal
+      return this.progressTotal ?? '-'
+    },
+    progressValue() {
+      const progress = Number.parseInt(this.listItem?.progress, 10)
+
+      return Number.isNaN(progress) || progress < 1 ? 0 : progress
     },
     activeStatusValue() {
       return this.media.activeStatus
@@ -158,7 +169,9 @@ export default {
     },
   },
   mounted() {
-    window.scrollTo(0, 0);
+    if (typeof window !== 'undefined') {
+      window.scrollTo(0, 0)
+    }
   },
   methods: {
     imageSrc(src, type, label) {
@@ -167,38 +180,32 @@ export default {
     setFallbackImage(event, type, label) {
       useFallbackImage(event, type, label)
     },
-    blur(e) {
-      e.target.blur()
-    },
     async updateProgress(e) {
-      let progressInt = parseInt(e.target.textContent)
-      const mediaId = e.target.dataset.id
-      if (!progressInt || progressInt < 0) {
-        e.target.textContent = 0
+      let progress = Number.parseInt(e.target.value, 10)
+      if (Number.isNaN(progress) || progress < 0) {
+        progress = 0
       }
-      const totalEps = e.target.parentNode.querySelector('.totalEps').textContent
-      const totalEpsInt = parseInt(totalEps)
-      if (progressInt > totalEpsInt || progressInt === totalEpsInt) {
-        progressInt = totalEpsInt
+
+      if (typeof this.progressTotal === 'number' && progress >= this.progressTotal) {
+        progress = this.progressTotal
         try {
           const {getUser} = useUser()
           const {user} = getUser().value
-          if(user?._id) {
-            const data = { status: 'completed' }
-            const res = await MediaListService.updateMediaListItem(user?._id, this.media.type, mediaId, data)
-            if(res.status === 200) {
-              const statusElem = document.querySelector('.status')
-              statusElem.value = 'completed'
+          if (user?._id) {
+            const data = {status: 'completed'}
+            const res = await MediaListService.updateMediaListItem(user?._id, this.media.type, this.listMediaId, data)
+            if (res?.status === 200) {
+              this.listItem.status = 'completed'
             }
           }
         } catch (err) {
           console.log(err.message)
         }
       }
-      if (progressInt) {
-        await this.updateListProgress(mediaId, progressInt)
-        e.target.textContent = progressInt.toString()
-      }
+
+      const updated = await this.updateListProgress(this.listMediaId, progress)
+      this.listItem.progress = updated ? progress : this.progressValue
+      e.target.value = `${this.listItem.progress ?? 0}`
     },
     async updateListProgress(mediaId, progress) {
       const {getUser} = useUser()
@@ -206,21 +213,24 @@ export default {
       if (user?._id) {
         try {
           const data = {progress}
-          await MediaListService.updateMediaListItem(user?._id, this.media.type, mediaId, data)
+          const res = await MediaListService.updateMediaListItem(user?._id, this.media.type, mediaId, data)
+          return res?.status === 200
         } catch (err) {
           console.log(err.message)
         }
       }
+
+      return false
     },
     async updateStatus(e) {
-      const mediaId = e.target.dataset.id
+      const mediaId = this.listMediaId
       const status = e.target.value
       const {getUser} = useUser()
       const {user} = getUser().value
       if (user?._id) {
         if (status === 'remove') {
           try {
-            const listId = e?.target?.dataset?.delete
+            const listId = this.listItem?._id
             if (listId) {
               await MediaListService.deleteMediaListItem(listId)
               this.$emit('set-added', false)
@@ -229,25 +239,27 @@ export default {
             console.log(err.message)
           }
         } else {
-          if (status === 'completed') {
+          if (status === 'completed' && typeof this.progressTotal === 'number') {
             try {
-              const currentEps = document.querySelector('.progress')
-              const totalEps = document.querySelector('.totalEps').textContent
-              if(parseInt(totalEps)) {
-                currentEps.textContent = totalEps
-                const data = {
-                  status,
-                  progress: parseInt(totalEps)
-                }
-                await MediaListService.updateMediaListItem(user?._id, this.media.type, mediaId, data)
+              const data = {
+                status,
+                progress: this.progressTotal
+              }
+              const res = await MediaListService.updateMediaListItem(user?._id, this.media.type, mediaId, data)
+              if (res?.status === 200) {
+                this.listItem.status = status
+                this.listItem.progress = this.progressTotal
               }
             } catch (err) {
               console.log(err.message)
             }
           } else {
             try {
-              const data = { status }
-              await MediaListService.updateMediaListItem(user?._id, this.media.type, mediaId, data)
+              const data = {status}
+              const res = await MediaListService.updateMediaListItem(user?._id, this.media.type, mediaId, data)
+              if (res?.status === 200) {
+                this.listItem.status = status
+              }
             } catch (err) {
               console.log(err.message)
             }
@@ -273,26 +285,11 @@ export default {
         return
       }
 
-      const progressTotal = this?.data?.progressTotal ?? 0
-      const data = {
-        user: user._id,
-        mediaId: this?.data?.id,
+      const data = buildLibraryEntryPayload({
+        userId: user._id,
         mediaType: this.media.type,
-        source: this.media.source,
-        sourceId: `${this?.data?.id}`,
-        animeId: this.media.type === 'ANIME' ? this?.data?.id : undefined,
-        title: this?.data?.title?.english ?? this?.data?.title?.romaji ?? this?.data?.title?.native,
-        status: this.media.activeStatus,
-        progress: 0,
-        totalEpisodes: progressTotal,
-        progressTotal,
-        progressUnit: this.media.progressUnit,
-        rating: 0,
-        image: this?.data?.coverImage?.large ?? '',
-        format: this?.data?.format,
-        genres: this?.data?.genres
-
-      }
+        catalogItem: this.data,
+      })
       this.$emit('add-to-list', data)
     }
   }
@@ -363,6 +360,7 @@ export default {
   border-radius: var(--radius-sm);
   width: max-content;
 }
+
 .account-action {
   max-width: 14rem;
   padding: .5rem;
@@ -371,6 +369,7 @@ export default {
   background-color: var(--clr-secondary-800-5);
   font-size: var(--txt-small);
 }
+
 .account-action a {
   color: var(--clr-primary-400);
   text-decoration: none;
@@ -429,7 +428,11 @@ button {
 }
 
 .progress {
+  width: 4.5rem;
   padding: 0 .5rem;
+  color: var(--clr-text);
+  background: transparent;
+  border: 1px solid var(--clr-border);
 }
 
 select {

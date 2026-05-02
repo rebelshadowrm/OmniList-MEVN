@@ -1,22 +1,26 @@
 <template>
-<div class="overview-container">
-  <h2>Bio</h2>
-  <div class="bio">
-    <span class="bio-text" role="textbox" contenteditable="false">{{bio}}</span>
-    <div class="inputs">
-      <hr/>
-      <div class="buttons">
-        <button @click="cancel" class="cancel">cancel</button>
-        <button @click="save" class="save">save</button>
+  <div class="overview-container">
+    <h2>Bio</h2>
+    <div class="bio">
+      <p v-if="!isEditing" class="bio-text">{{ bio }}</p>
+      <textarea v-else
+                v-model="draftBio"
+                class="bio-text bio-input"
+                rows="6"></textarea>
+      <div v-if="isEditing" class="inputs">
+        <hr/>
+        <div class="buttons">
+          <button @click="cancel" class="cancel">cancel</button>
+          <button @click="save" class="save">save</button>
+        </div>
       </div>
+      <button v-if="canEdit && !isEditing"
+              @click.prevent="editBio"
+              class="edit">
+        <i class="fas fa-edit"></i>
+      </button>
     </div>
-    <button v-if="user?._id === currentUser?.user?._id"
-        @click.prevent="editBio"
-        class="edit">
-      <i class="fas fa-edit"></i>
-    </button>
   </div>
-</div>
 </template>
 
 <script>
@@ -26,74 +30,74 @@ import useUser from "../../composables/user"
 export default {
   name: "ProfileOverview",
   data() {
-   return {
-     bio: '',
-     revertBio: '',
-     user: {},
-     currentUser: {}
-   }
-  },
-  async beforeUpdate() {
-    this.$watch(
-        async () => this.$route.params,
-        async (toParams) => {
-          const {username} = await toParams
-          if (username) {
-            const res = await UserService.getUserByUsername(username)
-            if(res.status === 200) {
-              const data = res.data
-              await this.updateBio(data)
-            }
-          }
-        })
-  },
-  async beforeCreate() {
-    try {
-      const username = this?.$route?.params?.username
-      if(username) {
-        const res = await UserService.getUserByUsername(username)
-        if(res.status === 200) {
-          const {getUser} = useUser()
-          this.currentUser = getUser()
-          this.user = res.data
-          const {bio} = res.data.userProfile
-          this.bio = bio
-        }
-      }
-    } catch(err) {
-      console.log(err.message)
+    return {
+      bio: '',
+      revertBio: '',
+      draftBio: '',
+      isEditing: false,
+      user: {},
+      currentUser: {}
     }
+  },
+  created() {
+    const {getUser} = useUser()
+    this.currentUser = getUser()
+    this.fetchProfile(this?.$route?.params?.username)
+  },
+  watch: {
+    '$route.params.username': {
+      handler(username) {
+        this.fetchProfile(username)
+      },
+    },
+  },
+  computed: {
+    canEdit() {
+      const currentUser = this.currentUser?.value ?? this.currentUser
 
-
+      return this.user?._id && this.user?._id === currentUser?.user?._id
+    },
   },
   methods: {
+    async fetchProfile(username) {
+      try {
+        if (!username) return
+
+        const res = await UserService.getUserByUsername(username)
+        if (res.status === 200) {
+          await this.updateBio(res.data)
+        }
+      } catch (err) {
+        console.log(err.message)
+      }
+    },
     async updateBio(data) {
       this.user = data
-      const {bio} = data.userProfile
+      const bio = data?.userProfile?.bio ?? ''
       this.bio = bio
+      this.revertBio = bio
+      this.draftBio = bio
+      this.isEditing = false
     },
-    editBio(e) {
-      const bio = document.querySelector('.bio-text')
-      this.revertBio = bio.textContent
-      bio.contentEditable = true
-
+    editBio() {
+      this.revertBio = this.bio
+      this.draftBio = this.bio
+      this.isEditing = true
     },
-    async save(e) {
-      const bio = document.querySelector('.bio-text')
+    async save() {
       const data = {
-        bio: bio.textContent
+        bio: this.draftBio
       }
-      if(this?.user?._id) {
+      if (this?.user?._id) {
         const res = await UserService.updateUser(this?.user?._id, data)
         if (res.status === 200) {
-          bio.contentEditable = false
+          await this.updateBio(res.data)
         }
       }
     },
-    cancel(e) {
-      const bio = document.querySelector('.bio-text')
-      bio.textContent = this.revertComment
-      bio.contentEditable = false
+    cancel() {
+      this.draftBio = this.revertBio
+      this.isEditing = false
     }
   }
 }
@@ -108,6 +112,7 @@ export default {
 .bio {
   position: relative;
 }
+
 .bio-text {
   line-height: 1.25;
   display: inline-block;
@@ -119,7 +124,15 @@ export default {
   background-color: transparent;
   border: none;
   outline: none;
+  white-space: pre-wrap;
 }
+
+.bio-input {
+  resize: vertical;
+  border: 1px solid var(--clr-border);
+  padding: .4rem .55rem;
+}
+
 .edit {
   padding: 0 .25rem;
   position: absolute;
@@ -129,23 +142,20 @@ export default {
   color: var(--clr-btn);
   background-color: var(--clr-btn-bg);
 }
-.bio-text[contenteditable = false] {
-  cursor: default;
-}
 
-.bio-text[contenteditable = false] + .inputs {
-  display: none;
-}
 hr {
   margin-top: 0;
 }
+
 .buttons {
   display: flex;
   place-content: end;
 }
+
 i {
   pointer-events: none;
 }
+
 button {
   border: none;
   outline: none;
@@ -154,6 +164,7 @@ button {
   font-size: var(--txt-med);
   cursor: pointer;
 }
+
 .cancel {
   background-color: transparent;
   color: var(--clr-text);

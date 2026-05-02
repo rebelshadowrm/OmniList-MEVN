@@ -13,6 +13,7 @@
       <router-link to="/anime">Anime</router-link>
       <router-link to="/manga">Manga</router-link>
       <router-link to="/movies">Movies</router-link>
+      <router-link to="/books">Books</router-link>
       <router-link to="/tv">TV</router-link>
       <router-link v-if="isLoggedIn" to="/discussions">Discussions</router-link>
       <router-link v-if="isLoggedIn" to="/reviews">Reviews</router-link>
@@ -39,10 +40,9 @@
 </template>
 
 <script>
-import TokenService from "../services/TokenService";
-import router from "../router";
 import setLogin from "../composables/user";
 import useTheme from "../composables/theme"
+import UserService from "../services/UserService";
 import {imageOrFallback, useFallbackImage} from "../utils/fallbackImages";
 export default {
   name: "Header",
@@ -62,24 +62,13 @@ export default {
       this.dropdown = !this.dropdown
     },
     async logout(e) {
-      const refreshToken = TokenService.getRefreshToken()
-      const res =await fetch("/api/logout",{
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-        body: JSON.stringify({
-          refreshToken
-        })
-      })
+      const res = await UserService.logoutUser()
       if(res.status === 204) {
         const {setIsLoggedIn} = setLogin()
         setIsLoggedIn(false)
-        TokenService.clearTokens()
         const {clearThemes} = useTheme()
         clearThemes()
-        await router.push('/')
+        await this.$router.push('/')
       } else {
         alert('Something went wrong logging you out, please try again later.')
       }

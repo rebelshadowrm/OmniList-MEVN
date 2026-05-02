@@ -5,6 +5,11 @@ import * as path from "path";
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [vue()],
+  resolve: {
+    alias: {
+      '@omni/shared': path.resolve(__dirname, 'src'),
+    },
+  },
   build: {
     emptyOutDir: true,
     outDir: path.resolve(__dirname, '../server/public'),

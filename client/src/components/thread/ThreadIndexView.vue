@@ -7,6 +7,7 @@
                 :type="formType"
                 :initial-subject="initialSubject"
                 :initial-subject-id="initialSubjectId"
+                :initial-entity-ref="initialEntityRef"
                 :initial-media-type="initialMediaType"
                 :initial-source="initialSource"
                 v-if="toggle"/>
@@ -40,7 +41,9 @@ export default {
     }
   },
   async created() {
-    window.scrollTo(0,0)
+    if (typeof window !== 'undefined') {
+      window.scrollTo(0, 0)
+    }
     this.toggle = this.queryValue(this.$route.query.add) === 'true'
     await this.getData()
     this.timer = setInterval(this.getData, 20000)
@@ -60,6 +63,23 @@ export default {
     },
     initialSubjectId() {
       return this.queryValue(this.$route.query.subjectId) ?? null
+    },
+    initialEntityRef() {
+      const externalId = this.queryValue(this.$route.query.entityExternalId) ?? this.initialSubjectId
+      const domain = this.queryValue(this.$route.query.entityDomain) ?? this.initialMediaType
+      const provider = this.queryValue(this.$route.query.entityProvider) ?? this.initialSource
+      const key = this.queryValue(this.$route.query.entityKey)
+
+      if (!externalId) {
+        return null
+      }
+
+      return {
+        provider,
+        domain,
+        externalId,
+        key: key ?? `${provider}:${domain}:${externalId}`,
+      }
     },
     initialMediaType() {
       return this.queryValue(this.$route.query.mediaType) ?? 'ANIME'

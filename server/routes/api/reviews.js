@@ -4,19 +4,55 @@ const dotenv = require("dotenv")
 dotenv.config()
 const ReviewModel = require('../../models/review')
 const authenticateToken = require("../../security/authenticateToken");
+const {entityRefFromPayload, normalizeDomain, normalizeExternalId, normalizeProvider} = require('../../utils/entityRef')
+const {defaultSourceForMediaType} = require('../../utils/catalogEntities')
 const router = express.Router()
 
 function normalizeMediaType(mediaType) {
-    return `${mediaType ?? 'ANIME'}`.toUpperCase()
+    return normalizeDomain(mediaType ?? 'ANIME')
 }
 
 function normalizeSource(source) {
-    return `${source ?? 'ANILIST'}`.toUpperCase()
+    return normalizeProvider(source ?? 'ANILIST')
 }
 
 function mediaThreadQuery(mediaType, subjectId) {
     const normalizedType = normalizeMediaType(mediaType)
+    const normalizedExternalId = normalizeExternalId(subjectId)
     const numericSubjectId = Number(subjectId)
+    const entityRef = entityRefFromPayload({
+        mediaType: normalizedType,
+        source: defaultSourceForMediaType(normalizedType),
+        externalId: normalizedExternalId,
+    })
+    const legacyConditions = Number.isFinite(numericSubjectId)
+        ? [
+            {
+                subjectId: numericSubjectId,
+                mediaType: normalizedType,
+            },
+            ...(normalizedType === 'ANIME'
+                ? [{
+                    subjectId: numericSubjectId,
+                    mediaType: {$exists: false},
+                }]
+                : []),
+        ]
+        : []
+
+    if (entityRef?.key) {
+        return {
+            $or: [
+                {'entityRef.key': entityRef.key},
+                {
+                    sourceId: entityRef.externalId,
+                    mediaType: entityRef.domain,
+                    source: entityRef.provider,
+                },
+                ...legacyConditions,
+            ],
+        }
+    }
 
     if (normalizedType === 'ANIME') {
         return {
@@ -75,14 +111,23 @@ router.get('/:id', async (req, res) => {
 
 // Add review
 router.post('/', authenticateToken, async (req, res) => {
+    const entityRef = entityRefFromPayload(req.body, {
+        source: req.body.source ?? req.body.entityRef?.provider ?? defaultSourceForMediaType(req.body.mediaType),
+        mediaType: req.body.mediaType ?? req.body.entityRef?.domain,
+        externalId: req.body.subjectId ?? req.body.sourceId,
+    })
+    const mediaType = normalizeMediaType(req.body.mediaType ?? entityRef?.domain)
+    const source = normalizeSource(req.body.source ?? entityRef?.provider ?? defaultSourceForMediaType(mediaType))
+    const subjectId = Number(req.body.subjectId ?? entityRef?.externalId)
     let review = await ReviewModel.create({
         user: req.body.user,
         title: req.body.title,
         subject: req.body.subject,
-        subjectId: req.body.subjectId,
-        mediaType: normalizeMediaType(req.body.mediaType),
-        source: normalizeSource(req.body.source),
-        sourceId: req.body.sourceId ?? `${req.body.subjectId}`,
+        subjectId: Number.isFinite(subjectId) ? subjectId : undefined,
+        mediaType,
+        source,
+        sourceId: req.body.sourceId ?? entityRef?.externalId ?? `${req.body.subjectId ?? ''}`,
+        entityRef,
         body: req.body.body,
         comments: req.body.comments
     })

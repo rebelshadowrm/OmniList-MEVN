@@ -21,6 +21,12 @@ export const HOME_MEDIA_OPTIONS = [
     benefit: 'movie discovery and release browsing',
   },
   {
+    key: 'books',
+    mediaType: 'BOOK',
+    label: 'Books',
+    benefit: 'book discovery, favorites, and reading progress',
+  },
+  {
     key: 'tv',
     mediaType: 'TV',
     label: 'TV',
@@ -61,7 +67,7 @@ export const THEME_PRESETS = [
     colors: {
       mode: 'basic',
       paletteMode: 'original',
-      primaryColor: '#e85e30',
+      primaryColor: '#009e90',
       secondaryColor: '',
       accentColor: '',
     },
@@ -125,6 +131,9 @@ export function homePreferencesFromUser(user) {
 }
 
 export function readLocalHomePreferences() {
+  if (typeof window === 'undefined' || typeof localStorage === 'undefined') {
+    return null
+  }
   try {
     const preferences = JSON.parse(localStorage.getItem(HOME_PREFERENCES_KEY))
     return preferences ? normalizeHomePreferences(preferences) : null
@@ -134,6 +143,9 @@ export function readLocalHomePreferences() {
 }
 
 export function saveLocalHomePreferences(preferences) {
+  if (typeof window === 'undefined' || typeof localStorage === 'undefined') {
+    return normalizeHomePreferences(preferences)
+  }
   const normalized = normalizeHomePreferences({
     ...preferences,
     updatedAt: new Date().toISOString(),

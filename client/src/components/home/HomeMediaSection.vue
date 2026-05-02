@@ -131,9 +131,7 @@ export default {
       this.errorMessage = ''
 
       try {
-        this.items = this.media.source === 'TMDB'
-            ? await this.loadTmdbMedia()
-            : await this.loadAniListMedia()
+        this.items = await this.loadCatalogMedia()
       } catch (err) {
         this.errorMessage = err.message
         this.items = []
@@ -141,9 +139,12 @@ export default {
         this.loading = false
       }
     },
-    async loadTmdbMedia() {
-      const params = new URLSearchParams({sort: this.sort ?? this.media.defaultSort})
-      const res = await fetch(`/api/tmdb/${this.media.path}/search?${params.toString()}`)
+    async loadCatalogMedia() {
+      const params = new URLSearchParams({
+        sort: this.sort ?? this.media.defaultSort,
+        limit: `${this.resolvedLimit}`,
+      })
+      const res = await fetch(`/api/catalog/${this.media.catalogPath}/search?${params.toString()}`)
       const json = await res.json()
 
       if (!res.ok) {
@@ -151,49 +152,6 @@ export default {
       }
 
       return json ?? []
-    },
-    async loadAniListMedia() {
-      const query = `
-        query ($type: MediaType, $sort: [MediaSort]) {
-          Page(page: 1, perPage: 8) {
-            media(type: $type, sort: $sort) {
-              id
-              title {
-                english
-                romaji
-                native
-              }
-              coverImage {
-                large
-              }
-              description
-              genres
-              averageScore
-            }
-          }
-        }
-      `
-      const res = await fetch('https://graphql.anilist.co', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-        body: JSON.stringify({
-          query,
-          variables: {
-            type: this.media.type,
-            sort: [this.sort ?? this.media.defaultSort],
-          },
-        }),
-      })
-      const json = await res.json()
-
-      if (!res.ok || json.errors?.length) {
-        throw new Error(json.errors?.map(error => error.message).join(', ') ?? res.statusText)
-      }
-
-      return json.data?.Page?.media ?? []
     },
   },
 }

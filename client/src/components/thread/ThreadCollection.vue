@@ -2,7 +2,7 @@
   <div class="threads-container">
     <div  v-if="threads.length > 0"
          v-for="thread in threads"
-         :key="thread?.id" class="thread-card">
+         :key="thread?._id ?? thread?.id" class="thread-card">
         <router-link :to="`/${type}/${thread?._id}`">
           <div class="thread-info">
             <p class="title">{{thread?.title}}</p>

@@ -1,0 +1,11 @@
+@import "../../../../shared/styles/site.css";
+
+#__nuxt {
+  min-height: 100%;
+  height: 100%;
+}
+
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}

@@ -1,13 +1,13 @@
 <template>
-  <VTable :data="users"
+  <OmniTable :data="users"
           sortIconPosition="before" >
     <template #head>
       <tr>
-        <VTh class="table-username-head" sortKey="userName" defaultSort="desc">Username</VTh>
-        <VTh class="table-email-head" sortKey="email">Email</VTh>
-        <VTh class="table-updated-head" :customSort="dateSort">Updated</VTh>
-        <VTh class="table-role-head" sortKey="role">Role</VTh>
-        <VTh class="table-status-head" sortKey="status">Status</VTh>
+        <OmniTh class="table-username-head" sortKey="userName" defaultSort="desc">Username</OmniTh>
+        <OmniTh class="table-email-head" sortKey="email">Email</OmniTh>
+        <OmniTh class="table-updated-head" :customSort="dateSort">Updated</OmniTh>
+        <OmniTh class="table-role-head" sortKey="role">Role</OmniTh>
+        <OmniTh class="table-status-head" sortKey="status">Status</OmniTh>
       </tr>
     </template>
     <template #body="{ rows }">
@@ -48,14 +48,20 @@
         </td>
       </tr>
     </template>
-  </VTable>
+  </OmniTable>
 </template>
 
 <script>
 import UserService from "../../services/UserService";
 import useUser from "../../composables/user"
+import OmniTable from "../table/OmniTable.vue";
+import OmniTh from "../table/OmniTh.vue";
 export default {
   name: "AdminUserList",
+  components: {
+    OmniTable,
+    OmniTh,
+  },
   data() {
     return {
       users: [],

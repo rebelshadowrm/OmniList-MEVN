@@ -1,13 +1,13 @@
 <template>
-  <VTable :data="rows"
+  <OmniTable :data="rows"
           sortIconPosition="before">
     <template #head>
       <tr>
         <th class="table-img-head"></th>
-        <VTh class="table-title-head" sortKey="title" defaultSort="desc">Title</VTh>
-        <VTh class="table-type-head" sortKey="mediaType">Type</VTh>
-        <VTh class="table-rating-head" sortKey="rating">Rating</VTh>
-        <VTh class="table-progress-head" sortKey="progress">Progress</VTh>
+        <OmniTh class="table-title-head" sortKey="title" defaultSort="desc">Title</OmniTh>
+        <OmniTh class="table-type-head" sortKey="mediaType">Type</OmniTh>
+        <OmniTh class="table-rating-head" sortKey="rating">Rating</OmniTh>
+        <OmniTh class="table-progress-head" sortKey="progress">Progress</OmniTh>
       </tr>
     </template>
     <template #body="{ rows }">
@@ -26,15 +26,13 @@
           {{ mediaLabel(row) }}
         </td>
         <td class="table-rating-row">
-          <select @change="updateRating"
+          <select @change="updateRating(row, $event)"
                   :disabled="loggedInUser?.user?._id !== user?._id"
-                  :data-id="mediaId(row)"
-                  :data-type="mediaType(row)"
                   id="rating"
                   name="rating"
                   class="rating-dropdown"
-                  :value="row.rating < 1 ? 0 : row.rating">
-            <option value="0">—</option>
+                  :value="ratingValue(row)">
+            <option value="0">-</option>
             <option value="1">1</option>
             <option value="2">2</option>
             <option value="3">3</option>
@@ -48,22 +46,21 @@
           </select>
         </td>
         <td class="table-progress-row">
-          <span @blur="progressChange"
-                @keydown.enter.prevent="blur"
-                :data-id="mediaId(row)"
-                :data-type="mediaType(row)"
-                role="textbox"
-                :contenteditable="loggedInUser?.user?._id === user?._id"
-                class="media-progress">
-            {{ row.progress < 1 ? 0 : row.progress }}
-          </span>
+          <input @change="progressChange(row, $event)"
+                 @keydown.enter.prevent="$event.target.blur()"
+                 :disabled="loggedInUser?.user?._id !== user?._id"
+                 class="media-progress"
+                 min="0"
+                 inputmode="numeric"
+                 type="number"
+                 :value="progressValue(row)">
           <span class="slash">&nbsp;/&nbsp;</span>
-          <span class="totalEps">{{ progressTotal(row) < 1 ? '—' : progressTotal(row) ?? '—' }}</span>
-          <i v-if="loggedInUser?.user?._id === user?._id" @click="increase" class="fas fa-plus addIcon"></i>
+          <span class="totalEps">{{ progressTotal(row) ?? '-' }}</span>
+          <i v-if="loggedInUser?.user?._id === user?._id" @click="increase(row)" class="fas fa-plus addIcon"></i>
         </td>
       </tr>
     </template>
-  </VTable>
+  </OmniTable>
 </template>
 
 <script>
@@ -72,9 +69,15 @@ import MediaListService from "../services/MediaListService";
 import UserService from "../services/UserService";
 import {mediaConfig} from "../config/mediaTypes.js";
 import {imageOrFallback, useFallbackImage} from "../utils/fallbackImages";
+import OmniTable from "./table/OmniTable.vue";
+import OmniTh from "./table/OmniTh.vue";
 
 export default {
   name: "ListComponent",
+  components: {
+    OmniTable,
+    OmniTh,
+  },
   props: {
     mediaList: Array,
     animeList: Array,
@@ -109,72 +112,75 @@ export default {
     setFallbackImage(event, type, label) {
       useFallbackImage(event, type, label)
     },
-    blur(e) {
-      e.target.blur()
+    ratingValue(row) {
+      const rating = Number.parseInt(row?.rating, 10)
+
+      return Number.isNaN(rating) || rating < 1 ? 0 : rating
     },
-    async updateRating(e) {
-      const mediaId = e.target.dataset.id
-      const mediaType = e.target.dataset.type
-      const rating = e.target.value
+    progressValue(row) {
+      const progress = Number.parseInt(row?.progress, 10)
+
+      return Number.isNaN(progress) || progress < 1 ? 0 : progress
+    },
+    async updateRating(row, e) {
+      const mediaId = this.mediaId(row)
+      const mediaType = this.mediaType(row)
+      const rating = Number.parseInt(e.target.value, 10) || 0
       if (this?.user?._id) {
         try {
           const data = {rating}
-          await MediaListService.updateMediaListItem(this?.user?._id, mediaType, mediaId, data)
+          const res = await MediaListService.updateMediaListItem(this?.user?._id, mediaType, mediaId, data)
+          if (res?.status === 200) {
+            row.rating = rating
+          }
         } catch (err) {
           console.log(err.message)
         }
       }
     },
-    async increase(e) {
-      const progress = e.target.parentNode.querySelector('.media-progress')
-      const mediaId = progress.dataset.id
-      const mediaType = progress.dataset.type
-      const totalEps = e.target.parentNode.querySelector('.totalEps')
-      let progressNum = parseInt(progress.textContent)
-      const totalEpsNum = parseInt(totalEps.textContent)
-      if (progressNum < totalEpsNum) {
-        progressNum++
-        await this.updateListProgress(mediaId, mediaType, progressNum)
-        progress.textContent = progressNum.toString()
-      } else if (totalEps.textContent === '—') {
-        progressNum++
-        await this.updateListProgress(mediaId, mediaType, progressNum)
-        progress.textContent = progressNum.toString()
+    async increase(row) {
+      const nextProgress = this.progressValue(row) + 1
+      const total = this.progressTotal(row)
+      if (typeof total === 'number' && nextProgress > total) return
+
+      const updated = await this.updateListProgress(this.mediaId(row), this.mediaType(row), nextProgress)
+      if (updated) {
+        row.progress = nextProgress
       }
     },
-    async progressChange(e) {
-      let progressInt = parseInt(e.target.textContent)
-      const mediaId = e.target.dataset.id
-      const mediaType = e.target.dataset.type
-      if (!progressInt || progressInt < 0) {
-        e.target.textContent = 0
-      }
-      const totalEps = e.target.parentNode.querySelector('.totalEps').textContent
-      const totalEpsInt = parseInt(totalEps)
-      if (progressInt > totalEpsInt) {
-        progressInt = totalEpsInt
-      }
-      if (progressInt) {
-        await this.updateListProgress(mediaId, mediaType, progressInt)
-        e.target.textContent = progressInt.toString()
+    async progressChange(row, e) {
+      let progress = Number.parseInt(e.target.value, 10)
+      if (Number.isNaN(progress) || progress < 0) {
+        progress = 0
       }
 
+      const total = this.progressTotal(row)
+      if (typeof total === 'number' && progress > total) {
+        progress = total
+      }
+
+      const updated = await this.updateListProgress(this.mediaId(row), this.mediaType(row), progress)
+      row.progress = updated ? progress : this.progressValue(row)
+      e.target.value = `${row.progress ?? 0}`
     },
     async updateListProgress(mediaId, mediaType, progress) {
       if (this?.user?._id) {
         try {
           const data = {progress}
-          await MediaListService.updateMediaListItem(this?.user?._id, mediaType, mediaId, data)
+          const res = await MediaListService.updateMediaListItem(this?.user?._id, mediaType, mediaId, data)
+          return res?.status === 200
         } catch (err) {
           console.log(err.message)
         }
       }
+
+      return false
     },
     mediaType(row) {
-      return row?.mediaType ?? 'ANIME'
+      return row?.entityRef?.domain ?? row?.mediaType ?? 'ANIME'
     },
     mediaId(row) {
-      return row?.mediaId ?? row?.animeId
+      return row?.entityRef?.externalId ?? row?.externalId ?? row?.sourceId ?? row?.mediaId ?? row?.animeId
     },
     mediaDetailPath(row) {
       const config = mediaConfig(this.mediaType(row))
@@ -185,7 +191,9 @@ export default {
       return mediaConfig(this.mediaType(row)).label
     },
     progressTotal(row) {
-      return row?.progressTotal ?? row?.totalEpisodes
+      const total = Number.parseInt(row?.progressTotal ?? row?.totalEpisodes, 10)
+
+      return Number.isNaN(total) || total < 1 ? null : total
     }
   }
 }
@@ -233,7 +241,11 @@ option {
 }
 
 .media-progress {
+  width: 4.5rem;
   padding: .2rem .5rem;
+  color: var(--clr-text);
+  background: transparent;
+  border: 1px solid var(--clr-border);
 }
 
 a {

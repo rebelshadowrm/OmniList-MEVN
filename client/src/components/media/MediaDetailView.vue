@@ -19,6 +19,7 @@ import MediaListService from "../../services/MediaListService"
 import useUser from "../../composables/user"
 import ThreadService from "../../services/ThreadService"
 import UserService from "../../services/UserService"
+import CatalogService from "../../services/CatalogService"
 import {mediaConfig} from "../../config/mediaTypes.js"
 
 export default {
@@ -62,6 +63,14 @@ export default {
     },
   },
   methods: {
+    favoriteMediaKey(media = {}) {
+      return media?.entityRef?.key
+          ?? [
+            media?.source ?? this.media.source,
+            media?.mediaType ?? this.media.type,
+            `${media?.entityRef?.externalId ?? media?.sourceId ?? media?.id ?? ''}`,
+          ].filter(Boolean).join(':')
+    },
     resetState(requestId) {
       this.requestId = requestId
       this.data = {}
@@ -73,163 +82,22 @@ export default {
       this.listItem = {}
     },
     async loadMedia() {
-      if (this.media.source === 'TMDB') {
-        await this.loadTmdbMedia()
-        return
-      }
-
       try {
         const requestId = this.requestId + 1
         this.resetState(requestId)
-        const id = Number(this.id)
-        const url = 'https://graphql.anilist.co'
-        const variables = {
-          id,
-          type: this.media.type,
-        }
-        const query = `
-              query ($id: Int, $type: MediaType) {
-                Media(type: $type, id: $id) {
-                  characters {
-                    edges {
-                      role
-                      node {
-                        id
-                        name {
-                          userPreferred
-                        }
-                        image {
-                          medium
-                        }
-                      }
-                    }
-                  }
-                  staff {
-                    edges {
-                      role
-                      node {
-                        id
-                        name {
-                          userPreferred
-                        }
-                        image {
-                          medium
-                        }
-                      }
-                    }
-                  }
-                  studios {
-                    edges {
-                      isMain
-                      node {
-                        id
-                        name
-                      }
-                    }
-                  }
-                  title {
-                    english
-                    romaji
-                    native
-                  }
-                  description
-                  bannerImage
-                  coverImage {
-                    large
-                  }
-                  startDate {
-                    year
-                    month
-                    day
-                  }
-                  endDate {
-                    year
-                    month
-                    day
-                  }
-                  id
-                  genres
-                  episodes
-                  chapters
-                  volumes
-                  status
-                  season
-                  format
-                  favourites
-                  popularity
-                  averageScore
-                  meanScore
-                  source
-                  countryOfOrigin
-                  isAdult
-                  hashtag
-                  duration
-                  nextAiringEpisode {
-                    episode
-                    airingAt
-                  }
-                  synonyms
-                  tags {
-                    name
-                    rank
-                    isMediaSpoiler
-                  }
-                  externalLinks {
-                    site
-                    url
-                  }
-                }
-              }
-        `
-        const options = {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-          },
-          body: JSON.stringify({
-            query,
-            variables
-          })
-        }
-        const res = await fetch(url, options)
-        if(res.ok) {
-          const {data} = await res.json()
-          if (requestId !== this.requestId) {
-            return
-          }
-          this.dataSetup(data.Media)
-          await this.addedCheck(data.Media.id, requestId)
-          await this.populateReviews(data.Media.id, requestId)
-          await this.populateDiscussions(data.Media.id, requestId)
-          await this.setFavorite(data.Media.id, requestId)
-        }
-      } catch (err) {
-        console.log(err.message)
-      }
-    },
-    async loadTmdbMedia() {
-      try {
-        const requestId = this.requestId + 1
-        this.resetState(requestId)
-
-        const mediaId = Number(this.id)
-        const res = await fetch(`/api/tmdb/${this.media.path}/${mediaId}`)
-        const data = await res.json()
-
-        if (!res.ok) {
-          throw new Error(data.message ?? res.statusText)
-        }
+        const mediaId = `${this.id}`
+        const data = await CatalogService.detail(this.media.catalogPath, mediaId)
 
         if (requestId !== this.requestId) {
           return
         }
 
+        const entityId = `${data?.entityRef?.externalId ?? data?.id}`
         this.dataSetup(data)
-        await this.addedCheck(data.id, requestId)
-        await this.populateReviews(data.id, requestId)
-        await this.populateDiscussions(data.id, requestId)
-        await this.setFavorite(data.id, requestId)
+        await this.addedCheck(entityId, requestId)
+        await this.populateReviews(entityId, requestId)
+        await this.populateDiscussions(entityId, requestId)
+        await this.setFavorite(entityId, requestId)
       } catch (err) {
         console.log(err.message)
       }
@@ -237,12 +105,18 @@ export default {
     async setFavorite(mediaId, requestId = this.requestId) {
       const {getUser} = useUser()
       const {user} = getUser().value
+      const targetKey = this.favoriteMediaKey({
+        mediaType: this.media.type,
+        source: this.media.source,
+        id: mediaId,
+        entityRef: this.data?.entityRef,
+      })
       const mediaFavorites = user?.userProfile?.favorites?.mediaFavorites
           ?.map(({media}) => media) ?? []
       const legacyFavorites = user?.userProfile?.favorites?.animeFavorites
           ?.map(({anime}) => anime) ?? []
       const filter = [...mediaFavorites, ...legacyFavorites]
-          .filter(media => media?.id === mediaId && (media?.mediaType ?? 'ANIME') === this.media.type)
+          .filter(media => this.favoriteMediaKey(media) === targetKey)
       if(filter?.length > 0 && requestId === this.requestId) {
         this.favorite = true
       }
@@ -303,9 +177,10 @@ export default {
         const {getUser} = useUser()
         const {user} = getUser().value
         if(user?._id) {
-          const mediaId = Number(id)
+          const mediaId = `${id}`
           const listItem = await MediaListService.getUserMediaListItem(user?._id, this.media.type, mediaId)
-          if(listItem && requestId === this.requestId && (listItem.mediaId === mediaId || listItem.animeId === mediaId)) {
+          const listExternalId = `${listItem?.entityRef?.externalId ?? listItem?.externalId ?? listItem?.mediaId ?? listItem?.animeId ?? ''}`
+          if(listItem && requestId === this.requestId && listExternalId === mediaId) {
             this.added = true
             this.listItem = listItem
           }
@@ -336,6 +211,13 @@ export default {
       const airDateLabel = airDate ? ` airing ${airDate}` : ''
 
       return `${episode}${total}${airDateLabel}`
+    },
+    animeAiringDate(data) {
+      if (this.media.type !== 'ANIME') {
+        return null
+      }
+
+      return this.formatAiringDate(data?.nextAiringEpisode?.airingAt)
     },
     infoEntry(title, values) {
       const cleanValues = (Array.isArray(values) ? values : [values])
@@ -411,6 +293,7 @@ export default {
       const synonyms = data.synonyms ?? []
       const tags = this.topAniListTags(data)
       const externalLinks = this.externalLinkValues(data)
+      const animeAiringAt = this.animeAiringDate(data)
       const progressInfo = [
         this.infoEntry(this.media.progressLabel.toLowerCase(), progressDisplay ?? data?.[this.media.totalField] ?? '---'),
       ].filter(Boolean)
@@ -422,6 +305,7 @@ export default {
       const anilistAnimeInfo = this.media.type === 'ANIME'
           ? [
             this.infoEntry('duration', data?.duration ? `${data.duration}m` : '---'),
+            this.infoEntry('airing at', animeAiringAt),
             this.infoEntry('season', data?.season ?? '---'),
             this.infoEntry('studios', studios),
             this.infoEntry('producers', producers),

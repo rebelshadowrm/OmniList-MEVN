@@ -42,6 +42,7 @@ export default {
           this.post = {
             subject: thread?.subject ?? '',
             subjectId: thread?.subjectId ?? '',
+            entityRef: thread?.entityRef ?? null,
             mediaType: thread?.mediaType ?? 'ANIME',
             source: thread?.source ?? 'ANILIST',
             id: thread?._id ?? '',

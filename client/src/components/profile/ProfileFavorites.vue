@@ -7,7 +7,7 @@
     </div>
     <div class="favorite-collection">
       <div v-if="favorites?.media?.length > 0"
-           v-for="media in favorites.media" :key="`${media.mediaType ?? 'ANIME'}-${media.id}`" class="favorite">
+           v-for="media in favorites.media" :key="media?.entityRef?.key ?? `${media.mediaType ?? 'ANIME'}-${media?.entityRef?.externalId ?? media?.sourceId ?? media?.id}`" class="favorite">
         <router-link :to="mediaDetailPath(media)">
           <img :src="imageSrc(media?.coverImage?.large, 'poster', mediaTitle(media))"
                :alt="mediaTitle(media)"
@@ -98,7 +98,7 @@ export default {
       const seen = new Set()
 
       return [...media, ...legacy].filter(item => {
-        const key = `${item?.mediaType ?? 'ANIME'}-${item?.id}`
+        const key = item?.entityRef?.key ?? `${item?.mediaType ?? 'ANIME'}-${item?.entityRef?.externalId ?? item?.sourceId ?? item?.id}`
 
         if (!item || seen.has(key)) {
           return false
@@ -113,8 +113,9 @@ export default {
     },
     mediaDetailPath(media) {
       const config = mediaConfig(media?.mediaType)
+      const externalId = media?.entityRef?.externalId ?? media?.sourceId ?? media?.id
 
-      return `/${config.path}/${media?.id}`
+      return `/${config.path}/${externalId}`
     }
   }
 }
