@@ -4,6 +4,7 @@ import type {
   AxiosInstance,
   AxiosRequestConfig,
   AxiosResponse,
+  InternalAxiosRequestConfig,
 } from 'axios'
 import TokenService from './services/TokenService'
 
@@ -11,7 +12,7 @@ type SubscriberCallback = (accessToken: string) => void
 type RefreshResponse = {
   accessToken?: string | null
 }
-type AuthAxiosRequestConfig = AxiosRequestConfig & {
+type AuthAxiosRequestConfig = InternalAxiosRequestConfig & {
   skipAuth?: boolean
   skipAuthRefresh?: boolean
 }
@@ -20,17 +21,15 @@ export const axiosAuth: AxiosInstance = axios.create()
 axiosAuth.defaults.withCredentials = true
 
 axiosAuth.interceptors.request.use(
-  (config: AxiosRequestConfig): AxiosRequestConfig => {
+  (config: InternalAxiosRequestConfig): InternalAxiosRequestConfig => {
     const authConfig = config as AuthAxiosRequestConfig
     const token = TokenService.getAccessToken()
-    const headers = (config.headers ?? {}) as Record<string, string>
 
     if (!authConfig.skipAuth && token) {
-      headers.Authorization = `Bearer ${token}`
+      config.headers.set('Authorization', `Bearer ${token}`)
     }
 
-    headers['Content-Type'] = 'application/json'
-    config.headers = headers
+    config.headers.set('Content-Type', 'application/json')
     return config
   },
   (error: AxiosError) => Promise.reject(error)
@@ -65,9 +64,7 @@ async function resetTokenAndReattemptRequest(error: AxiosError): Promise<AxiosRe
 
     const retryOriginalRequest = new Promise<AxiosResponse>((resolve, reject) => {
       addSubscriber((accessToken: string) => {
-        const headers = (originalConfig.headers ?? {}) as Record<string, string>
-        headers.Authorization = `Bearer ${accessToken}`
-        originalConfig.headers = headers
+        originalConfig.headers.set('Authorization', `Bearer ${accessToken}`)
         axios(originalConfig as AxiosRequestConfig)
           .then(resolve)
           .catch(reject)
