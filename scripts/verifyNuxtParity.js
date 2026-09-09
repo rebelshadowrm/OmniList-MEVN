@@ -115,6 +115,16 @@ if (
   failures.push('client/src/config/mediaTypes.js: books must expose sort and subject filter parity')
 }
 
+const header = read('client/src/components/Header.vue')
+if (
+  !header.includes('popover="auto"') ||
+  !header.includes('popovertarget="profile-menu-popover"') ||
+  header.includes('dropdown: false') ||
+  header.includes('@click.prevent="toggle"')
+) {
+  failures.push('client/src/components/Header.vue: profile menu must use the shared native popover implementation')
+}
+
 if (failures.length) {
   console.error('Nuxt parity verification failed:')
   failures.forEach((failure) => console.error(`- ${failure}`))

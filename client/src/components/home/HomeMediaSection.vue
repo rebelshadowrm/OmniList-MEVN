@@ -1,5 +1,8 @@
 <template>
-  <section class="media-section" :data-cols="cols" :data-rows="rows">
+  <section class="media-section"
+           :data-cols="cols"
+           :data-rows="rows"
+           :data-layout="layoutVariant">
     <div class="section-heading">
       <div>
         <p>{{ eyebrow }}</p>
@@ -15,19 +18,12 @@
       <div v-for="index in resolvedLimit" :key="index" class="media-card skeleton"></div>
     </div>
     <div v-else-if="items.length" class="media-grid">
-      <router-link v-for="item in displayItems"
-                   :key="item.id"
-                   class="media-card"
-                   :to="`/${media.path}/${item.id}`">
-        <img :src="imageSrc(item.coverImage?.large, itemTitle(item))"
-             :alt="itemTitle(item)"
-             loading="lazy"
-             @error="setFallbackImage($event, itemTitle(item))">
-        <div class="media-card-body">
-          <h3>{{ itemTitle(item) }}</h3>
-          <p>{{ itemSummary(item) }}</p>
-        </div>
-      </router-link>
+      <HomeMediaCard
+          v-for="item in displayItems"
+          :key="item.id"
+          :item="item"
+          :media="media"
+          :variant="layoutVariant" />
     </div>
     <div v-else class="empty-state">
       <p>{{ emptyMessage }}</p>
@@ -37,10 +33,11 @@
 
 <script>
 import {mediaConfig} from "../../config/mediaTypes"
-import {imageOrFallback, useFallbackImage} from "../../utils/fallbackImages"
+import HomeMediaCard from "./HomeMediaCard.vue"
 
 export default {
   name: "HomeMediaSection",
+  components: {HomeMediaCard},
   props: {
     mediaType: {
       type: String,
@@ -96,12 +93,18 @@ export default {
       const key = `${this.cols}x${this.rows}`
       return {
         '1x1': 1,
-        '1x2': 3,
+        '1x2': 2,
         '2x1': 2,
         '2x2': 4,
         '3x1': 3,
         '3x2': 6,
       }[key] ?? 3
+    },
+    layoutVariant() {
+      if (this.cols === 1 && this.rows === 1) return 'compact'
+      if (this.rows === 1) return 'strip'
+
+      return 'gallery'
     },
   },
   async created() {
@@ -112,20 +115,6 @@ export default {
     sort: 'loadMedia',
   },
   methods: {
-    imageSrc(src, label) {
-      return imageOrFallback(src, 'poster', label)
-    },
-    setFallbackImage(event, label) {
-      useFallbackImage(event, 'poster', label)
-    },
-    itemTitle(item) {
-      return item?.title?.english ?? item?.title?.romaji ?? item?.title?.native ?? 'Untitled'
-    },
-    itemSummary(item) {
-      const text = `${item?.description ?? ''}`.replace(/<[^>]*>/g, '').trim()
-      if (!text) return item?.genres?.slice(0, 3).join(' / ') ?? this.media.label
-      return text.length > 110 ? `${text.slice(0, 107)}...` : text
-    },
     async loadMedia() {
       this.loading = true
       this.errorMessage = ''
@@ -199,97 +188,40 @@ h2 {
 
 .media-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
-  grid-auto-rows: minmax(0, 1fr);
   gap: .85rem;
   min-height: 0;
   overflow: hidden;
 }
 
-.media-section[data-cols="1"] .media-grid {
+.media-section[data-layout="compact"] .media-grid {
   grid-template-columns: 1fr;
+  grid-template-rows: minmax(0, 1fr);
 }
 
-.media-section[data-cols="2"][data-rows="1"] .media-grid {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+.media-section[data-layout="strip"] .media-grid,
+.media-section[data-layout="gallery"] .media-grid {
+  --media-columns: 2;
+  grid-template-columns: repeat(var(--media-columns), minmax(0, 1fr));
 }
 
-.media-section[data-cols="3"][data-rows="1"] .media-grid {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+.media-section[data-layout="strip"] .media-grid {
+  grid-template-rows: minmax(0, 1fr);
 }
 
-.media-section[data-cols="2"][data-rows="2"] .media-grid {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+.media-section[data-layout="gallery"] .media-grid {
+  grid-template-rows: repeat(2, minmax(0, 1fr));
 }
 
-.media-section[data-cols="3"][data-rows="2"] .media-grid {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+.media-section[data-cols="1"] .media-grid {
+  --media-columns: 1;
 }
 
-.media-section[data-rows="1"] .media-card,
-.media-section[data-cols="1"] .media-card {
-  display: grid;
-  grid-template-columns: 3.25rem minmax(0, 1fr);
+.media-section[data-cols="2"] .media-grid {
+  --media-columns: 2;
 }
 
-.media-section[data-rows="1"] .media-card img,
-.media-section[data-cols="1"] .media-card img {
-  width: 3.25rem;
-  height: 100%;
-  min-height: 4.75rem;
-  aspect-ratio: auto;
-}
-
-.media-section[data-rows="1"] .media-card-body,
-.media-section[data-cols="1"] .media-card-body {
-  align-content: center;
-}
-
-.media-section[data-rows="1"] .media-card-body p,
-.media-section[data-cols="1"] .media-card-body p {
-  display: none;
-}
-
-.media-card {
-  display: grid;
-  grid-template-rows: max-content minmax(0, 1fr);
-  min-width: 0;
-  min-height: 0;
-  overflow: hidden;
-  border: 1px solid var(--clr-border);
-  border-radius: var(--radius-sm);
-  color: var(--clr-text);
-  background: var(--clr-secondary-800-3);
-  text-decoration: none;
-}
-
-.media-card img {
-  width: 100%;
-  min-height: 0;
-  aspect-ratio: 2 / 3;
-  object-fit: cover;
-  background: var(--clr-bg);
-}
-
-.media-card-body {
-  display: grid;
-  gap: .25rem;
-  padding: .6rem;
-  min-height: 0;
-  overflow: hidden;
-}
-
-h3 {
-  font-size: var(--txt-small);
-  line-height: 1.2;
-}
-
-.media-card-body p {
-  display: -webkit-box;
-  overflow: hidden;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  font-size: var(--txt-small);
+.media-section[data-cols="3"] .media-grid {
+  --media-columns: 3;
 }
 
 .skeleton {
@@ -318,12 +250,23 @@ h3 {
 }
 
 @media (max-width: 42rem) {
-  .media-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .media-section[data-cols="1"] .media-grid {
+  .media-section[data-layout="compact"] .media-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 58rem) {
+  .media-section[data-layout="strip"] .media-grid,
+  .media-section[data-layout="gallery"] .media-grid {
+    grid-template-columns: none;
+    grid-template-rows: 1fr;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(16rem, 82vw);
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-bottom: .35rem;
+    scroll-snap-type: x proximity;
+    scrollbar-width: thin;
   }
 }
 </style>

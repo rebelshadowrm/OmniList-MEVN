@@ -213,21 +213,12 @@
         --score-worse-h: 35deg;
         --score-bad-h: 0deg;
 
-        /* Semantic theme aliases */
-        --surface-page: hsl(var(--clr-black-600));
-        --surface-muted: var(--clr-secondary-800-3);
-        --surface-raised: var(--clr-secondary-800);
-        --text-primary: oklch(var(--clr-200) var(--clr-text-c) var(--clr-primary-h));
-        --action-bg: var(--clr-primary-800-7);
-        --action-text: var(--clr-secondary-200);
-        --border-subtle: var(--clr-accent-400-3);
-
-        /* Backward-compatible aliases used across Vue components */
-        --clr-bg: var(--surface-page);
-        --clr-text: var(--text-primary);
-        --clr-btn-bg: var(--action-bg);
-        --clr-btn: var(--action-text);
-        --clr-border: var(--border-subtle);
+        /* Global theme override roles */
+        --clr-bg: hsl(var(--clr-black-600));
+        --clr-text: oklch(var(--clr-200) var(--clr-text-c) var(--clr-primary-h));
+        --clr-btn-bg: var(--clr-primary-800-7);
+        --clr-btn: var(--clr-secondary-200);
+        --clr-border: var(--clr-accent-400-3);
 
         --clr-favorite: hsl(337deg 100% 40%);
         --clr-disabled-bg: hsl(var(--clr-black-200));
@@ -247,8 +238,8 @@
         min-height: 100vh;
         min-height: 100dvh;
         height: 100%;
-        background-color: var(--surface-page);
-        color: var(--text-primary);
+        background-color: var(--clr-bg);
+        color: var(--clr-text);
         font-family: var(--ff-primary);
         line-height: 1.5;
     }
@@ -343,7 +334,7 @@
         padding: .35em 1.75rem .35em .35em;
         border: 1px solid var(--clr-border);
         border-radius: 7px;
-        background-color: var(--surface-muted);
+        background-color: var(--clr-secondary-800-3);
         cursor: pointer;
     }
 
@@ -376,7 +367,7 @@
         padding-inline: .5rem;
         padding-block: .35rem;
         border-radius: 0 0 3px 3px;
-        background-color: var(--surface-raised);
+        background-color: var(--clr-secondary-800);
         contain: layout paint;
         height: fit-content;
     }
@@ -403,7 +394,7 @@
         max-width: min(100%, 70rem);
         margin-inline: auto;
         border-collapse: collapse;
-        background-color: var(--surface-muted);
+        background-color: var(--clr-secondary-800-3);
     }
 
     .table-img-head {

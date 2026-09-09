@@ -1,0 +1,1 @@
+import{F as e,W as t,_ as n,u as r,y as i}from"./DGsxppza.js";import{n as a}from"#entry";import{t as o}from"./CNs_Ozdc.js";import{t as s}from"./CwRh_a29.js";var c=i({__name:`index`,setup(i){return o({name:`AnimeBrowse`}),(i,o)=>{let c=a;return e(),r(c,null,{default:t(()=>[n(s,{"media-type":`ANIME`})]),_:1})}}});export{c as default};

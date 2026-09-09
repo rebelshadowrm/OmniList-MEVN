@@ -1,0 +1,1 @@
+import"./C-jhjf_F.js";var e=globalThis.setInterval;export{e as t};

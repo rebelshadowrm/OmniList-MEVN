@@ -19,20 +19,36 @@
       <router-link v-if="isLoggedIn" to="/reviews">Reviews</router-link>
     </div>
     <router-link class="login-link" v-if="!isLoggedIn" to="/login">Login / Register</router-link>
-    <div v-if="isLoggedIn" @click.prevent="toggle" class="dropdown">
-      <div class="dropdown-title">
-        <img class="user"
-             v-if="isLoggedIn"
-             :src="imageSrc(user?.user?.img, 'avatar', user?.user?.userName)"
-             :alt="user?.user?.userName"
-             @error="setFallbackImage($event, 'avatar', user?.user?.userName)"/>
-        <p class="username" v-if="isLoggedIn">{{user?.user?.userName ?? ''}}</p>
-      </div>
-      <div v-if="dropdown" class="dropdown-items-nav">
-        <router-link :to="'/profile/'+user?.user?.userName ?? ''">Profile</router-link>
-        <router-link to="/inbox">inbox</router-link>
-        <router-link to="/settings">settings</router-link>
-        <a @click.prevent="logout" href="javascript:void(0)">logout</a>
+    <div v-if="isLoggedIn" class="profile-menu">
+      <button
+          id="profile-menu-trigger"
+          ref="profileMenuTrigger"
+          class="profile-menu-trigger dropdown-title"
+          type="button"
+          popovertarget="profile-menu-popover"
+          :aria-expanded="fallbackMenuOpen ? 'true' : 'false'"
+          aria-haspopup="menu"
+          aria-controls="profile-menu-popover"
+          @click="toggleFallbackMenu">
+        <img
+            class="user"
+            :src="imageSrc(user?.user?.img, 'avatar', user?.user?.userName)"
+            :alt="user?.user?.userName"
+            @error="setFallbackImage($event, 'avatar', user?.user?.userName)"/>
+        <span class="username">{{user?.user?.userName ?? ''}}</span>
+      </button>
+      <div
+          id="profile-menu-popover"
+          ref="profileMenuPopover"
+          class="dropdown-items-nav profile-menu-popover"
+          :class="{ 'is-fallback-open': !supportsPopover && fallbackMenuOpen }"
+          popover="auto"
+          role="menu"
+          @toggle="syncPopoverState">
+        <router-link role="menuitem" :to="profilePath" @click="closeProfileMenu">Profile</router-link>
+        <router-link role="menuitem" to="/inbox" @click="closeProfileMenu">Inbox</router-link>
+        <router-link role="menuitem" to="/settings" @click="closeProfileMenu">Settings</router-link>
+        <button role="menuitem" type="button" class="menu-action" @click="logout">Logout</button>
       </div>
     </div>
   </nav>
@@ -48,8 +64,13 @@ export default {
   name: "Header",
   data() {
     return {
-      dropdown: false,
+      fallbackMenuOpen: false,
+      supportsPopover: false,
     }
+  },
+  mounted() {
+    this.supportsPopover = typeof HTMLElement !== 'undefined'
+        && typeof HTMLElement.prototype.showPopover === 'function'
   },
   methods: {
     imageSrc(src, type, label) {
@@ -58,12 +79,31 @@ export default {
     setFallbackImage(event, type, label) {
       useFallbackImage(event, type, label)
     },
-    toggle(e) {
-      this.dropdown = !this.dropdown
+    toggleFallbackMenu(event) {
+      if (this.supportsPopover) {
+        return
+      }
+
+      event.preventDefault()
+      this.fallbackMenuOpen = !this.fallbackMenuOpen
+    },
+    closeProfileMenu() {
+      this.fallbackMenuOpen = false
+
+      const popover = this.$refs.profileMenuPopover
+      if (this.supportsPopover && popover?.matches?.(':popover-open')) {
+        popover.hidePopover()
+      }
+    },
+    syncPopoverState(event) {
+      this.fallbackMenuOpen = event.newState
+          ? event.newState === 'open'
+          : event.target?.matches?.(':popover-open') ?? false
     },
     async logout(e) {
       const res = await UserService.logoutUser()
       if(res.status === 204) {
+        this.closeProfileMenu()
         const {setIsLoggedIn} = setLogin()
         setIsLoggedIn(false)
         const {clearThemes} = useTheme()
@@ -77,10 +117,12 @@ export default {
 }
 </script>
 <script setup>
+import {computed} from 'vue'
 import useUser from "../composables/user";
 const {getIsLoggedIn, getUser} = useUser()
 const isLoggedIn = getIsLoggedIn()
 const user = getUser()
+const profilePath = computed(() => `/profile/${user.value?.user?.userName ?? ''}`)
 </script>
 
 <style scoped>
@@ -177,6 +219,88 @@ nav {
   place-self: end;
   font-weight: 500;
 }
+.profile-menu {
+  grid-area: user;
+  position: relative;
+  justify-self: end;
+  align-self: center;
+}
+.profile-menu-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: .45rem;
+  color: var(--clr-text);
+  background: transparent;
+  border: 0;
+  padding: .15rem .35rem;
+  border-radius: var(--radius);
+  cursor: pointer;
+  font: inherit;
+}
+.profile-menu-trigger:hover,
+.profile-menu-trigger:focus-visible {
+  outline: 1px solid var(--clr-accent-400);
+  outline-offset: 2px;
+}
+.profile-menu-popover {
+  display: none;
+  min-width: 10rem;
+  padding: .35rem;
+  border: 1px solid var(--clr-border);
+  border-radius: var(--radius);
+  background: var(--clr-secondary-800);
+  color: var(--clr-text);
+  box-shadow: 0 .75rem 2rem hsl(0 0% 0% / .35);
+  z-index: 20;
+}
+.profile-menu-popover:popover-open {
+  display: grid;
+  gap: .2rem;
+  margin: 0;
+  inset: 4.25rem .75rem auto auto;
+}
+.profile-menu-popover.is-fallback-open {
+  display: grid;
+  position: fixed;
+  top: 4.25rem;
+  right: .75rem;
+  gap: .2rem;
+}
+.profile-menu-popover a,
+.profile-menu-popover .menu-action {
+  display: block;
+  width: 100%;
+  padding: .45rem .65rem;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--clr-text);
+  font: inherit;
+  text-align: left;
+  text-decoration: none;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.profile-menu-popover a:hover,
+.profile-menu-popover a:focus-visible,
+.profile-menu-popover .menu-action:hover,
+.profile-menu-popover .menu-action:focus-visible {
+  background: var(--clr-primary-400-3);
+  color: var(--clr-accent-400);
+}
+@supports (position-anchor: --profile-menu-trigger) {
+  .profile-menu-trigger {
+    anchor-name: --profile-menu-trigger;
+  }
+
+  .profile-menu-popover:popover-open {
+    position-anchor: --profile-menu-trigger;
+    inset: auto;
+    top: anchor(bottom);
+    right: anchor(right);
+    margin-top: .35rem;
+  }
+}
 .login-link {
   grid-area: user;
   text-decoration: none;
@@ -193,5 +317,17 @@ span.list {
 span.l {
   margin: 0 -.5rem -1.4rem .15rem;
   font-size: var(--txt-xlrg);
+}
+@media (width <= 820px) {
+  .profile-menu-popover {
+    min-width: 9rem;
+  }
+
+  .username {
+    max-width: 9ch;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
 }
 </style>
